@@ -7,9 +7,8 @@ import cartRepository from '../repositories/cart.repository.js';
 export const createOrder = async (userId, orderData) => {
   const { items, shippingAddress, paymentMethod = 'UPI' } = orderData;
 
-  if (!items || items.length === 0) {
+  if (!items || items.length === 0)
     throw new ApiError(400, 'Cannot place order with zero items');
-  }
 
   // Validate items and verify live pricing & stock
   const validatedItems = [];
@@ -19,16 +18,14 @@ export const createOrder = async (userId, orderData) => {
     const productId = item.product?._id || item.product;
     const product = await productRepository.findById(productId);
 
-    if (!product) {
+    if (!product)
       throw new ApiError(404, `Product not found: ${productId}`);
-    }
 
-    if (product.stock < item.quantity) {
+    if (product.stock < item.quantity)
       throw new ApiError(
         400,
         `Insufficient stock for '${product.name}'. Requested: ${item.quantity}, Available: ${product.stock}`
       );
-    }
 
     const itemTotal = product.price * item.quantity;
     subtotal += itemTotal;
@@ -90,20 +87,19 @@ export const getUserOrders = async (userId, queryParams = {}) => {
 export const getOrderById = async (identifier, userId, userRole = 'customer') => {
   let order;
   // Check if identifier is MongoDB ObjectId or custom human orderId (e.g. ORD-12345)
-  if (identifier.startsWith('ORD-')) {
+  if (identifier.startsWith('ORD-'))
     order = await orderRepository.findByOrderId(identifier);
-  } else {
+  else
     order = await orderRepository.findById(identifier);
-  }
 
-  if (!order) {
+
+  if (!order)
     throw new ApiError(404, 'Order not found');
-  }
+
 
   const orderUserId = order.user?._id?.toString() || order.user?.toString();
-  if (userRole !== 'admin' && orderUserId !== userId.toString()) {
+  if (userRole !== 'admin' && orderUserId !== userId.toString())
     throw new ApiError(403, 'Unauthorized access to this order record');
-  }
 
   return order;
 };
@@ -125,9 +121,8 @@ export const updateOrderStatus = async (orderId, { orderStatus, statusStep }) =>
     calculatedStep
   );
 
-  if (!updatedOrder) {
+  if (!updatedOrder)
     throw new ApiError(404, 'Order not found to update status');
-  }
 
   return updatedOrder;
 };
@@ -136,9 +131,8 @@ export const getAllOrders = async (queryParams = {}) => {
   const { page, limit, skip } = getPagination(queryParams, 20, 100);
   const filter = {};
 
-  if (queryParams.status) {
+  if (queryParams.status)
     filter.orderStatus = queryParams.status;
-  }
 
   const [orders, total] = await Promise.all([
     orderRepository.findAllOrders({ filter, skip, limit }),

@@ -40,9 +40,11 @@ export const getAllProducts = async (queryParams) => {
     const searchRegex = new RegExp(queryParams.search.trim(), 'i');
     filter.$or = [
       { name: searchRegex },
+      { title: searchRegex },
       { description: searchRegex },
       { brand: searchRegex },
       { category: searchRegex },
+      { tags: searchRegex },
     ];
   }
 

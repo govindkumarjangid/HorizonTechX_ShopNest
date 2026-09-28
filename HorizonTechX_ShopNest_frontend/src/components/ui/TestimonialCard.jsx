@@ -47,11 +47,17 @@ export const TestimonialCard = ({
 
       {/* Footer: User Details without any bottom badges */}
       <div className="flex items-center gap-3.5 pt-5 mt-4 border-t border-neutral-100 dark:border-dark-border/60">
-        <img
-          src={avatar}
-          alt={name}
-          className="w-11 h-11 rounded-full object-cover ring-2 ring-neutral-200/70 dark:ring-neutral-700 shrink-0"
-        />
+        {avatar ? (
+          <img
+            src={avatar}
+            alt={name}
+            className="w-11 h-11 rounded-full object-cover ring-2 ring-neutral-200/70 dark:ring-neutral-700 shrink-0"
+          />
+        ) : (
+          <div className="w-11 h-11 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 ring-2 ring-neutral-200/70 dark:ring-neutral-700 shrink-0 flex items-center justify-center font-display font-bold text-sm select-none">
+            {name ? name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() : 'U'}
+          </div>
+        )}
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-1.5">
             <span className="font-display font-semibold text-sm text-neutral-900 dark:text-white truncate">

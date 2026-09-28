@@ -4,6 +4,7 @@ import { X, Mail, Lock, User, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Badge } from '../ui/Badge';
+import { Logo } from '../ui/Logo';
 import { backdropFade } from '../../styles/motion';
 import { useAuthStore } from '../../store/useAuthStore';
 import { notify } from '../../utils/notify';
@@ -102,6 +103,9 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
 
             {/* Header */}
             <div className="flex flex-col gap-1 mb-6">
+              <div className="mb-2">
+                <Logo className="h-8 w-auto" />
+              </div>
               <h2 className="font-display font-bold text-2xl text-neutral-900 dark:text-white tracking-tight">
                 {tab === 'login' ? 'Welcome Back' : 'Create an Account'}
               </h2>

@@ -2,14 +2,10 @@ import mongoose from 'mongoose';
 import ApiError from '../utils/ApiError.js';
 import env from '../config/env.config.js';
 
-/**
- * Global Error Handling Middleware
- * Converts uncaught exceptions, DB errors, and operational errors into standard JSON
- */
+// Global Error Handling Middleware
 export const errorHandler = (err, req, res, next) => {
   let error = err;
 
-  // Wrap generic Errors as ApiError
   if (!(error instanceof ApiError)) {
     let statusCode = error.statusCode || 500;
     let message = error.message || 'Internal Server Error';

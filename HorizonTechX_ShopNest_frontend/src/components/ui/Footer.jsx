@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Truck, RotateCcw, Lock, Headphones, MapPin } from 'lucide-react';
+import { Logo } from './Logo';
 
 export const Footer = () => {
   const navigate = useNavigate();
@@ -68,14 +69,10 @@ export const Footer = () => {
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-left cursor-pointer bg-transparent border-none p-0 w-fit"
+              className="flex items-center text-left cursor-pointer bg-transparent border-none p-0 w-fit focus:outline-none"
+              aria-label="ShopNest Home"
             >
-              <div className="w-8 h-8 rounded-xl bg-brand-500 flex items-center justify-center text-white font-display font-bold text-lg">
-                H
-              </div>
-              <span className="font-display font-bold text-xl tracking-tight text-neutral-900 dark:text-white">
-                Horizon<span className="text-brand-500">ShopNest</span>
-              </span>
+              <Logo className="h-9 w-auto" />
             </button>
 
             <p className="text-sm text-neutral-600 dark:text-neutral-400 max-w-sm leading-relaxed">

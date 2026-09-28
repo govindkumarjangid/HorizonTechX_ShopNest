@@ -89,7 +89,7 @@ export const Home = ({
       numReviews: 840,
       category: 'Audio Precision',
       stock: 14,
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&auto=format&fit=crop&q=85',
+      image: '',
     };
 
   // New arrivals: top 4 products from real database
@@ -289,7 +289,7 @@ export const Home = ({
 
                   {/* Flagship Product Image filling entire container */}
                   <ProgressiveImage
-                    src={flagshipProduct?.image || (flagshipProduct?.images && flagshipProduct.images[0]) || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&auto=format&fit=crop&q=85"}
+                    src={flagshipProduct?.image || (flagshipProduct?.images && flagshipProduct.images[0]) || ''}
                     alt={flagshipProduct?.name || flagshipProduct?.title || "Flagship Acoustic"}
                     width={900}
                     priority={true}
@@ -379,30 +379,38 @@ export const Home = ({
         />
 
         <div className="w-full grid grid-cols-12 gap-5 text-left">
-          {bentoCollections.map((collection) => (
-            <motion.div
-              key={collection.id}
-              variants={fadeInUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-40px' }}
-              className={`
-                ${collection.span} group relative rounded-3xl overflow-hidden
-                min-h-[300px] sm:min-h-[420px] aspect-[16/10] sm:aspect-auto flex flex-col justify-end p-5 sm:p-8
-                border border-neutral-200/80 dark:border-dark-border
-                shadow-subtle hover:shadow-elevated select-none cursor-pointer bg-neutral-100 dark:bg-dark-surface
-              `}
-              onClick={() => handleCatalogNavigate(collection.link)}
-            >
-              {/* Background Image with Zoom */}
-              <ProgressiveImage
-                src={collection.image}
-                alt={collection.title}
-                width={1000}
-                aspectRatio=""
-                className="absolute inset-0 w-full h-full"
-                imgClassName="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-106"
-              />
+          {bentoCollections.map((collection) => {
+            const matchingProd = products.find(
+              (p) =>
+                p.category?.toLowerCase() === collection.category?.toLowerCase() ||
+                (collection.link && collection.link.includes(p.category?.toLowerCase()))
+            );
+            const bentoImage = matchingProd?.image || (matchingProd?.images && matchingProd.images[0]) || collection.image || '';
+
+            return (
+              <motion.div
+                key={collection.id}
+                variants={fadeInUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-40px' }}
+                className={`
+                  ${collection.span} group relative rounded-3xl overflow-hidden
+                  min-h-[300px] sm:min-h-[420px] aspect-[16/10] sm:aspect-auto flex flex-col justify-end p-5 sm:p-8
+                  border border-neutral-200/80 dark:border-dark-border
+                  shadow-subtle hover:shadow-elevated select-none cursor-pointer bg-neutral-100 dark:bg-dark-surface
+                `}
+                onClick={() => handleCatalogNavigate(collection.link)}
+              >
+                {/* Background Image with Zoom */}
+                <ProgressiveImage
+                  src={bentoImage}
+                  alt={collection.title}
+                  width={1000}
+                  aspectRatio=""
+                  className="absolute inset-0 w-full h-full"
+                  imgClassName="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-106"
+                />
 
               {/* Dark Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/90 via-neutral-950/40 to-transparent" />
@@ -432,7 +440,8 @@ export const Home = ({
                 </p>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

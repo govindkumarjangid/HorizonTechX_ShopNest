@@ -6,17 +6,15 @@ export const createUser = async (userData) => {
 
 export const findByEmail = async (email, selectPassword = false) => {
   const query = User.findOne({ email: email.toLowerCase().trim() });
-  if (selectPassword) {
+  if (selectPassword)
     query.select('+password +refreshToken');
-  }
   return await query.exec();
 };
 
 export const findById = async (id, selectRefreshToken = false) => {
   const query = User.findById(id).populate('wishlist');
-  if (selectRefreshToken) {
+  if (selectRefreshToken)
     query.select('+refreshToken');
-  }
   return await query.exec();
 };
 
@@ -77,11 +75,8 @@ export const toggleWishlist = async (userId, productId) => {
     (item) => item.toString() === productId.toString()
   );
 
-  if (prodIndex > -1) {
-    user.wishlist.splice(prodIndex, 1);
-  } else {
-    user.wishlist.push(productId);
-  }
+  if (prodIndex > -1) user.wishlist.splice(prodIndex, 1);
+  else user.wishlist.push(productId);
 
   await user.save();
   await user.populate('wishlist');

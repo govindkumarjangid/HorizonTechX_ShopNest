@@ -17,6 +17,7 @@ import {
   User,
 } from 'lucide-react';
 import { Button } from '../../components/ui';
+import { Logo } from '../../components/ui/Logo';
 import { AuthModal } from '../../components/auth/AuthModal';
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -268,9 +269,14 @@ export const Checkout = ({
           </button>
 
           <div className="flex items-center gap-2">
-            <span className="font-display font-extrabold text-base tracking-tight text-neutral-900 dark:text-white">
-              Shop<span className="text-brand-500">Nest</span>
-            </span>
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="flex items-center bg-transparent border-none p-0 cursor-pointer focus:outline-none"
+              aria-label="ShopNest Home"
+            >
+              <Logo className="h-7 w-auto" />
+            </button>
             <span className="text-neutral-300 dark:text-neutral-700">|</span>
             <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
               <Lock className="w-3.5 h-3.5" />

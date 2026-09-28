@@ -26,12 +26,9 @@ export const countByUserId = async (userId) => {
 
 export const updateOrderStatus = async (id, orderStatus, statusStep) => {
   const update = { orderStatus };
-  if (statusStep !== undefined) {
-    update.statusStep = statusStep;
-  }
-  if (orderStatus === 'Delivered') {
-    update.deliveredAt = new Date();
-  }
+  if (statusStep !== undefined) update.statusStep = statusStep;
+
+  if (orderStatus === 'Delivered') update.deliveredAt = new Date();
 
   return await Order.findByIdAndUpdate(
     id,

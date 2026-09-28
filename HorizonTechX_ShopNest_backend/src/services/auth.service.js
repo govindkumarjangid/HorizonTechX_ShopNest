@@ -6,9 +6,8 @@ import userRepository from '../repositories/user.repository.js';
 
 export const registerUser = async ({ name, email, password, role = 'customer' }) => {
   const existingUser = await userRepository.findByEmail(email);
-  if (existingUser) {
+  if (existingUser)
     throw new ApiError(409, 'An account with this email address already exists');
-  }
 
   const user = await userRepository.createUser({
     name,
@@ -27,14 +26,12 @@ export const registerUser = async ({ name, email, password, role = 'customer' })
 
 export const loginUser = async ({ email, password }) => {
   const user = await userRepository.findByEmail(email, true);
-  if (!user) {
+  if (!user)
     throw new ApiError(401, 'Invalid email or password credentials');
-  }
 
   const isPasswordValid = await user.isPasswordCorrect(password);
-  if (!isPasswordValid) {
+  if (!isPasswordValid)
     throw new ApiError(401, 'Invalid email or password credentials');
-  }
 
   const { accessToken, refreshToken } = generateAuthTokens(user);
   await userRepository.updateRefreshToken(user._id, refreshToken);
@@ -45,17 +42,15 @@ export const loginUser = async ({ email, password }) => {
 };
 
 export const refreshAccessToken = async (incomingRefreshToken) => {
-  if (!incomingRefreshToken) {
+  if (!incomingRefreshToken)
     throw new ApiError(401, 'No refresh token provided');
-  }
 
   try {
     const decoded = jwt.verify(incomingRefreshToken, env.JWT_REFRESH_SECRET);
     const user = await userRepository.findById(decoded._id, true);
 
-    if (!user || user.refreshToken !== incomingRefreshToken) {
+    if (!user || user.refreshToken !== incomingRefreshToken)
       throw new ApiError(401, 'Refresh token is invalid or has expired');
-    }
 
     const accessToken = generateAccessToken(user);
     return { accessToken };
@@ -71,9 +66,8 @@ export const logoutUser = async (userId) => {
 
 export const getCurrentUser = async (userId) => {
   const user = await userRepository.findById(userId);
-  if (!user) {
+  if (!user)
     throw new ApiError(404, 'User account not found');
-  }
   return user;
 };
 
@@ -88,41 +82,36 @@ export const updateUserProfile = async (userId, updateData) => {
   }
 
   const updatedUser = await userRepository.updateById(userId, sanitizedUpdate);
-  if (!updatedUser) {
+  if (!updatedUser)
     throw new ApiError(404, 'User account not found');
-  }
   return updatedUser;
 };
 
 export const addUserAddress = async (userId, addressData) => {
   const user = await userRepository.addAddress(userId, addressData);
-  if (!user) {
+  if (!user)
     throw new ApiError(404, 'User account not found');
-  }
   return user.addresses;
 };
 
 export const removeUserAddress = async (userId, addressId) => {
   const user = await userRepository.removeAddress(userId, addressId);
-  if (!user) {
+  if (!user)
     throw new ApiError(404, 'User account not found');
-  }
   return user.addresses;
 };
 
 export const setDefaultAddress = async (userId, addressId) => {
   const user = await userRepository.setDefaultAddress(userId, addressId);
-  if (!user) {
+  if (!user)
     throw new ApiError(404, 'User account not found');
-  }
   return user.addresses;
 };
 
 export const toggleWishlist = async (userId, productId) => {
   const user = await userRepository.toggleWishlist(userId, productId);
-  if (!user) {
+  if (!user)
     throw new ApiError(404, 'User account not found');
-  }
   return user.wishlist;
 };
 

@@ -1,9 +1,7 @@
 import jwt from 'jsonwebtoken';
 import env from '../config/env.config.js';
 
-/**
- * Generate Access Token with short expiration
- */
+// Generate Access Token with short expiration
 export const generateAccessToken = (user) => {
   return jwt.sign(
     {
@@ -18,9 +16,7 @@ export const generateAccessToken = (user) => {
   );
 };
 
-/**
- * Generate Refresh Token with extended expiration
- */
+// Generate Refresh Token with extended expiration
 export const generateRefreshToken = (user) => {
   return jwt.sign(
     {
@@ -33,9 +29,7 @@ export const generateRefreshToken = (user) => {
   );
 };
 
-/**
- * Generate both Access and Refresh tokens
- */
+// Generate both Access and Refresh tokens
 export const generateAuthTokens = (user) => {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);

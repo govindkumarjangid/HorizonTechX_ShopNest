@@ -16,6 +16,7 @@ import { AutocompleteSearch } from '../navigation/AutocompleteSearch';
 import { drawerSlide, backdropFade, buttonTap } from '../../styles/motion';
 import { AccountPopup } from '../auth/AccountPopup';
 import { useAuthStore } from '../../store/useAuthStore';
+import { Logo } from './Logo';
 
 /**
  * Premium Sticky Navbar with Glassmorphism, Animated Mobile Drawer & Account Popup
@@ -96,7 +97,7 @@ export const Navbar = ({
     <>
       <header
         className={`
-          sticky top-0 z-40 w-full transition-all duration-300
+          sticky top-0 z-50 w-full transition-all duration-300
           ${isScrolled
             ? 'bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-neutral-200/70 dark:border-dark-border shadow-xs'
             : 'bg-white/95 dark:bg-dark-bg/95 border-b border-transparent'
@@ -120,16 +121,10 @@ export const Navbar = ({
               <button
                 type="button"
                 onClick={handleLogoClick}
-                className="flex items-center gap-2 group cursor-pointer text-left bg-transparent border-none p-0"
+                className="flex items-center group cursor-pointer text-left bg-transparent border-none p-0 focus:outline-none"
+                aria-label="ShopNest Home"
               >
-                <div className="flex flex-col">
-                  <span className="font-display font-bold text-lg tracking-tight text-neutral-900 dark:text-white leading-none">
-                    <span className="text-brand-500">ShopNest</span>
-                  </span>
-                  <span className="text-[9px] font-sans tracking-widest text-neutral-400 uppercase">
-                    Curated Commerce
-                  </span>
-                </div>
+                <Logo className="h-8 sm:h-9 w-auto" />
               </button>
             </div>
 
@@ -290,9 +285,17 @@ export const Navbar = ({
             >
               {/* Header */}
               <div className="flex items-center justify-between pb-6 border-b border-neutral-100 dark:border-dark-border">
-                <span className="font-display font-bold text-lg text-neutral-900 dark:text-white">
-                  Menu
-                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    handleLogoClick();
+                  }}
+                  className="flex items-center bg-transparent border-none p-0 cursor-pointer"
+                  aria-label="ShopNest Home"
+                >
+                  <Logo className="h-7 w-auto" />
+                </button>
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(false)}

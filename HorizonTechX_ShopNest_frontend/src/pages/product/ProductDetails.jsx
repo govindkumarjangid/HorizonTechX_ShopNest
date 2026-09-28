@@ -166,8 +166,8 @@ export const ProductDetails = ({
 
   const tabs = [
     { id: 'specs', label: 'Specifications' },
-    { id: 'materials', label: 'Product Details' },
-    { id: 'shipping', label: 'Shipping & Returns' },
+    { id: 'reviews', label: `Reviews (${product.reviews?.length || resolvedReviews})` },
+    { id: 'shipping', label: 'Shipping & Warranty' },
   ];
 
   return (
@@ -406,24 +406,70 @@ export const ProductDetails = ({
             </div>
           )}
 
-          {activeTab === 'materials' && (
-            <div className="flex flex-col gap-3 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-3xl">
-              <p>
-                Crafted using premium high-grade materials with rigorous quality standards, engineered for durability, reliability, and modern lifestyle aesthetics.
-              </p>
-              <p>
-                100% compliant with standard global safety, RoHS, and consumer electronics environmental standards. Each piece passes comprehensive quality assurance checks before shipment.
-              </p>
+          {activeTab === 'reviews' && (
+            <div className="flex flex-col gap-4 max-w-3xl">
+              <div className="flex items-center gap-4 p-4 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border">
+                <div className="flex flex-col items-center justify-center p-3 rounded-xl bg-white dark:bg-dark-card border border-neutral-200/60 dark:border-dark-border min-w-[90px]">
+                  <span className="font-display text-2xl font-bold text-neutral-900 dark:text-white">
+                    {resolvedRating}
+                  </span>
+                  <Rating rating={resolvedRating} size="sm" showValue={false} />
+                  <span className="text-[10px] text-neutral-400 mt-1 font-mono">
+                    {product.reviews?.length || resolvedReviews} reviews
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1 text-xs text-neutral-600 dark:text-neutral-400">
+                  <p className="font-semibold text-neutral-900 dark:text-white text-sm">Verified Customer Feedback</p>
+                  <p>All reviews are submitted by authenticated buyers following delivered purchases.</p>
+                </div>
+              </div>
+
+              {product.reviews && product.reviews.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {product.reviews.map((rev, idx) => (
+                    <div
+                      key={idx}
+                      className="p-4 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border flex flex-col gap-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-xs text-neutral-900 dark:text-white">
+                          {rev.reviewerName || 'Verified Buyer'}
+                        </span>
+                        <span className="text-[10px] text-neutral-400 font-mono">
+                          {rev.date ? new Date(rev.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}
+                        </span>
+                      </div>
+                      <Rating rating={rev.rating || 5} size="xs" showValue={false} />
+                      <p className="text-xs text-neutral-600 dark:text-neutral-300 italic">
+                        "{rev.comment}"
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-neutral-500 py-4">No customer reviews yet for this product.</p>
+              )}
             </div>
           )}
 
           {activeTab === 'shipping' && (
-            <div className="flex flex-col gap-3 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-3xl">
+            <div className="flex flex-col gap-4 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-3xl">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border flex flex-col gap-1">
+                  <span className="text-[10px] font-mono uppercase text-neutral-400 font-bold">Shipping Info</span>
+                  <span className="font-semibold text-neutral-900 dark:text-white">{product.shippingInformation || 'Ships in 3-5 business days'}</span>
+                </div>
+                <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border flex flex-col gap-1">
+                  <span className="text-[10px] font-mono uppercase text-neutral-400 font-bold">Warranty</span>
+                  <span className="font-semibold text-neutral-900 dark:text-white">{product.warrantyInformation || '1 Year Manufacturer Warranty'}</span>
+                </div>
+                <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border flex flex-col gap-1">
+                  <span className="text-[10px] font-mono uppercase text-neutral-400 font-bold">Return Policy</span>
+                  <span className="font-semibold text-neutral-900 dark:text-white">{product.returnPolicy || '30 days return policy'}</span>
+                </div>
+              </div>
               <p>
-                Orders placed before 2:00 PM IST are processed for guaranteed same-day dispatch via BlueDart Air Express or Delhivery with real-time tracking.
-              </p>
-              <p>
-                All shipments are fully insured during transit with tamper-evident premium packaging and easy 30-day hassle-free returns.
+                All orders are packaged in tamper-evident secure boxes and dispatched with comprehensive transit insurance.
               </p>
             </div>
           )}

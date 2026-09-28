@@ -9,35 +9,36 @@ import { ProgressiveImage } from '../ui/ProgressiveImage';
 export const ProductGallery = ({ images = [], title = 'Product Image' }) => {
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
 
-  const displayImages = images.length > 0 ? images : [
-    'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80',
-  ];
+  const validImages = Array.isArray(images) ? images.filter(Boolean) : (images ? [images] : []);
+  const displayImages = validImages.length > 0 ? validImages : [''];
 
   return (
     <div className="flex flex-col-reverse lg:flex-row gap-4 w-full">
       {/* Thumbnail Bar (Desktop) */}
-      <div className="hidden lg:flex flex-col gap-3 shrink-0">
-        {displayImages.map((img, idx) => (
-          <button
-            key={idx}
-            type="button"
-            onClick={() => setSelectedImageIdx(idx)}
-            className={`
-              w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer p-0.5
-              ${selectedImageIdx === idx
-                ? 'border-brand-500 shadow-sm'
-                : 'border-neutral-200/80 dark:border-dark-border opacity-70 hover:opacity-100'
-              }
-            `}
-          >
-            <img
-              src={img}
-              alt={`${title} thumb ${idx + 1}`}
-              className="w-full h-full object-cover object-center rounded-xl"
-            />
-          </button>
-        ))}
-      </div>
+      {displayImages.length > 1 && displayImages[0] !== '' && (
+        <div className="hidden lg:flex flex-col gap-3 shrink-0">
+          {displayImages.map((img, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => setSelectedImageIdx(idx)}
+              className={`
+                w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer p-0.5
+                ${selectedImageIdx === idx
+                  ? 'border-brand-500 shadow-sm'
+                  : 'border-neutral-200/80 dark:border-dark-border opacity-70 hover:opacity-100'
+                }
+              `}
+            >
+              <img
+                src={img}
+                alt={`${title} thumb ${idx + 1}`}
+                className="w-full h-full object-cover object-center rounded-xl"
+              />
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Main Image Showcase (Desktop) */}
       <div className="hidden lg:block flex-1 rounded-3xl overflow-hidden bg-neutral-100 dark:bg-dark-surface border border-neutral-200/80 dark:border-dark-border relative aspect-square shadow-subtle group">

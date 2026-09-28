@@ -104,12 +104,10 @@ const orderSchema = new mongoose.Schema(
 
 // Pre-save hook to generate human-readable order ID and tracking number
 orderSchema.pre('save', function () {
-  if (!this.orderId) {
+  if (!this.orderId)
     this.orderId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
-  }
-  if (!this.trackingNumber) {
+  if (!this.trackingNumber)
     this.trackingNumber = `HTX-IND-${Math.floor(10000 + Math.random() * 90000)}`;
-  }
 });
 
 export const Order = mongoose.model('Order', orderSchema);

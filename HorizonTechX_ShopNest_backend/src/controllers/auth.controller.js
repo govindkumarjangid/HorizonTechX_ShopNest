@@ -40,9 +40,8 @@ export const refreshToken = asyncHandler(async (req, res) => {
 });
 
 export const logout = asyncHandler(async (req, res) => {
-  if (req.user?._id) {
+  if (req.user?._id)
     await authService.logoutUser(req.user._id);
-  }
 
   return res
     .status(200)

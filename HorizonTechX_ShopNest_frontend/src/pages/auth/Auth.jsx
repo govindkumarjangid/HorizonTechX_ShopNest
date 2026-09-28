@@ -10,6 +10,7 @@ import {
   EyeOff,
 } from 'lucide-react';
 import { H1, Subtitle, Button, Input } from '../../components/ui';
+import { Logo } from '../../components/ui/Logo';
 import { useAuthStore } from '../../store/useAuthStore';
 import { notify } from '../../utils/notify';
 
@@ -100,9 +101,9 @@ export const Auth = ({
         <div className="bg-white dark:bg-dark-card py-8 px-6 sm:px-10 rounded-3xl border border-neutral-200/80 dark:border-dark-border shadow-elevated relative z-10">
           {/* Header */}
           <div className="text-center mb-8">
-            <span className="font-display font-extrabold text-2xl tracking-tight text-neutral-900 dark:text-white">
-              Shop<span className="text-brand-500">Nest</span>
-            </span>
+            <div className="flex justify-center mb-3">
+              <Logo className="h-10 w-auto" />
+            </div>
             <H1 className="text-xl sm:text-2xl font-bold mt-2">
               {mode === 'login' ? 'Welcome Back' : 'Create an Account'}
             </H1>

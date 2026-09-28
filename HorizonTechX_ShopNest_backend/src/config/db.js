@@ -11,9 +11,7 @@ if (env.MONGO_URI.startsWith('mongodb+srv://')) {
   }
 }
 
-/**
- * Establish resilient connection to MongoDB instance
- */
+// connection to MongoDB instance
 export const connectDB = async () => {
   try {
     const conn = await mongoose.connect(env.MONGO_URI, {

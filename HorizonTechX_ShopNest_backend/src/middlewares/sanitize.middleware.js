@@ -1,7 +1,4 @@
-/**
- * Input sanitization helper to strip leading/trailing whitespace
- * and prevent prototype pollution / dangerous key injections
- */
+// Input sanitization helper to strip leading/trailing whitespace
 const sanitizeObject = (obj) => {
   if (!obj || typeof obj !== 'object') return obj;
 

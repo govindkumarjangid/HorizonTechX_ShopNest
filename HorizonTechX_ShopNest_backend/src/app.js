@@ -27,12 +27,10 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl)
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin))
         callback(null, true);
-      } else {
+      else
         callback(new ApiError(403, `CORS blocked for origin: ${origin}`));
-      }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -62,11 +60,11 @@ app.use(compression());
 app.use(sanitize);
 
 // 5. HTTP Request Logging
-if (env.NODE_ENV === 'development') {
+if (env.NODE_ENV === 'development')
   app.use(morgan('dev'));
-} else {
+else
   app.use(morgan('combined'));
-}
+
 
 // 6. Mount API Routes
 app.use('/api', routes);

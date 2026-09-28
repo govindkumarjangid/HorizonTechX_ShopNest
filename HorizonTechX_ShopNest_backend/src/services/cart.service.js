@@ -4,26 +4,22 @@ import productRepository from '../repositories/product.repository.js';
 
 export const getCart = async (userId) => {
   let cart = await cartRepository.findByUserId(userId);
-  if (!cart) {
+  if (!cart)
     cart = await cartRepository.createCart(userId, []);
-  }
   return cart;
 };
 
 export const addItemToCart = async (userId, { productId, quantity = 1 }) => {
   const product = await productRepository.findById(productId);
-  if (!product) {
+  if (!product)
     throw new ApiError(404, 'Product not found');
-  }
 
-  if (product.stock < quantity) {
+  if (product.stock < quantity)
     throw new ApiError(400, `Insufficient stock available. Only ${product.stock} items left.`);
-  }
 
   let cart = await cartRepository.findByUserId(userId);
-  if (!cart) {
+  if (!cart)
     cart = await cartRepository.createCart(userId, []);
-  }
 
   const existingItemIndex = cart.items.findIndex(
     (item) => item.product?._id?.toString() === productId.toString() || item.product?.toString() === productId.toString()
@@ -46,9 +42,8 @@ export const addItemToCart = async (userId, { productId, quantity = 1 }) => {
 export const updateItemQuantity = async (userId, { productId, quantity }) => {
   const qty = Number(quantity);
   const cart = await cartRepository.findByUserId(userId);
-  if (!cart) {
+  if (!cart)
     throw new ApiError(404, 'Cart not found');
-  }
 
   if (qty <= 0) {
     cart.items = cart.items.filter(
@@ -59,9 +54,8 @@ export const updateItemQuantity = async (userId, { productId, quantity }) => {
       (item) => item.product?._id?.toString() === productId.toString() || item.product?.toString() === productId.toString()
     );
 
-    if (itemIndex === -1) {
+    if (itemIndex === -1)
       throw new ApiError(404, 'Item not found in cart');
-    }
 
     cart.items[itemIndex].quantity = qty;
   }
@@ -71,9 +65,8 @@ export const updateItemQuantity = async (userId, { productId, quantity }) => {
 
 export const removeItemFromCart = async (userId, productId) => {
   const cart = await cartRepository.findByUserId(userId);
-  if (!cart) {
+  if (!cart)
     throw new ApiError(404, 'Cart not found');
-  }
 
   cart.items = cart.items.filter(
     (item) => item.product?._id?.toString() !== productId.toString() && item.product?.toString() !== productId.toString()

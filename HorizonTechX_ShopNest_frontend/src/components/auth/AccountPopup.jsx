@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
+import { Logo } from '../ui/Logo';
 import { useAuthStore } from '../../store/useAuthStore';
 import { notify } from '../../utils/notify';
 
@@ -220,14 +221,11 @@ export const AccountPopup = ({
                 STATE 2: USER IS GUEST / NOT LOGGED IN
                ==================================================== */
             <div className="flex flex-col p-6 gap-5">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-1.5 text-brand-500">
-                  <User className="w-4 h-4" />
-                  <span className="text-[11px] font-bold uppercase tracking-wider">
-                    My Account
-                  </span>
+              <div className="flex flex-col gap-2">
+                <div className="mb-1">
+                  <Logo className="h-6 w-auto" />
                 </div>
-                <h4 className="font-display font-bold text-base text-neutral-900 dark:text-white leading-tight mt-1">
+                <h4 className="font-display font-bold text-base text-neutral-900 dark:text-white leading-tight">
                   Welcome to ShopNest
                 </h4>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
