@@ -13,33 +13,66 @@ import ApiError from './utils/ApiError.js';
 
 const app = express();
 
-// 1. Security Headers
-app.use(helmet());
+//  Security Headers (configured to allow cross-origin requests)
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
-// 2. Cross-Origin Resource Sharing
+app.use((req, res, next) => {
+  if (req.headers['access-control-request-private-network'])
+    res.setHeader('Access-Control-Allow-Private-Network', 'true');
+  next();
+});
+
+// Cross-Origin Resource Sharing (CORS) Configuration
 const allowedOrigins = [
   env.CLIENT_URL,
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:3000',
-  'https://horizon-tech-x-shop-nest-nlgkuykvd-scan-and-print.vercel.app/'
+  'http://localhost:5174',
+  'https://horizon-tech-x-shop-nest-nlgkuykvd-scan-and-print.vercel.app',
 ].filter(Boolean);
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin))
-        callback(null, true);
-      else
-        callback(new ApiError(403, `CORS blocked for origin: ${origin}`));
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  })
-);
+const isOriginAllowed = (origin) => {
+  if (!origin) return true;
+  const cleanOrigin = origin.replace(/\/+$/, '');
 
-// 3. Rate Limiter
+  if (allowedOrigins.some((allowed) => allowed.replace(/\/+$/, '') === cleanOrigin))
+    return true;
+
+  if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(cleanOrigin))
+    return true;
+
+  if (/^https:\/\/([a-zA-Z0-9_-]+\.)?vercel\.app$/.test(cleanOrigin))
+    return true;
+
+  return false;
+};
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (isOriginAllowed(origin))
+      callback(null, true);
+    else
+      callback(new ApiError(403, `CORS blocked for origin: ${origin}`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers',
+    'Access-Control-Request-Private-Network',
+  ],
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+
+// Rate Limiter
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: env.NODE_ENV === 'production' ? 1000 : 5000,
@@ -53,30 +86,30 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// 4. Request Body & Cookie Parsers
+// Request Body & Cookie Parsers
 app.use(express.json({ limit: '16kb' }));
 app.use(express.urlencoded({ extended: true, limit: '16kb' }));
 app.use(cookieParser());
 app.use(compression());
 app.use(sanitize);
 
-// 5. HTTP Request Logging
+// HTTP Request Logging
 if (env.NODE_ENV === 'development')
   app.use(morgan('dev'));
 else
   app.use(morgan('combined'));
 
 
-// 6. Mount API Routes
+//  Mount API Routes
 app.use('/api', routes);
 app.use('/api/v1', routes);
 
-// 7. Catch-all for unmatched routes
+//  Catch-all for unmatched routes
 app.use((req, res, next) => {
   next(new ApiError(404, `Cannot ${req.method} ${req.originalUrl} - Route not found on this server`));
 });
 
-// 8. Global Error Handler
+//  Global Error Handler
 app.use(errorHandler);
 
 export { app };
