@@ -2,25 +2,11 @@ import axios from 'axios';
 
 /**
  * HorizonTechX ShopNest - Axios Base Client
- * Configured with base URL, timeout, and authentication interceptors.
+ * Base URL is dynamically resolved from environment variables (VITE_API_URL)
  */
-const LIVE_BACKEND_URL = 'https://horizontechx-shopnest.onrender.com/api';
-
-const resolveBaseURL = () => {
-  const envUrl = import.meta.env.VITE_API_URL;
-  // If in production build, guard against accidental localhost leaks
-  if (import.meta.env.PROD) {
-    if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1')) {
-      return LIVE_BACKEND_URL;
-    }
-    return envUrl;
-  }
-  return envUrl || 'http://localhost:5000/api';
-};
-
 const api = axios.create({
-  baseURL: resolveBaseURL(),
-  timeout: 15000,
+  baseURL: import.meta.env.VITE_API_URL || '/api',
+  timeout: 20000,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',

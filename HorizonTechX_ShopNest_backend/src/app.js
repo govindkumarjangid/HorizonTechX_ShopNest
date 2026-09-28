@@ -23,26 +23,27 @@ app.use((req, res, next) => {
 });
 
 // Cross-Origin Resource Sharing (CORS) Configuration
+// All allowed origins are loaded dynamically from environment variables (.env)
+const envClientOrigins = (env.CLIENT_URL || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 const allowedOrigins = [
-  env.CLIENT_URL,
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'http://localhost:3000',
-  'http://localhost:5174',
-  'https://horizon-tech-x-shop-nest-nlgkuykvd-scan-and-print.vercel.app',
+  ...envClientOrigins,
+  ...(env.ALLOWED_ORIGINS || []),
 ].filter(Boolean);
 
 const isOriginAllowed = (origin) => {
   if (!origin) return true;
   const cleanOrigin = origin.replace(/\/+$/, '');
 
+  // Match against origins configured in environment variables
   if (allowedOrigins.some((allowed) => allowed.replace(/\/+$/, '') === cleanOrigin))
     return true;
 
-  if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(cleanOrigin))
-    return true;
-
-  if (/^https:\/\/([a-zA-Z0-9_-]+\.)?vercel\.app$/.test(cleanOrigin))
+  // In non-production environments, allow local development loopback addresses
+  if (env.NODE_ENV !== 'production' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(cleanOrigin))
     return true;
 
   return false;

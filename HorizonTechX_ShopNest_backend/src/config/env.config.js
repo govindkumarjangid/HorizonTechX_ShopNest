@@ -15,6 +15,9 @@ export const env = {
   PORT: process.env.PORT ? parseInt(process.env.PORT, 10) : 5000,
   NODE_ENV: process.env.NODE_ENV || 'development',
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+    : [],
   MONGO_URI: process.env.MONGO_URI || 'mongodb://localhost:27017/shopnest',
   JWT_SECRET: process.env.JWT_SECRET || 'shopnest_ultra_secure_jwt_access_secret_key_2026',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
