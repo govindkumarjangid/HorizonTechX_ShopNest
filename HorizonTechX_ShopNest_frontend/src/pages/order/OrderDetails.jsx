@@ -35,7 +35,7 @@ export const OrderDetails = ({
 
   // Fetch real order from backend if needed
   useEffect(() => {
-    if (propOrder) {
+    if (propOrder || (activeOrder && (!id || activeOrder.orderId === id || activeOrder._id === id || activeOrder.id === id))) {
       setLoadingOrder(false);
       return;
     }
@@ -58,7 +58,7 @@ export const OrderDetails = ({
     } else {
       setLoadingOrder(false);
     }
-  }, [id, propOrder, orders, fetchOrderById, fetchOrders]);
+  }, [id, propOrder, orders, activeOrder, fetchOrderById, fetchOrders]);
 
   // Resolve order from props, id lookup, or activeOrder
   const order =
@@ -131,7 +131,7 @@ export const OrderDetails = ({
     order.total || 0;
 
   const calculatedTax = order.tax !== undefined ? order.tax : Math.round(calculatedSubtotal * 0.18);
-  const calculatedShipping = order.shippingFee !== undefined ? order.shippingFee : (calculatedSubtotal >= 4999 ? 0 : 499);
+  const calculatedShipping = order.shippingFee !== undefined ? order.shippingFee : (calculatedSubtotal >= 999 ? 0 : 40);
   const calculatedTotal = order.total || (calculatedSubtotal + calculatedShipping + calculatedTax);
 
   return (
@@ -204,7 +204,7 @@ export const OrderDetails = ({
       </div>
 
       {/* Grid: Delivery / Payment vs Items & Financials */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Items */}
         <div className="lg:col-span-7 flex flex-col gap-6">
           <div className="p-4 sm:p-6 rounded-3xl bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-xs flex flex-col gap-4">

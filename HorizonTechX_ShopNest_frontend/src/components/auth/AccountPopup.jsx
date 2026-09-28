@@ -90,7 +90,7 @@ export const AccountPopup = ({
             absolute right-0 top-full mt-3 w-[min(calc(100vw-2rem),22rem)]
             bg-white dark:bg-dark-card
             border border-neutral-200/90 dark:border-dark-border
-            rounded-3xl shadow-floating z-50 overflow-hidden
+            rounded-3xl shadow-floating z-[60] overflow-hidden
           "
         >
           {/* ====================================================

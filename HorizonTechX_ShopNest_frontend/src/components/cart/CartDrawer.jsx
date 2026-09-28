@@ -89,7 +89,7 @@ export const CartDrawer = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-stretch justify-end">
+        <div className="fixed inset-0 z-[70] flex items-stretch justify-end">
           {/* Backdrop */}
           <motion.div
             variants={backdropFade}
@@ -175,80 +175,88 @@ export const CartDrawer = ({
               ) : (
                 <div className="flex flex-col gap-3">
                   <AnimatePresence initial={false}>
-                    {items.map((item) => (
-                      <motion.div
-                        key={item.id}
-                        layout
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
-                        className="
-                          p-3.5 rounded-2xl bg-white dark:bg-dark-card
-                          border border-neutral-200/70 dark:border-dark-border
-                          flex gap-3.5 items-center shadow-xs
-                        "
-                      >
-                        {/* Thumbnail with explicit aspect ratio */}
-                        <div className="w-18 h-18 rounded-xl bg-neutral-100 dark:bg-dark-surface shrink-0 overflow-hidden relative border border-neutral-200/50 dark:border-dark-border/40">
-                          <ProgressiveImage
-                            src={item.image}
-                            alt={item.title}
-                            width={160}
-                            aspectRatio="aspect-square"
-                            className="w-full h-full"
-                            imgClassName="w-full h-full object-cover object-center"
-                          />
-                        </div>
+                    {items.map((item, idx) => {
+                      const itemId = item.id || item._id || `drawer-item-${idx}`;
+                      const itemTitle = item.title || item.name || 'Hardware Unit';
+                      const itemImage = item.image || item.thumbnail || (item.images && item.images[0]) || '';
+                      const itemPrice = Number(item.price) || 0;
+                      const itemQuantity = item.quantity || 1;
 
-                        {/* Details */}
-                        <div className="flex-1 min-w-0 flex flex-col gap-1">
-                          <h4 className="font-display font-medium text-xs text-neutral-900 dark:text-white truncate">
-                            {item.title}
-                          </h4>
-                          <span className="font-mono text-xs font-bold text-neutral-900 dark:text-white">
-                            {formatPrice(item.price * (item.quantity || 1))}
-                          </span>
+                      return (
+                        <motion.div
+                          key={itemId}
+                          layout
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
+                          className="
+                            p-3.5 rounded-2xl bg-white dark:bg-dark-card
+                            border border-neutral-200/70 dark:border-dark-border
+                            flex gap-3.5 items-center shadow-xs
+                          "
+                        >
+                          {/* Thumbnail with explicit aspect ratio */}
+                          <div className="w-18 h-18 rounded-xl bg-neutral-100 dark:bg-dark-surface shrink-0 overflow-hidden relative border border-neutral-200/50 dark:border-dark-border/40">
+                            <ProgressiveImage
+                              src={itemImage}
+                              alt={itemTitle}
+                              width={160}
+                              aspectRatio="aspect-square"
+                              className="w-full h-full"
+                              imgClassName="w-full h-full object-cover object-center"
+                            />
+                          </div>
 
-                          {/* Stepper Controls */}
-                          <div className="flex items-center justify-between mt-1 pt-1 border-t border-neutral-100 dark:border-dark-border/40">
-                            <div className="flex items-center border border-neutral-200 dark:border-dark-border rounded-lg bg-neutral-50 dark:bg-dark-surface">
+                          {/* Details */}
+                          <div className="flex-1 min-w-0 flex flex-col gap-1">
+                            <h4 className="font-display font-medium text-xs text-neutral-900 dark:text-white truncate">
+                              {itemTitle}
+                            </h4>
+                            <span className="font-mono text-xs font-bold text-neutral-900 dark:text-white">
+                              {formatPrice(itemPrice * itemQuantity)}
+                            </span>
+
+                            {/* Stepper Controls */}
+                            <div className="flex items-center justify-between mt-1 pt-1 border-t border-neutral-100 dark:border-dark-border/40">
+                              <div className="flex items-center border border-neutral-200 dark:border-dark-border rounded-lg bg-neutral-50 dark:bg-dark-surface">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    onUpdateQuantity(itemId, Math.max(1, itemQuantity - 1))
+                                  }
+                                  disabled={itemQuantity <= 1}
+                                  className="p-1 hover:text-brand-500 disabled:opacity-35 disabled:hover:text-inherit cursor-pointer"
+                                >
+                                  <Minus className="w-3 h-3" />
+                                </button>
+                                <span className="font-mono text-xs font-semibold px-2">
+                                  {itemQuantity}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    onUpdateQuantity(itemId, itemQuantity + 1)
+                                  }
+                                  className="p-1 hover:text-brand-500 cursor-pointer"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </button>
+                              </div>
+
+                              {/* Remove button */}
                               <button
                                 type="button"
-                                onClick={() =>
-                                  onUpdateQuantity(item.id, Math.max(1, (item.quantity || 1) - 1))
-                                }
-                                disabled={(item.quantity || 1) <= 1}
-                                className="p-1 hover:text-brand-500 disabled:opacity-35 disabled:hover:text-inherit cursor-pointer"
+                                onClick={() => onRemoveItem(itemId)}
+                                className="p-1 text-neutral-400 hover:text-semantic-error transition-colors cursor-pointer"
+                                title="Remove item"
                               >
-                                <Minus className="w-3 h-3" />
-                              </button>
-                              <span className="font-mono text-xs font-semibold px-2">
-                                {item.quantity || 1}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  onUpdateQuantity(item.id, (item.quantity || 1) + 1)
-                                }
-                                className="p-1 hover:text-brand-500 cursor-pointer"
-                              >
-                                <Plus className="w-3 h-3" />
+                                <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
-
-                            {/* Remove button */}
-                            <button
-                              type="button"
-                              onClick={() => onRemoveItem(item.id)}
-                              className="p-1 text-neutral-400 hover:text-semantic-error transition-colors cursor-pointer"
-                              title="Remove item"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
                           </div>
-                        </div>
-                      </motion.div>
-                    ))}
+                        </motion.div>
+                      );
+                    })}
                   </AnimatePresence>
                 </div>
               )}

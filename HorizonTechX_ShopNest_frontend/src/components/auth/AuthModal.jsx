@@ -64,7 +64,7 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-0 sm:p-4">
           {/* Backdrop */}
           <motion.div
             variants={backdropFade}
@@ -75,41 +75,39 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
             className="fixed inset-0 bg-neutral-950/70 backdrop-blur-sm"
           />
 
-          {/* Modal / Bottom Sheet Card */}
+          {/* Modal Card (Full screen on mobile, centered card on tablet/desktop) */}
           <motion.div
-            initial={{ opacity: 0, y: 25 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 25 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            exit={{ opacity: 0, y: 15 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="
-              relative w-full max-w-md bg-white dark:bg-dark-card
-              border-t sm:border border-neutral-200/80 dark:border-dark-border
-              rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl z-10
-              max-h-[90dvh] sm:max-h-[85dvh] overflow-y-auto pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] sm:pb-8
+              relative w-full h-full sm:h-auto sm:max-h-[88dvh] sm:max-w-md
+              bg-white dark:bg-dark-card border-0 sm:border border-neutral-200/80 dark:border-dark-border
+              rounded-none sm:rounded-3xl p-4 sm:p-8 shadow-2xl z-10
+              overflow-y-auto flex flex-col justify-center sm:justify-start
+              pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] sm:pb-8
             "
           >
-            {/* Mobile Drag Handle */}
-            <div className="sm:hidden -mt-2 mb-4 flex justify-center">
-              <div className="w-12 h-1.5 rounded-full bg-neutral-300 dark:bg-dark-border" />
-            </div>
             {/* Close button */}
             <button
               type="button"
               onClick={onClose}
-              className="absolute top-5 right-5 p-2 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-lg transition-colors cursor-pointer z-20"
+              aria-label="Close auth modal"
             >
               <X className="w-5 h-5" />
             </button>
 
             {/* Header */}
-            <div className="flex flex-col gap-1 mb-6">
-              <div className="mb-2">
-                <Logo className="h-8 w-auto" />
+            <div className="flex flex-col gap-0.5 sm:gap-1 mb-4 sm:mb-6">
+              <div className="mb-1.5 sm:mb-2">
+                <Logo className="h-7 sm:h-8 w-auto" />
               </div>
-              <h2 className="font-display font-bold text-2xl text-neutral-900 dark:text-white tracking-tight">
+              <h2 className="font-display font-bold text-lg sm:text-2xl text-neutral-900 dark:text-white tracking-tight">
                 {tab === 'login' ? 'Welcome Back' : 'Create an Account'}
               </h2>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400">
                 {tab === 'login'
                   ? 'Access your orders, saved addresses and private collection wishlist.'
                   : 'Join 28,000+ creators and collectors with personalized privileges.'}
@@ -117,12 +115,12 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
             </div>
 
             {/* Tab Switcher */}
-            <div className="flex rounded-xl bg-neutral-100 dark:bg-dark-surface p-1 mb-6 border border-neutral-200/60 dark:border-dark-border">
+            <div className="flex rounded-xl bg-neutral-100 dark:bg-dark-surface p-1 mb-4 sm:mb-6 border border-neutral-200/60 dark:border-dark-border">
               <button
                 type="button"
                 onClick={() => setTab('login')}
                 className={`
-                  flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer
+                  flex-1 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold rounded-lg transition-all cursor-pointer
                   ${tab === 'login'
                     ? 'bg-white dark:bg-dark-card text-brand-600 dark:text-brand-400 shadow-xs'
                     : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
@@ -135,7 +133,7 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
                 type="button"
                 onClick={() => setTab('register')}
                 className={`
-                  flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer
+                  flex-1 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold rounded-lg transition-all cursor-pointer
                   ${tab === 'register'
                     ? 'bg-white dark:bg-dark-card text-brand-600 dark:text-brand-400 shadow-xs'
                     : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'

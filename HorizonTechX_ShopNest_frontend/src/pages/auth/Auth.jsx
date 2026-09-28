@@ -98,16 +98,16 @@ export const Auth = ({
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md px-4">
         {/* Card */}
-        <div className="bg-white dark:bg-dark-card py-8 px-6 sm:px-10 rounded-3xl border border-neutral-200/80 dark:border-dark-border shadow-elevated relative z-10">
+        <div className="bg-white dark:bg-dark-card py-6 sm:py-8 px-4 sm:px-10 rounded-2xl sm:rounded-3xl border border-neutral-200/80 dark:border-dark-border shadow-elevated relative z-10">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-3">
-              <Logo className="h-10 w-auto" />
+          <div className="text-center mb-5 sm:mb-8">
+            <div className="flex justify-center mb-2 sm:mb-3">
+              <Logo className="h-8 sm:h-10 w-auto" />
             </div>
-            <H1 className="text-xl sm:text-2xl font-bold mt-2">
+            <H1 className="text-lg sm:text-2xl font-bold mt-1 sm:mt-2">
               {mode === 'login' ? 'Welcome Back' : 'Create an Account'}
             </H1>
-            <Subtitle className="text-xs sm:text-sm mt-1">
+            <Subtitle className="text-[11px] sm:text-sm mt-1">
               {mode === 'login'
                 ? 'Sign in to access your orders, saved addresses and telemetry'
                 : 'Join our hardware archive for bespoke acoustics and gear'}
@@ -115,7 +115,7 @@ export const Auth = ({
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} noValidate className="space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="space-y-3 sm:space-y-4">
             {mode === 'register' && (
               <Input
                 label="Full Name"

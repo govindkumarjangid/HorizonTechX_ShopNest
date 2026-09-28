@@ -31,7 +31,7 @@ export const ProductFilters = ({
   };
 
   return (
-    <div className={`flex flex-col gap-6 p-6 rounded-3xl bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-subtle ${className}`}>
+    <div className={`flex flex-col gap-6 p-6 rounded-3xl bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-subtle max-h-[calc(100vh-6rem)] overflow-y-auto no-scrollbar ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-neutral-100 dark:border-dark-border">
         <div className="flex items-center gap-2">

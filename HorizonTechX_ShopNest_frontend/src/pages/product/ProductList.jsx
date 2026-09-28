@@ -140,9 +140,9 @@ export const ProductList = ({ onSelectProduct, onAddToWishlist }) => {
       </div>
 
       {/* Main Layout (Filters Sidebar + Products Grid) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Desktop Sidebar Filters (Sticky Top) */}
-        <div className="hidden lg:block lg:col-span-3 sticky top-24 self-start z-20">
+        <div className="hidden lg:block lg:col-span-3 lg:sticky lg:top-20 lg:self-start z-20">
           <ProductFilters
             categories={categories}
             activeCategory={activeCategory}
@@ -174,7 +174,7 @@ export const ProductList = ({ onSelectProduct, onAddToWishlist }) => {
       {/* Mobile Filter Bottom Sheet Drawer */}
       <AnimatePresence>
         {isMobileFilterOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden flex items-end">
+          <div className="fixed inset-0 z-[70] lg:hidden flex items-end">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -13,6 +13,8 @@ import {
   Flame,
   LayoutGrid,
   Tag,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import {
   H1,
@@ -35,6 +37,7 @@ import {
   bentoCollections,
   testimonials,
   trustPerks,
+  products as defaultCatalogProducts,
 } from '../assets/assets';
 import { notify } from '../utils/notify';
 import { formatPrice } from '../utils/formatPrice';
@@ -101,18 +104,29 @@ export const Home = ({
     };
   }, [activeCategoryFilter]);
 
-  // Flagship Hero Product: resolved from real DB products (prioritizing audio/hardware/horology)
+  // Flagship Hero Product: resolved from real DB products (prioritizing audio/hardware/horology) with guaranteed fallback
   const flagshipProduct =
     products.find(
       (p) =>
-        ['audio', 'laptops', 'mens-watches', 'mobile-accessories'].includes(p.category) ||
-        /headphone|audio|sound|watch|airpod|laptop|keyboard|speaker/i.test(p.name || p.title)
+        (p.image || p.images?.[0]) &&
+        (['audio', 'laptops', 'mens-watches', 'womens-watches', 'mobile-accessories', 'smartphones', 'tablets'].includes(p.category) ||
+          /headphone|audio|sound|watch|airpod|laptop|keyboard|speaker|phone|tab|ipad|macbook|galaxy|rolex|iwc/i.test(p.name || p.title))
     ) ||
     featuredProducts.find(
       (p) =>
-        ['audio', 'laptops', 'mens-watches', 'mobile-accessories'].includes(p.category) ||
-        /headphone|audio|sound|watch|airpod|laptop|keyboard|speaker/i.test(p.name || p.title)
-    ) || {
+        (p.image || p.images?.[0]) &&
+        (['audio', 'laptops', 'mens-watches', 'womens-watches', 'mobile-accessories', 'smartphones', 'tablets'].includes(p.category) ||
+          /headphone|audio|sound|watch|airpod|laptop|keyboard|speaker|phone|tab|ipad|macbook|galaxy|rolex|iwc/i.test(p.name || p.title))
+    ) ||
+    archiveProducts.find(
+      (p) =>
+        (p.image || p.images?.[0]) &&
+        (['audio', 'laptops', 'mens-watches', 'womens-watches', 'mobile-accessories', 'smartphones', 'tablets'].includes(p.category) ||
+          /headphone|audio|sound|watch|airpod|laptop|keyboard|speaker|phone|tab|ipad|macbook|galaxy|rolex|iwc/i.test(p.name || p.title))
+    ) ||
+    products.find((p) => p.image || p.images?.[0]) ||
+    featuredProducts.find((p) => p.image || p.images?.[0]) ||
+    defaultCatalogProducts[0] || {
       id: 'flagship-aura',
       title: 'Aura Studio Wireless Reference Headphones',
       name: 'Aura Studio Wireless Reference Headphones',
@@ -122,11 +136,32 @@ export const Home = ({
       numReviews: 840,
       category: 'Audio Precision',
       stock: 14,
-      image: '',
+      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=85',
+      images: [
+        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=85',
+        'https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=1200&q=85',
+      ],
     };
 
-  // New arrivals: top 4 products from real database
-  const newArrivals = products.slice(0, 4);
+  // New arrivals: top 4 products from real database, with fallback to default catalog if loading
+  const newArrivals =
+    products.length > 0
+      ? products.slice(0, 4)
+      : featuredProducts.length > 0
+      ? featuredProducts.slice(0, 4)
+      : defaultCatalogProducts.slice(0, 4);
+
+  // Effective archive products for Featured & Trending section
+  const effectiveArchiveProducts =
+    archiveProducts.length > 0
+      ? archiveProducts
+      : activeCategoryFilter === 'all'
+      ? products.length > 0
+        ? products.slice(0, 8)
+        : defaultCatalogProducts.slice(0, 8)
+      : defaultCatalogProducts.filter(
+          (p) => p.categorySlug?.toLowerCase() === activeCategoryFilter.toLowerCase()
+        );
 
   // Dynamic filter tabs from real categories
   const filterTabs = [
@@ -136,6 +171,15 @@ export const Home = ({
       value: cat.slug || cat,
     })),
   ];
+
+  const filterScrollRef = useRef(null);
+
+  const scrollFilters = (direction) => {
+    if (filterScrollRef.current) {
+      const scrollAmount = direction === 'left' ? -260 : 260;
+      filterScrollRef.current.scrollLeft += scrollAmount;
+    }
+  };
 
   const handleCatalogNavigate = (link) => {
     if (typeof link === 'string' && link.startsWith('/')) {
@@ -208,35 +252,35 @@ export const Home = ({
 
               {/* Master Headline with Stagger */}
               <motion.div variants={fadeInUp} className="max-w-2xl w-full">
-                <H1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] font-extrabold tracking-tight mb-4 leading-[1.15]">
+                <H1 className="text-[1.7rem] sm:text-3xl md:text-4xl lg:text-[2.6rem] font-extrabold tracking-tight mb-2.5 sm:mb-4 leading-[1.2]">
                   Premium Essentials <br />
                   for <span className="text-brand-500 underline decoration-brand-500/30 decoration-wavy decoration-2">Modern Living</span> <br />
                   & Tech.
                 </H1>
-                <Subtitle className="text-base sm:text-lg text-neutral-600 dark:text-neutral-300 max-w-xl">
+                <Subtitle className="text-xs sm:text-base text-neutral-600 dark:text-neutral-300 max-w-xl leading-relaxed">
                   Discover curated laptops, flagship smartphones, smart accessories, and premium lifestyle essentials crafted for everyday excellence.
                 </Subtitle>
               </motion.div>
 
-              {/* Action CTAs */}
-              <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-8 mb-10 w-full sm:w-auto">
+              {/* Action CTAs: Sleek side-by-side on mobile with balanced padding */}
+              <motion.div variants={fadeInUp} className="flex flex-row items-center gap-2 sm:gap-4 mt-5 sm:mt-8 mb-6 sm:mb-10 w-full sm:w-auto">
                 <Button
-                  size="lg"
+                  size="md"
                   rightIcon={ArrowRight}
                   onClick={handleCatalogNavigate}
-                  className="w-full sm:w-auto shadow-elevated hover:shadow-glow-brand cursor-pointer"
+                  className="flex-1 sm:flex-initial py-2.5 sm:py-3.5 px-3.5 sm:px-6 text-xs sm:text-sm font-semibold shadow-elevated hover:shadow-glow-brand cursor-pointer whitespace-nowrap"
                 >
-                  Explore Full Catalog
+                  Explore Catalog
                 </Button>
                 <Button
                   variant="outline"
-                  size="lg"
+                  size="md"
                   leftIcon={ShoppingBag}
                   onClick={() => {
                     const el = document.getElementById('featured-drops');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="w-full sm:w-auto cursor-pointer"
+                  className="flex-1 sm:flex-initial py-2.5 sm:py-3.5 px-3.5 sm:px-6 text-xs sm:text-sm font-semibold cursor-pointer whitespace-nowrap"
                 >
                   Featured Drops
                 </Button>
@@ -305,7 +349,7 @@ export const Home = ({
                   onClick={() => handleProductNavigate(flagshipProduct)}
                 >
                   {/* Subtle Top Badge */}
-                  <div className="absolute top-5 right-5 z-20">
+                  <div className="absolute top-5 right-5 z-10">
                     <span className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest font-bold bg-neutral-900/80 text-white dark:bg-white/10 backdrop-blur-md border border-white/20">
                       Flagship Piece
                     </span>
@@ -313,7 +357,7 @@ export const Home = ({
 
                   {/* Flagship Product Image filling entire container */}
                   <ProgressiveImage
-                    src={flagshipProduct?.image || (flagshipProduct?.images && flagshipProduct.images[0]) || ''}
+                    src={flagshipProduct?.image || (flagshipProduct?.images && flagshipProduct.images[0]) || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=85'}
                     alt={flagshipProduct?.name || flagshipProduct?.title || "Flagship Acoustic"}
                     width={900}
                     priority={true}
@@ -327,7 +371,7 @@ export const Home = ({
                 <motion.div
                   animate={{ y: [-5, 5, -5] }}
                   transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute top-2 left-2 sm:top-6 sm:-left-6 z-30 p-2 sm:p-3.5 rounded-2xl bg-white/95 dark:bg-dark-card/95 backdrop-blur-md border border-neutral-200/90 dark:border-dark-border shadow-elevated max-w-[160px] sm:max-w-[210px]"
+                  className="absolute top-2 left-2 sm:top-6 sm:-left-6 z-10 p-2 sm:p-3.5 rounded-2xl bg-white/95 dark:bg-dark-card/95 backdrop-blur-md border border-neutral-200/90 dark:border-dark-border shadow-elevated max-w-[160px] sm:max-w-[210px]"
                 >
                   <div className="flex items-center gap-1.5 text-amber-500 mb-1">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
@@ -350,7 +394,7 @@ export const Home = ({
                 <motion.div
                   animate={{ y: [5, -5, 5] }}
                   transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute bottom-2 right-2 sm:bottom-6 sm:-right-4 z-30 p-2.5 sm:p-4 rounded-2xl bg-white/95 dark:bg-dark-card/95 backdrop-blur-md border border-neutral-200/90 dark:border-dark-border shadow-elevated max-w-[170px] sm:max-w-[220px]"
+                  className="absolute bottom-2 right-2 sm:bottom-6 sm:-right-4 z-10 p-2.5 sm:p-4 rounded-2xl bg-white/95 dark:bg-dark-card/95 backdrop-blur-md border border-neutral-200/90 dark:border-dark-border shadow-elevated max-w-[170px] sm:max-w-[220px]"
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
@@ -418,47 +462,45 @@ export const Home = ({
                 viewport={{ once: true, margin: '-40px' }}
                 className={`
                   ${collection.span} group relative rounded-2xl sm:rounded-3xl overflow-hidden
-                  min-h-[220px] sm:min-h-[340px] lg:min-h-[400px] flex flex-col justify-end p-4 sm:p-6 lg:p-8
+                  min-h-[260px] sm:min-h-[360px] lg:min-h-[420px] flex flex-col justify-between p-5 sm:p-7 lg:p-8
                   border border-neutral-200/80 dark:border-dark-border
                   shadow-subtle hover:shadow-elevated select-none cursor-pointer
-                  bg-neutral-100 dark:bg-dark-surface
+                  bg-neutral-900 text-white
                 `}
                 onClick={() => handleCatalogNavigate(collection.link)}
               >
-                {/* Background Image with Zoom */}
-                <ProgressiveImage
+                {/* Full-Bleed Background Image */}
+                <img
                   src={bentoImage}
                   alt={collection.title}
-                  width={1200}
-                  aspectRatio=""
-                  className="absolute inset-0 w-full h-full"
-                  imgClassName="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-106"
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
                 />
 
-                {/* Dual-Theme Gradient Overlay for Full Image Background Coverage */}
-                <div className="absolute inset-0 bg-gradient-to-t from-white/92 via-white/45 via-35% to-transparent dark:from-neutral-950/95 dark:via-neutral-950/50 dark:via-35% dark:to-transparent pointer-events-none" />
-                <div className="absolute inset-0 bg-black/5 dark:bg-white/5 group-hover:opacity-0 transition-opacity pointer-events-none" />
+                {/* Cinematic Contrast Gradient Overlay for full background visibility */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 via-50% to-black/20 pointer-events-none" />
 
-                {/* Content */}
-                <div className="relative z-10 flex flex-col gap-1.5 sm:gap-2">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="brand" size="sm">
-                      {collection.badge}
-                    </Badge>
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/90 dark:bg-white/20 backdrop-blur-md text-neutral-800 dark:text-white shadow-subtle flex items-center justify-center group-hover:bg-brand-500 group-hover:text-white transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1">
-                      <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </div>
+                {/* Top: Badge & Arrow Action */}
+                <div className="relative z-10 flex items-center justify-between">
+                  <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/20 dark:bg-white/15 backdrop-blur-md text-white border border-white/20 shadow-xs">
+                    {collection.badge}
+                  </span>
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20 shadow-subtle flex items-center justify-center group-hover:bg-brand-500 group-hover:border-brand-500 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1">
+                    <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
+                </div>
 
-                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-widest text-brand-600 dark:text-brand-400 font-bold mt-1 sm:mt-2">
+                {/* Bottom: Category, Title & Subtitle */}
+                <div className="relative z-10 flex flex-col gap-1 sm:gap-1.5 mt-auto pt-12">
+                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-widest text-brand-400 font-bold">
                     {collection.category}
                   </span>
 
-                  <h3 className="font-display font-bold text-lg sm:text-2xl lg:text-3xl text-neutral-900 dark:text-white tracking-tight leading-snug">
+                  <h3 className="font-display font-bold text-lg sm:text-2xl lg:text-3xl text-white tracking-tight leading-snug drop-shadow-xs">
                     {collection.title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-300 max-w-md line-clamp-2">
+                  <p className="text-xs sm:text-sm text-neutral-200 max-w-md line-clamp-2">
                     {collection.subtitle}
                   </p>
                 </div>
@@ -493,9 +535,9 @@ export const Home = ({
 
         {/* 4-Column High-Impact Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {newArrivals.map((product) => (
+          {newArrivals.map((product, idx) => (
             <motion.div
-              key={`new-${product.id}`}
+              key={`new-${product._id || product.id || idx}`}
               variants={fadeInUp}
               initial="hidden"
               whileInView="visible"
@@ -533,24 +575,47 @@ export const Home = ({
             </Subtitle>
           </div>
 
-          {/* Interactive Filter Pills */}
-          <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-neutral-100 dark:bg-dark-card border border-neutral-200/60 dark:border-dark-border overflow-x-auto max-w-full no-scrollbar">
-            {filterTabs.map((tab) => (
-              <button
-                key={tab.value}
-                type="button"
-                onClick={() => setActiveCategoryFilter(tab.value)}
-                className={`
-                  px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer
-                  ${activeCategoryFilter === tab.value
-                    ? 'bg-white dark:bg-dark-surface text-brand-600 dark:text-brand-400 shadow-subtle'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
-                  }
-                `}
-              >
-                {tab.label}
-              </button>
-            ))}
+          {/* Interactive Filter Pills with Left & Right scroll buttons */}
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-neutral-100 dark:bg-dark-card border border-neutral-200/60 dark:border-dark-border w-full md:w-auto max-w-full md:max-w-xl lg:max-w-2xl min-w-0">
+            <button
+              type="button"
+              onClick={() => scrollFilters('left')}
+              className="w-8 h-8 rounded-xl bg-white dark:bg-dark-surface shadow-xs flex items-center justify-center text-neutral-600 dark:text-neutral-300 hover:bg-brand-500 hover:text-white transition-all cursor-pointer shrink-0 z-10 active:scale-95 border border-neutral-200/50 dark:border-dark-border"
+              aria-label="Scroll filters left"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            <div
+              ref={filterScrollRef}
+              className="flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 scroll-smooth min-w-0"
+            >
+              {filterTabs.map((tab) => (
+                <button
+                  key={tab.value}
+                  type="button"
+                  onClick={() => setActiveCategoryFilter(tab.value)}
+                  className={`
+                    px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap shrink-0 transition-all duration-200 cursor-pointer
+                    ${activeCategoryFilter === tab.value
+                      ? 'bg-white dark:bg-dark-surface text-brand-600 dark:text-brand-400 shadow-subtle'
+                      : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                    }
+                  `}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => scrollFilters('right')}
+              className="w-8 h-8 rounded-xl bg-white dark:bg-dark-surface shadow-xs flex items-center justify-center text-neutral-600 dark:text-neutral-300 hover:bg-brand-500 hover:text-white transition-all cursor-pointer shrink-0 z-10 active:scale-95 border border-neutral-200/50 dark:border-dark-border"
+              aria-label="Scroll filters right"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
@@ -561,7 +626,7 @@ export const Home = ({
               <ProductCardSkeleton key={i} />
             ))}
           </div>
-        ) : archiveProducts.length > 0 ? (
+        ) : effectiveArchiveProducts.length > 0 ? (
           <motion.div
             key={activeCategoryFilter}
             variants={staggerContainer}
@@ -569,7 +634,7 @@ export const Home = ({
             animate="visible"
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
           >
-            {archiveProducts.map((product) => (
+            {effectiveArchiveProducts.map((product) => (
               <motion.div key={product._id || product.id} variants={staggerItem} className="h-full">
                 <ProductCard
                   {...product}

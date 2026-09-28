@@ -6,6 +6,7 @@ export const Rating = ({
   maxStars = 5,
   reviewsCount,
   showScore = true,
+  showValue,
   isInteractive = false,
   onChange,
   size = 'md',
@@ -14,16 +15,20 @@ export const Rating = ({
   const [hoverRating, setHoverRating] = useState(0);
 
   const starSizes = {
+    xs: 'w-3 h-3',
     sm: 'w-3.5 h-3.5',
     md: 'w-4 h-4',
     lg: 'w-5 h-5',
   };
 
   const textSizes = {
+    xs: 'text-[10px]',
     sm: 'text-xs',
     md: 'text-sm',
     lg: 'text-base font-medium',
   };
+
+  const effectiveShowScore = showValue !== undefined ? showValue : showScore;
 
   const currentVal = hoverRating || rating;
 
@@ -72,7 +77,7 @@ export const Rating = ({
         })}
       </div>
 
-      {showScore && rating > 0 && (
+      {effectiveShowScore && rating > 0 && (
         <span className={`font-semibold text-neutral-900 dark:text-dark-text ${textSizes[size]}`}>
           {Number(rating).toFixed(1)}
         </span>

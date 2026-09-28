@@ -139,13 +139,13 @@ export const Cart = ({
       </div>
 
       {/* Layout Grid: Items vs Order Summary */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Cart Items */}
         <div className="lg:col-span-8 flex flex-col gap-4">
           <AnimatePresence mode="popLayout">
-            {items.map((item) => (
+            {items.map((item, idx) => (
               <motion.div
-                key={item.id}
+                key={item.id || item._id || idx}
                 layout
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -132,16 +132,27 @@ export const useCartStore = create((set, get) => ({
       const response = await cartApi.getCart();
       const serverCart = response?.data;
       if (serverCart && Array.isArray(serverCart.items)) {
-        const mappedItems = serverCart.items.map((entry) => ({
-          ...(entry.product || {}),
-          id: entry.product?._id,
-          _id: entry.product?._id,
-          title: entry.product?.name,
-          name: entry.product?.name,
-          price: entry.price,
-          quantity: entry.quantity,
-          image: entry.product?.image || (entry.product?.images?.[0] || ''),
-        }));
+        const mappedItems = serverCart.items
+          .filter((entry) => entry && entry.product)
+          .map((entry, idx) => {
+            const prod = entry.product || {};
+            const resolvedId = prod._id || prod.id || entry._id || `cart-item-${idx}`;
+            const resolvedTitle = prod.name || prod.title || 'Curated Hardware';
+            const resolvedImage = prod.image || prod.thumbnail || (prod.images && prod.images[0]) || '';
+            const resolvedPrice = Number(prod.price || entry.price) || 0;
+
+            return {
+              ...prod,
+              id: resolvedId,
+              _id: resolvedId,
+              title: resolvedTitle,
+              name: resolvedTitle,
+              price: resolvedPrice,
+              quantity: Math.max(1, parseInt(entry.quantity, 10) || 1),
+              image: resolvedImage,
+              category: prod.category || 'Hardware',
+            };
+          });
 
         saveItems(mappedItems);
         set({ items: mappedItems, isLoading: false });
@@ -167,7 +178,7 @@ export const useCartStore = create((set, get) => ({
 
   getShippingFee: () => {
     const subtotal = get().getSubtotal();
-    return subtotal >= 4999 || subtotal === 0 ? 0 : 499;
+    return subtotal >= 999 || subtotal === 0 ? 0 : 40;
   },
 
   getTax: () => {

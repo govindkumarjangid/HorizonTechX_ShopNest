@@ -263,9 +263,9 @@ export const Dashboard = ({
       </div>
 
       {/* 2-COLUMN DASHBOARD GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* LEFT SIDEBAR NAVIGATION CARD (Sticky on Desktop, Horizontal Scroll on Mobile) */}
-        <div className="lg:col-span-4 lg:sticky lg:top-24 z-10 self-start w-full">
+        <div className="lg:col-span-4 lg:sticky lg:top-20 z-10 lg:self-start w-full">
           <div className="bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border rounded-2xl lg:rounded-3xl p-2 sm:p-3 lg:p-4 shadow-subtle flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible no-scrollbar gap-1.5 sm:gap-2 lg:gap-1.5">
             {/* 1. Profile & Settings */}
             <button
@@ -727,7 +727,7 @@ export const Dashboard = ({
       {/* Add Address Modal with Premium UI & Animations */}
       <AnimatePresence>
         {showAddAddressModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-neutral-950/75 backdrop-blur-md overflow-y-auto">
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4 bg-neutral-950/75 backdrop-blur-md overflow-y-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 14 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

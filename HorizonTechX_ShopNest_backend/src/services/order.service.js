@@ -45,7 +45,7 @@ export const createOrder = async (userId, orderData) => {
     });
   }
 
-  const shippingFee = subtotal >= 4999 ? 0 : 499;
+  const shippingFee = subtotal >= 999 ? 0 : 40;
   const tax = Math.round(subtotal * 0.18);
   const total = subtotal + shippingFee + tax;
 

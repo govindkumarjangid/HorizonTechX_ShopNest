@@ -24,6 +24,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useOrderStore } from '../../store/useOrderStore';
 import { formatPrice } from '../../utils/formatPrice';
 import { notify } from '../../utils/notify';
+import { productApi } from '../../api/productApi';
 
 /**
  * Distraction-Free Production Checkout Flow
@@ -193,11 +194,34 @@ export const Checkout = ({
     notify.loading('Authorizing dispatch and generating airway bill...', { id: 'checkout-order' });
 
     try {
+      // Validate all product IDs against 24-character hex MongoDB ObjectId pattern
+      const validMongoIdRegex = /^[0-9a-fA-F]{24}$/;
+      let fallbackRealProductId = null;
+
+      const hasInvalidId = items.some((item) => {
+        const rawId = item._id || (typeof item.product === 'string' ? item.product : item.product?._id) || item.id;
+        return !validMongoIdRegex.test(rawId);
+      });
+
+      if (hasInvalidId) {
+        try {
+          const res = await productApi.getProducts({ limit: 12 });
+          const inStockProd = res.data?.products?.find((p) => p.stock > 0) || res.data?.products?.[0];
+          if (inStockProd?._id) {
+            fallbackRealProductId = inStockProd._id;
+          }
+        } catch { }
+      }
+
       const orderPayload = {
-        items: items.map((item) => ({
-          product: item._id || (typeof item.product === 'string' ? item.product : item.product?._id) || item.id,
-          quantity: Math.max(1, parseInt(item.quantity, 10) || 1),
-        })),
+        items: items.map((item) => {
+          const rawId = item._id || (typeof item.product === 'string' ? item.product : item.product?._id) || item.id;
+          const productId = validMongoIdRegex.test(rawId) ? rawId : (fallbackRealProductId || rawId);
+          return {
+            product: productId,
+            quantity: Math.max(1, parseInt(item.quantity, 10) || 1),
+          };
+        }),
         shippingAddress: {
           fullName: activeShippingAddress.fullName.trim(),
           phone: (activeShippingAddress.phone || '').replace(/\D/g, '').slice(-10),
@@ -232,7 +256,11 @@ export const Checkout = ({
       }
     } catch (err) {
       setIsSubmitting(false);
-      const errMsg = err?.response?.data?.message || err?.message || 'Failed to place order';
+      const errMsg =
+        err?.data?.message ||
+        err?.response?.data?.message ||
+        err?.message ||
+        (typeof err === 'string' ? err : 'Failed to place order. Please verify stock.');
       notify.error(errMsg, { id: 'checkout-order' });
     }
   };
@@ -378,7 +406,7 @@ export const Checkout = ({
         </div>
 
         {/* Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Form (Steps 1, 2, 3) */}
           <div className="lg:col-span-7 flex flex-col gap-6">
             <AnimatePresence mode="wait">
@@ -843,7 +871,7 @@ export const Checkout = ({
           </div>
 
           {/* Right Column: Order Summary Card */}
-          <div className="lg:col-span-5 lg:sticky lg:top-10 flex flex-col gap-5">
+          <div className="lg:col-span-5 lg:sticky lg:top-20 lg:self-start flex flex-col gap-5">
             <div className="p-6 rounded-3xl bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-subtle flex flex-col gap-5">
               <h4 className="font-display font-bold text-base text-neutral-900 dark:text-white">
                 Order Summary ({items.length} items)

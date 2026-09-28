@@ -225,7 +225,7 @@ export const AutocompleteSearch = ({
             exit={{ opacity: 0, y: 6, scale: 0.98 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
             className="
-              absolute left-0 right-0 top-full mt-2 z-50
+              absolute left-0 right-0 top-full mt-2 z-[60]
               bg-white/95 dark:bg-dark-surface/95 backdrop-blur-2xl
               border border-neutral-200/90 dark:border-dark-border
               rounded-2xl shadow-2xl overflow-hidden

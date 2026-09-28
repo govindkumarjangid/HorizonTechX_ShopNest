@@ -55,10 +55,9 @@ export const SmoothScrollProvider = ({ children }) => {
     }
     animationFrameId = requestAnimationFrame(raf);
 
-    // 3. Sync scroll events with motion / window scroll listeners
+    // 3. Sync scroll events (Lenis scrolls window directly, no recursive dispatch needed)
     const handleLenisScroll = () => {
-      // Dispatches synthetic scroll event so motion whileInView and scroll listeners trigger in real time
-      window.dispatchEvent(new Event('scroll'));
+      // Passive sync without recursive event loop
     };
     lenis.on('scroll', handleLenisScroll);
 

@@ -70,7 +70,8 @@ export const ProductCard = ({
   const resolvedId = id || _id;
   const resolvedTitle = title || name;
   const resolvedOriginalPrice = originalPrice || mrp;
-  const resolvedImage = image || (images && images.length > 0 ? images[0] : '');
+  const fallbackPlaceholder = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80';
+  const resolvedImage = image || (images && images.length > 0 ? images[0] : '') || fallbackPlaceholder;
   const resolvedReviewsCount = reviewsCount || numReviews || 0;
   const resolvedOutOfStock = isOutOfStock !== undefined ? isOutOfStock : !inStock;
 
@@ -223,7 +224,7 @@ export const ProductCard = ({
                 e.stopPropagation();
                 setActiveImageIdx((prev) => (prev - 1 + resolvedImages.length) % resolvedImages.length);
               }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white/90 dark:bg-dark-surface/90 backdrop-blur-md flex items-center justify-center text-neutral-700 dark:text-neutral-200 opacity-0 group-hover:opacity-100 hover:scale-110 transition-all shadow-subtle cursor-pointer"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white/90 dark:bg-dark-surface/90 backdrop-blur-md hidden sm:flex items-center justify-center text-neutral-700 dark:text-neutral-200 opacity-0 group-hover:opacity-100 hover:scale-110 transition-all shadow-subtle cursor-pointer"
               aria-label="Previous photo"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
@@ -234,7 +235,7 @@ export const ProductCard = ({
                 e.stopPropagation();
                 setActiveImageIdx((prev) => (prev + 1) % resolvedImages.length);
               }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white/90 dark:bg-dark-surface/90 backdrop-blur-md flex items-center justify-center text-neutral-700 dark:text-neutral-200 opacity-0 group-hover:opacity-100 hover:scale-110 transition-all shadow-subtle cursor-pointer"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white/90 dark:bg-dark-surface/90 backdrop-blur-md hidden sm:flex items-center justify-center text-neutral-700 dark:text-neutral-200 opacity-0 group-hover:opacity-100 hover:scale-110 transition-all shadow-subtle cursor-pointer"
               aria-label="Next photo"
             >
               <ChevronRight className="w-3.5 h-3.5" />
@@ -242,9 +243,9 @@ export const ProductCard = ({
           </>
         )}
 
-        {/* Quick View & Quick Add Action Bar (Hover Overlay) */}
+        {/* Quick View & Quick Add Action Bar (Desktop Hover Overlay Only) */}
         <div className="
-          absolute inset-x-3 bottom-3 z-10 flex items-center gap-2
+          absolute inset-x-3 bottom-3 z-10 hidden sm:flex items-center gap-2
           translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100
           transition-all duration-250 ease-out pointer-events-none group-hover:pointer-events-auto
         ">

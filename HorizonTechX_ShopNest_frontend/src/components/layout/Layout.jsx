@@ -78,7 +78,7 @@ export const Layout = ({
   };
 
   return (
-    <div className="min-h-dvh flex flex-col bg-neutral-50 dark:bg-dark-bg text-neutral-900 dark:text-dark-text transition-colors duration-200 w-full overflow-x-clip relative">
+    <div className="min-h-dvh flex flex-col bg-neutral-50 dark:bg-dark-bg text-neutral-900 dark:text-dark-text transition-colors duration-200 w-full relative">
       {/* Sticky Header */}
       <Navbar
         cartCount={getCartCount()}
@@ -101,7 +101,7 @@ export const Layout = ({
       />
 
       {/* Main Content Area - pb-28 on mobile so bottom tab bar doesn't overlap */}
-      <main className="flex-1 w-full overflow-x-clip pb-28 lg:pb-0">
+      <main className="flex-1 w-full pb-28 lg:pb-0">
         {children}
       </main>
 

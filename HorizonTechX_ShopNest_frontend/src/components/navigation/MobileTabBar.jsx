@@ -47,17 +47,20 @@ export const MobileTabBar = ({
   };
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden select-none">
+    <div className="fixed bottom-0 left-0 right-0 w-full z-40 lg:hidden select-none m-0 p-0 pointer-events-none">
       {/* Frosted Glass Container with Safe Area Inset Support */}
       <nav
         aria-label="Mobile Navigation"
         className="
-          bg-white/92 dark:bg-dark-surface/92 backdrop-blur-2xl
+          pointer-events-auto relative w-full
+          bg-white/98 dark:bg-[#12141A] backdrop-blur-2xl
           border-t border-neutral-200/80 dark:border-dark-border
-          shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.4)]
-          px-2 pt-1.5 pb-[max(env(safe-area-inset-bottom),0.75rem)]
+          shadow-[0_-4px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]
+          px-2 pt-1.5 pb-[max(env(safe-area-inset-bottom,0px),0.5rem)]
         "
       >
+        {/* Extended solid bottom filler to ensure zero gap on any device notch, chin, or bounce */}
+        <div className="absolute top-full left-0 right-0 h-32 bg-white dark:bg-[#12141A] pointer-events-none" />
         <div className="flex items-center justify-around max-w-md mx-auto">
           {tabs.map((tab) => {
             const Icon = tab.icon;

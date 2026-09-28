@@ -215,7 +215,7 @@ export const ProductDetails = ({
       </nav>
 
       {/* Main Product Showcase Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
         {/* Left: Interactive Touch & Zoom Gallery */}
         <div className="lg:col-span-7 w-full">
           <ProductGallery
@@ -225,7 +225,7 @@ export const ProductDetails = ({
         </div>
 
         {/* Right: Purchase Controls & Product Specifications */}
-        <div className="lg:col-span-5 flex flex-col gap-6 w-full">
+        <div className="lg:col-span-5 lg:sticky lg:top-20 lg:self-start flex flex-col gap-6 w-full">
           {/* Header Badges & Title */}
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center gap-2">
@@ -400,19 +400,21 @@ export const ProductDetails = ({
 
           {activeTab === 'reviews' && (
             <div className="flex flex-col gap-4 max-w-3xl">
-              <div className="flex items-center gap-4 p-4 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border">
-                <div className="flex flex-col items-center justify-center p-3 rounded-xl bg-white dark:bg-dark-card border border-neutral-200/60 dark:border-dark-border min-w-[90px]">
-                  <span className="font-display text-2xl font-bold text-neutral-900 dark:text-white">
-                    {resolvedRating}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 p-4 sm:p-5 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border">
+                <div className="flex sm:flex-col items-center justify-center gap-3 sm:gap-1.5 p-3.5 sm:p-4 rounded-xl bg-white dark:bg-dark-card border border-neutral-200/60 dark:border-dark-border shrink-0">
+                  <span className="font-display text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-white leading-none">
+                    {Number(resolvedRating).toFixed(1)}
                   </span>
-                  <Rating rating={resolvedRating} size="sm" showValue={false} />
-                  <span className="text-[10px] text-neutral-400 mt-1 font-mono">
-                    {product.reviews?.length || resolvedReviews} reviews
-                  </span>
+                  <div className="flex flex-col items-center gap-1">
+                    <Rating rating={resolvedRating} size="sm" showScore={false} showValue={false} />
+                    <span className="text-[10px] text-neutral-400 font-mono">
+                      {product.reviews?.length || resolvedReviews} reviews
+                    </span>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-1 text-xs text-neutral-600 dark:text-neutral-400">
-                  <p className="font-semibold text-neutral-900 dark:text-white text-sm">Verified Customer Feedback</p>
-                  <p>All reviews are submitted by authenticated buyers following delivered purchases.</p>
+                <div className="flex flex-col gap-1 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 min-w-0 flex-1">
+                  <p className="font-semibold text-neutral-900 dark:text-white text-sm sm:text-base">Verified Customer Feedback</p>
+                  <p className="leading-relaxed">All reviews are submitted by authenticated buyers following delivered purchases.</p>
                 </div>
               </div>
 
@@ -431,7 +433,7 @@ export const ProductDetails = ({
                           {rev.date ? new Date(rev.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}
                         </span>
                       </div>
-                      <Rating rating={rev.rating || 5} size="xs" showValue={false} />
+                      <Rating rating={rev.rating || 5} size="xs" showScore={false} showValue={false} />
                       <p className="text-xs text-neutral-600 dark:text-neutral-300 italic">
                         "{rev.comment}"
                       </p>

@@ -9,6 +9,7 @@ import {
   X,
   Sun,
   Moon,
+  ChevronLeft,
   ChevronRight,
   LogOut,
 } from 'lucide-react';
@@ -86,29 +87,10 @@ export const Navbar = ({
     else navigate(`/dashboard?tab=${tab}`);
   };
 
-  // Scroll detection: hides main header on scroll down, reveals on scroll up or top, keeps category bar sticky
+  // Passive scroll listener for subtle background blur
   useEffect(() => {
     const handleScroll = () => {
-      // Do not hide header if user is actively searching or account popup is open
-      if (isSearchActiveRef.current || isAccountOpenRef.current) return;
-
-      const currentScrollY = window.scrollY;
-      setIsScrolled(currentScrollY > 15);
-
-      if (currentScrollY > 70) {
-        if (currentScrollY > lastScrollY.current + 8) {
-          // Scrolling DOWN: hide top header, keep category sub-bar sticky
-          setIsHeaderHidden(true);
-        } else if (currentScrollY < lastScrollY.current - 8) {
-          // Scrolling UP: reveal top header
-          setIsHeaderHidden(false);
-        }
-      } else {
-        // At or near top: always show top header
-        setIsHeaderHidden(false);
-      }
-
-      lastScrollY.current = currentScrollY;
+      setIsScrolled(window.scrollY > 20);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -154,199 +136,214 @@ export const Navbar = ({
   const activeCategoryParam = searchParams.get('category');
   const isShopAllActive = location.pathname === '/shop' && !activeCategoryParam;
 
+  // Category bar scroll helper (Left/Right buttons)
+  const scrollCategoryBar = (direction) => {
+    if (categoryBarRef.current) {
+      const scrollAmount = direction === 'left' ? -240 : 240;
+      categoryBarRef.current.scrollLeft += scrollAmount;
+    }
+  };
+
   return (
     <>
-      <header
-        className={`
-          sticky top-0 z-50 w-full transition-all duration-300
-          ${isScrolled
-            ? 'bg-white/85 dark:bg-dark-bg/85 backdrop-blur-xl shadow-xs'
-            : 'bg-white/95 dark:bg-dark-bg/95'
-          }
-        `}
-      >
-        {/* =========================================================
-            1. MAIN HEADER: LOGO | CENTERED SEARCH | ACTIONS
-            Hides on scroll down, reveals on scroll up
-           ========================================================= */}
-        <div
-          className={`relative z-30 transition-all duration-300 ease-in-out ${
-            isHeaderHidden
-              ? '-translate-y-full max-h-0 opacity-0 pointer-events-none overflow-hidden'
-              : 'translate-y-0 opacity-100 overflow-visible'
-          }`}
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16 sm:h-[70px] gap-3 sm:gap-6">
+      {/* =========================================================
+          1. MAIN HEADER: LOGO | CENTERED SEARCH | ACTIONS
+          Scrolls naturally with document - zero layout shift/flicker
+         ========================================================= */}
+      <header className="relative z-50 w-full bg-white dark:bg-dark-bg border-b border-neutral-100 dark:border-dark-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-[68px] gap-3 sm:gap-6">
 
-              {/* Left: Mobile Menu Toggle & Brand Logo */}
-              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setIsMobileMenuOpen(true)}
-                  className="lg:hidden p-2 text-neutral-700 dark:text-neutral-200 hover:text-brand-500 rounded-lg cursor-pointer"
-                  aria-label="Open navigation menu"
-                >
-                  <Menu className="w-5 h-5" />
-                </button>
+            {/* Left: Mobile Menu Toggle & Brand Logo */}
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="lg:hidden p-2 text-neutral-700 dark:text-neutral-200 hover:text-brand-500 rounded-lg cursor-pointer"
+                aria-label="Open navigation menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
 
-                <button
-                  type="button"
-                  onClick={handleLogoClick}
-                  className="flex items-center group cursor-pointer text-left bg-transparent border-none p-0 focus:outline-none"
-                  aria-label="ShopNest Home"
-                >
-                  <Logo className="h-8 sm:h-9 w-auto" />
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={handleLogoClick}
+                className="flex items-center group cursor-pointer text-left bg-transparent border-none p-0 focus:outline-none"
+                aria-label="ShopNest Home"
+              >
+                <Logo className="h-7 sm:h-9 w-auto" />
+              </button>
+            </div>
 
-              {/* Center: Autocomplete Search Box (Centrally Placed) */}
-              <div className="hidden sm:flex flex-1 max-w-xl mx-2 md:mx-6 lg:mx-8 items-center justify-center min-w-0">
-                <div className="w-full">
-                  <AutocompleteSearch
-                    placeholder="Search products, laptops, accessories..."
-                    onActiveChange={setIsSearchActive}
-                  />
-                </div>
-              </div>
-
-              {/* Right: Actions (Theme, Wishlist, Cart, Account Dropdown) */}
-              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-                {/* Theme Toggle */}
-                <motion.button
-                  type="button"
-                  whileTap={buttonTap}
-                  onClick={toggleTheme}
-                  className="p-2.5 text-neutral-600 dark:text-neutral-300 hover:text-brand-500 dark:hover:text-brand-400 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-card transition-colors cursor-pointer"
-                  aria-label="Toggle Dark Mode"
-                >
-                  {isDarkMode ? <Sun className="w-5 h-5 text-accent-amber" /> : <Moon className="w-5 h-5" />}
-                </motion.button>
-
-                {/* Wishlist */}
-                <motion.button
-                  type="button"
-                  whileTap={buttonTap}
-                  onClick={handleWishlistClick}
-                  className="relative p-2.5 text-neutral-600 dark:text-neutral-300 hover:text-brand-500 dark:hover:text-brand-400 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-card transition-colors cursor-pointer"
-                  aria-label="Wishlist"
-                >
-                  <Heart className="w-5 h-5" />
-                  {effectiveWishlistCount > 0 && (
-                    <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-[10px] font-bold flex items-center justify-center">
-                      {effectiveWishlistCount}
-                    </span>
-                  )}
-                </motion.button>
-
-                {/* Shopping Bag / Cart */}
-                <motion.button
-                  type="button"
-                  whileTap={buttonTap}
-                  onClick={onCartClick}
-                  className="relative p-2.5 text-neutral-600 dark:text-neutral-300 hover:text-brand-500 dark:hover:text-brand-400 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-card transition-colors cursor-pointer"
-                  aria-label="Cart"
-                >
-                  <ShoppingBag className="w-5 h-5" />
-                  {cartCount > 0 && (
-                    <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-brand-500 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
-                      {cartCount}
-                    </span>
-                  )}
-                </motion.button>
-
-                {/* User Profile Button with Anchored Account Popup */}
-                <div className="relative">
-                  <motion.button
-                    type="button"
-                    whileTap={buttonTap}
-                    onClick={() => setIsAccountOpen(!isAccountOpen)}
-                    className={`
-                      p-1.5 sm:p-2 rounded-full transition-all cursor-pointer flex items-center gap-1.5
-                      ${isAccountOpen
-                        ? 'bg-brand-50 dark:bg-brand-950/60 ring-2 ring-brand-500/20'
-                        : 'hover:bg-neutral-100 dark:hover:bg-dark-card text-neutral-600 dark:text-neutral-300'
-                      }
-                    `}
-                    aria-label="User Account"
-                  >
-                    {isAuthenticated && user?.name ? (
-                      <div className="w-8 h-8 rounded-full bg-brand-500 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-                        {userInitials}
-                      </div>
-                    ) : (
-                      <div className="p-1">
-                        <User className="w-5 h-5" />
-                      </div>
-                    )}
-                  </motion.button>
-
-                  {/* Account Popup */}
-                  <AccountPopup
-                    isOpen={isAccountOpen}
-                    onClose={() => setIsAccountOpen(false)}
-                    onOpenAuthModal={onOpenAuthModal}
-                    onNavigateToDashboard={handleNavigateToDashboard}
-                    wishlistCount={effectiveWishlistCount}
-                  />
-                </div>
-
+            {/* Center: Autocomplete Search Box (Centrally Placed) */}
+            <div className="hidden sm:flex flex-1 max-w-xl mx-2 md:mx-6 lg:mx-8 items-center justify-center min-w-0">
+              <div className="w-full">
+                <AutocompleteSearch
+                  placeholder="Search products, laptops, accessories..."
+                  onActiveChange={setIsSearchActive}
+                />
               </div>
             </div>
 
-            {/* Mobile Search Row (Only on screens < sm) */}
-            <div className="sm:hidden pb-3">
-              <AutocompleteSearch
-                placeholder="Search products, laptops, accessories..."
-                onActiveChange={setIsSearchActive}
-              />
+            {/* Right: Actions (Theme, Wishlist, Cart, Account Dropdown) */}
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+              {/* Theme Toggle */}
+              <motion.button
+                type="button"
+                whileTap={buttonTap}
+                onClick={toggleTheme}
+                className="p-2 sm:p-2.5 text-neutral-600 dark:text-neutral-300 hover:text-brand-500 dark:hover:text-brand-400 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-card transition-colors cursor-pointer"
+                aria-label="Toggle Dark Mode"
+              >
+                {isDarkMode ? <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-accent-amber" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
+              </motion.button>
+
+              {/* Wishlist */}
+              <motion.button
+                type="button"
+                whileTap={buttonTap}
+                onClick={handleWishlistClick}
+                className="relative p-2 sm:p-2.5 text-neutral-600 dark:text-neutral-300 hover:text-brand-500 dark:hover:text-brand-400 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-card transition-colors cursor-pointer"
+                aria-label="Wishlist"
+              >
+                <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+                {effectiveWishlistCount > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-[10px] font-bold flex items-center justify-center">
+                    {effectiveWishlistCount}
+                  </span>
+                )}
+              </motion.button>
+
+              {/* Shopping Bag / Cart */}
+              <motion.button
+                type="button"
+                whileTap={buttonTap}
+                onClick={onCartClick}
+                className="relative p-2 sm:p-2.5 text-neutral-600 dark:text-neutral-300 hover:text-brand-500 dark:hover:text-brand-400 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-card transition-colors cursor-pointer"
+                aria-label="Cart"
+              >
+                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
+                {cartCount > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-brand-500 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
+                    {cartCount}
+                  </span>
+                )}
+              </motion.button>
+
+              {/* User Profile Button with Anchored Account Popup */}
+              <div className="relative">
+                <motion.button
+                  type="button"
+                  whileTap={buttonTap}
+                  onClick={() => setIsAccountOpen(!isAccountOpen)}
+                  className={`
+                    p-1.5 sm:p-2 rounded-full transition-all cursor-pointer flex items-center gap-1.5
+                    ${isAccountOpen
+                      ? 'bg-brand-50 dark:bg-brand-950/60 ring-2 ring-brand-500/20'
+                      : 'hover:bg-neutral-100 dark:hover:bg-dark-card text-neutral-600 dark:text-neutral-300'
+                    }
+                  `}
+                  aria-label="User Account"
+                >
+                  {isAuthenticated && user?.name ? (
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-brand-500 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                      {userInitials}
+                    </div>
+                  ) : (
+                    <div className="p-0.5 sm:p-1">
+                      <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </div>
+                  )}
+                </motion.button>
+
+                {/* Account Popup */}
+                <AccountPopup
+                  isOpen={isAccountOpen}
+                  onClose={() => setIsAccountOpen(false)}
+                  onOpenAuthModal={onOpenAuthModal}
+                  onNavigateToDashboard={handleNavigateToDashboard}
+                  wishlistCount={effectiveWishlistCount}
+                />
+              </div>
+
             </div>
           </div>
-        </div>
 
-        {/* =========================================================
-            2. SECONDARY SUB-NAVBAR: CATEGORY PRODUCTS MENU BAR
-            Sticky at top when main header hides on scroll
-           ========================================================= */}
-        <div className="relative z-10 w-full border-t border-b border-neutral-200/70 dark:border-dark-border/70 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl">
-          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <nav
-              ref={categoryBarRef}
-              onWheel={handleCategoryWheel}
-              className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-2 scroll-smooth"
-              aria-label="Product Categories Navigation"
-            >
-              {allCategoryLinks.map((cat, idx) => {
-                const isSelected =
-                  (cat.slug === 'all' && isShopAllActive) ||
-                  (activeCategoryParam && activeCategoryParam.toLowerCase() === cat.slug?.toLowerCase());
-
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleNavLinkClick(cat)}
-                    className={`
-                      px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer shrink-0
-                      ${isSelected
-                        ? 'bg-brand-500 text-white shadow-subtle font-bold'
-                        : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-dark-surface'
-                      }
-                    `}
-                  >
-                    {cat.label}
-                  </button>
-                );
-              })}
-            </nav>
+          {/* Mobile Search Row (Only on screens < sm) */}
+          <div className="sm:hidden pb-3">
+            <AutocompleteSearch
+              placeholder="Search products, laptops, accessories..."
+              onActiveChange={setIsSearchActive}
+            />
           </div>
         </div>
       </header>
 
+      {/* =========================================================
+          2. SECONDARY SUB-NAVBAR: CATEGORY PRODUCTS MENU BAR
+          Natively sticky at top-0 with zero flicker
+         ========================================================= */}
+      <nav
+        className="sticky top-0 z-30 w-full border-b border-neutral-200/80 dark:border-dark-border/80 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl shadow-xs"
+        aria-label="Product Categories Navigation"
+      >
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 flex items-center gap-1">
+          {/* Scroll Left Button */}
+          <button
+            type="button"
+            onClick={() => scrollCategoryBar('left')}
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-surface text-neutral-600 dark:text-neutral-300 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            aria-label="Scroll categories left"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+
+          {/* Scrollable Nav */}
+          <div
+            ref={categoryBarRef}
+            onWheel={handleCategoryWheel}
+            className="flex-1 flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-2 scroll-smooth"
+          >
+            {allCategoryLinks.map((cat, idx) => {
+              const isSelected =
+                (cat.slug === 'all' && isShopAllActive) ||
+                (activeCategoryParam && activeCategoryParam.toLowerCase() === cat.slug?.toLowerCase());
+
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleNavLinkClick(cat)}
+                  className={`
+                    px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer shrink-0
+                    ${isSelected
+                      ? 'bg-brand-500 text-white shadow-subtle font-bold'
+                      : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-dark-surface'
+                    }
+                  `}
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Scroll Right Button */}
+          <button
+            type="button"
+            onClick={() => scrollCategoryBar('right')}
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-surface text-neutral-600 dark:text-neutral-300 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            aria-label="Scroll categories right"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </nav>
+
       {/* Animated Mobile Navigation Drawer */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 z-[70] lg:hidden">
             {/* Backdrop */}
             <motion.div
               variants={backdropFade}

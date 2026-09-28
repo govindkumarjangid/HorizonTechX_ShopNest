@@ -4,8 +4,16 @@ import productRepository from '../repositories/product.repository.js';
 
 export const getCart = async (userId) => {
   let cart = await cartRepository.findByUserId(userId);
-  if (!cart)
+  if (!cart) {
     cart = await cartRepository.createCart(userId, []);
+  } else if (cart.items && cart.items.length > 0) {
+    // Filter out any orphan items whose product reference was deleted/nullified
+    const initialCount = cart.items.length;
+    cart.items = cart.items.filter((item) => item.product !== null && item.product !== undefined);
+    if (cart.items.length !== initialCount) {
+      await cart.save();
+    }
+  }
   return cart;
 };
 

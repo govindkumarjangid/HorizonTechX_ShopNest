@@ -42,8 +42,22 @@ export const useOrderStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await orderApi.getOrderById(id);
-      const order = response?.data || null;
-      set({ activeOrder: order, isLoading: false });
+      const order = response?.data || (response?._id || response?.orderId ? response : null);
+      if (order) {
+        set((state) => {
+          const idKey = order.orderId || order._id || order.id;
+          const exists = state.orders.some((o) => (o.orderId || o._id || o.id) === idKey);
+          return {
+            activeOrder: order,
+            orders: exists
+              ? state.orders.map((o) => ((o.orderId || o._id || o.id) === idKey ? order : o))
+              : [order, ...state.orders],
+            isLoading: false,
+          };
+        });
+      } else {
+        set({ activeOrder: null, isLoading: false });
+      }
       return order;
     } catch (err) {
       console.error('[useOrderStore] fetchOrderById error:', err.message);
@@ -52,13 +66,12 @@ export const useOrderStore = create((set, get) => ({
     }
   },
 
-
   // Create and place a new order on backend
   createOrder: async (orderPayload) => {
     set({ isLoading: true, error: null });
     try {
       const response = await orderApi.createOrder(orderPayload);
-      const newOrder = response?.data;
+      const newOrder = response?.data || (response?._id || response?.orderId ? response : null);
 
       if (newOrder) {
         set((state) => ({

@@ -35,11 +35,18 @@ export const ProgressiveImage = ({
 
   useEffect(() => {
     const urls = getCloudinaryUrl(publicId || src, { width, height, crop });
-    setDisplaySrc(urls.fullUrl || urls.rawUrl || '');
+    const resolvedUrl = urls.fullUrl || urls.rawUrl || '';
+    setDisplaySrc(resolvedUrl);
     setDisplayBlurSrc(urls.blurUrl || '');
-    setHasError(false);
-    setIsLoaded(false);
-  }, [src, publicId, width, height, crop]);
+    if (!resolvedUrl) {
+      setHasError(true);
+      setIsLoaded(true);
+      if (onLoad) onLoad();
+    } else {
+      setHasError(false);
+      setIsLoaded(false);
+    }
+  }, [src, publicId, width, height, crop, onLoad]);
 
   // Check if image is already completed in DOM cache
   useEffect(() => {
