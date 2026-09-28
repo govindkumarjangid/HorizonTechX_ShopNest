@@ -48,7 +48,7 @@ export const Input = React.forwardRef(({
           className={`
             w-full bg-white dark:bg-dark-surface
             border text-neutral-900 dark:text-dark-text
-            text-sm rounded-xl px-4 py-2.5 transition-all duration-200 outline-none
+            text-base sm:text-sm rounded-xl px-4 py-2.5 transition-all duration-200 outline-none
             placeholder:text-neutral-400 dark:placeholder:text-neutral-500
             ${LeftIcon ? 'pl-10' : 'pl-4'}
             ${(RightIcon || isClearable || isPassword) ? 'pr-11' : 'pr-4'}

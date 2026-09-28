@@ -69,12 +69,12 @@ export const Cart = ({
 
   const handleRemove = (id) => {
     removeItem(id);
-    notify.info('Item removed from your bag');
+    notify.success('Item removed from your bag');
   };
 
   const handleClearBag = () => {
     clearCart();
-    notify.info('Your bag has been cleared');
+    notify.success('Your bag has been cleared');
   };
 
   const handleContinueShopping = () => {
@@ -171,7 +171,7 @@ export const Cart = ({
                   placeholder="Enter Promo Code (e.g. SHOPNEST10)"
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-50 dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-xs sm:text-sm font-mono text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-brand-500 uppercase"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-50 dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-base sm:text-sm font-mono text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-brand-500 uppercase"
                 />
               </div>
               <Button type="submit" variant="secondary" size="md" className="shrink-0 cursor-pointer">

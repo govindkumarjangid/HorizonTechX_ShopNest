@@ -84,8 +84,8 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
             className="
               relative w-full max-w-md bg-white dark:bg-dark-card
               border-t sm:border border-neutral-200/80 dark:border-dark-border
-              rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl z-10 overflow-hidden
-              max-h-[92vh] overflow-y-auto
+              rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl z-10
+              max-h-[90dvh] sm:max-h-[85dvh] overflow-y-auto pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] sm:pb-8
             "
           >
             {/* Mobile Drag Handle */}

@@ -38,7 +38,7 @@ export const Footer = () => {
       {/* Value Proposition Reassurance Bar */}
       <div className="border-b border-neutral-100 dark:border-dark-border/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {trustBadges.map((badge, idx) => {
               const Icon = badge.icon;
               return (
@@ -97,7 +97,7 @@ export const Footer = () => {
           </div>
 
           {/* Navigation Column Groups (7 Columns) */}
-          <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-8">
+          <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8">
             {/* Shop Column */}
             <div className="flex flex-col gap-4">
               <h4 className="font-display text-xs font-semibold uppercase tracking-wider text-neutral-900 dark:text-neutral-100">

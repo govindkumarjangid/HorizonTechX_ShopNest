@@ -43,18 +43,15 @@ export const Layout = ({
   const [internalAuthModal, setInternalAuthModal] = useState({ isOpen: false, mode: 'login' });
   const currentAuthModal = authModalState || internalAuthModal;
 
-  // Filter top categories from real DB for clean navigation
-  const prioritySlugs = ['laptops', 'smartphones', 'mobile-accessories', 'mens-watches', 'sports-accessories', 'sunglasses', 'tablets'];
+  // All database categories for sub-navbar navigation
   const formattedNavLinks = categories && categories.length > 0
     ? [
-        { label: 'Shop All', href: '/shop' },
-        ...categories
-          .filter((c) => prioritySlugs.includes(c.slug?.toLowerCase()))
-          .slice(0, 5)
-          .map((c) => ({
-            label: c.name.replace('Mens Watches', 'Watches').replace('Mobile Accessories', 'Accessories').replace('Sports Accessories', 'Sports'),
-            href: `/shop?category=${encodeURIComponent(c.slug)}`,
-          })),
+        { label: 'All Products', href: '/shop', slug: 'all' },
+        ...categories.map((c) => ({
+          label: c.name,
+          href: `/shop?category=${encodeURIComponent(c.slug)}`,
+          slug: c.slug,
+        })),
       ]
     : defaultNavLinks;
 
@@ -81,7 +78,7 @@ export const Layout = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-50 dark:bg-dark-bg text-neutral-900 dark:text-dark-text transition-colors duration-200 w-full overflow-x-clip relative">
+    <div className="min-h-dvh flex flex-col bg-neutral-50 dark:bg-dark-bg text-neutral-900 dark:text-dark-text transition-colors duration-200 w-full overflow-x-clip relative">
       {/* Sticky Header */}
       <Navbar
         cartCount={getCartCount()}
@@ -103,8 +100,8 @@ export const Layout = ({
         onNavLinkClick={onNavLinkClick}
       />
 
-      {/* Main Content Area - pb-24 on mobile so bottom tab bar doesn't overlap */}
-      <main className="flex-1 w-full overflow-x-clip pb-24 lg:pb-0">
+      {/* Main Content Area - pb-28 on mobile so bottom tab bar doesn't overlap */}
+      <main className="flex-1 w-full overflow-x-clip pb-28 lg:pb-0">
         {children}
       </main>
 

@@ -15,11 +15,11 @@ export const ProductGrid = ({
   onAddToWishlist,
   onQuickView,
   onResetFilters,
-  columns = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+  columns = 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4',
 }) => {
   if (isLoading) {
     return (
-      <div className={`grid ${columns} gap-6`}>
+      <div className={`grid ${columns} gap-3 sm:gap-4 lg:gap-6`}>
         {Array.from({ length: 6 }).map((_, idx) => (
           <ProductCardSkeleton key={idx} />
         ))}
@@ -43,7 +43,7 @@ export const ProductGrid = ({
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
-      className={`grid ${columns} gap-6`}
+      className={`grid ${columns} gap-3 sm:gap-4 lg:gap-6`}
     >
       {products.map((product) => (
         <motion.div key={product.id} variants={staggerItem} className="h-full">

@@ -166,7 +166,7 @@ export const ProductList = ({ onSelectProduct, onAddToWishlist }) => {
             onAddToWishlist={handleToggleWishlist}
             onQuickView={handleProductClick}
             onResetFilters={resetFilters}
-            columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+            columns="grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3"
           />
         </div>
       </div>
@@ -188,7 +188,7 @@ export const ProductList = ({ onSelectProduct, onAddToWishlist }) => {
               exit={{ y: '100%' }}
               transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
               className="
-                relative w-full h-[94vh] sm:h-auto sm:max-h-[88vh]
+                relative w-full h-[88dvh] sm:h-auto sm:max-h-[85dvh]
                 bg-white dark:bg-dark-surface
                 rounded-t-3xl shadow-2xl z-10 flex flex-col overflow-hidden
               "

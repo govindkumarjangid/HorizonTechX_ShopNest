@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   User,
   Package,
@@ -13,6 +14,13 @@ import {
   Shield,
   ShoppingBag,
   Search,
+  X,
+  Home,
+  Briefcase,
+  Building2,
+  Phone,
+  Compass,
+  Hash,
 } from 'lucide-react';
 import { Button, Badge } from '../../components/ui';
 import { OrderCard } from '../../components/orders/OrderCard';
@@ -147,7 +155,7 @@ export const Dashboard = ({
 
   const handleRemoveWishlist = async (id) => {
     await toggleWishlist(id);
-    notify.info('Item removed from wishlist');
+    notify.success('Item removed from wishlist');
   };
 
   const addItem = useCartStore((state) => state.addItem);
@@ -221,7 +229,7 @@ export const Dashboard = ({
   const handleDeleteAddress = async (id) => {
     try {
       await deleteAddress(id);
-      notify.info('Delivery address removed');
+      notify.success('Delivery address removed');
     } catch (err) {
       notify.error(err?.response?.data?.message || err.message || 'Failed to remove address');
     }
@@ -238,7 +246,7 @@ export const Dashboard = ({
 
   const handleLogout = async () => {
     await logout();
-    notify.info('You have signed out successfully.');
+    notify.success('You have signed out successfully.');
     navigate('/');
   };
 
@@ -256,22 +264,22 @@ export const Dashboard = ({
 
       {/* 2-COLUMN DASHBOARD GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* LEFT SIDEBAR NAVIGATION CARD (Sticky on Scroll) */}
-        <div className="lg:col-span-4 sticky top-24 z-10 self-start">
-          <div className="bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border rounded-3xl p-3 sm:p-4 shadow-subtle flex flex-col gap-1.5">
+        {/* LEFT SIDEBAR NAVIGATION CARD (Sticky on Desktop, Horizontal Scroll on Mobile) */}
+        <div className="lg:col-span-4 lg:sticky lg:top-24 z-10 self-start w-full">
+          <div className="bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border rounded-2xl lg:rounded-3xl p-2 sm:p-3 lg:p-4 shadow-subtle flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible no-scrollbar gap-1.5 sm:gap-2 lg:gap-1.5">
             {/* 1. Profile & Settings */}
             <button
               type="button"
               onClick={() => handleTabSwitch('profile')}
               className={`
-                w-full flex items-center gap-3.5 px-5 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 cursor-pointer
+                shrink-0 lg:w-full flex items-center gap-2 sm:gap-3.5 px-3.5 sm:px-5 py-2.5 sm:py-3.5 rounded-xl lg:rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap
                 ${activeTab === 'profile'
                   ? 'bg-brand-500 text-white shadow-sm'
                   : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-dark-surface'
                 }
               `}
             >
-              <User className={`w-5 h-5 ${activeTab === 'profile' ? 'text-white' : 'text-neutral-500 dark:text-neutral-400'}`} />
+              <User className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${activeTab === 'profile' ? 'text-white' : 'text-neutral-500 dark:text-neutral-400'}`} />
               <span>Profile & Settings</span>
             </button>
 
@@ -280,18 +288,19 @@ export const Dashboard = ({
               type="button"
               onClick={() => handleTabSwitch('orders')}
               className={`
-                w-full flex items-center justify-between px-5 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 cursor-pointer
+                shrink-0 lg:w-full flex items-center justify-between gap-2 sm:gap-3.5 px-3.5 sm:px-5 py-2.5 sm:py-3.5 rounded-xl lg:rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap
                 ${activeTab === 'orders'
                   ? 'bg-brand-500 text-white shadow-sm'
                   : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-dark-surface'
                 }
               `}
             >
-              <div className="flex items-center gap-3.5">
-                <Package className={`w-5 h-5 ${activeTab === 'orders' ? 'text-white' : 'text-neutral-500 dark:text-neutral-400'}`} />
-                <span>Order History & Tracking</span>
+              <div className="flex items-center gap-2 sm:gap-3.5">
+                <Package className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${activeTab === 'orders' ? 'text-white' : 'text-neutral-500 dark:text-neutral-400'}`} />
+                <span>Orders</span>
+                <span className="hidden sm:inline">& Tracking</span>
               </div>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${activeTab === 'orders' ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-dark-surface text-neutral-600 dark:text-neutral-400'}`}>
+              <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold ml-1.5 ${activeTab === 'orders' ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-dark-surface text-neutral-600 dark:text-neutral-400'}`}>
                 {orders?.length || 0}
               </span>
             </button>
@@ -301,18 +310,18 @@ export const Dashboard = ({
               type="button"
               onClick={() => handleTabSwitch('wishlist')}
               className={`
-                w-full flex items-center justify-between px-5 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 cursor-pointer
+                shrink-0 lg:w-full flex items-center justify-between gap-2 sm:gap-3.5 px-3.5 sm:px-5 py-2.5 sm:py-3.5 rounded-xl lg:rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap
                 ${activeTab === 'wishlist'
                   ? 'bg-brand-500 text-white shadow-sm'
                   : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-dark-surface'
                 }
               `}
             >
-              <div className="flex items-center gap-3.5">
-                <Heart className={`w-5 h-5 ${activeTab === 'wishlist' ? 'text-white' : 'text-neutral-500 dark:text-neutral-400'}`} />
-                <span>My Wishlist</span>
+              <div className="flex items-center gap-2 sm:gap-3.5">
+                <Heart className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${activeTab === 'wishlist' ? 'text-white' : 'text-neutral-500 dark:text-neutral-400'}`} />
+                <span>Wishlist</span>
               </div>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${activeTab === 'wishlist' ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-dark-surface text-neutral-600 dark:text-neutral-400'}`}>
+              <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold ml-1.5 ${activeTab === 'wishlist' ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-dark-surface text-neutral-600 dark:text-neutral-400'}`}>
                 {wishlist?.length || 0}
               </span>
             </button>
@@ -322,36 +331,36 @@ export const Dashboard = ({
               type="button"
               onClick={() => handleTabSwitch('addresses')}
               className={`
-                w-full flex items-center justify-between px-5 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 cursor-pointer
+                shrink-0 lg:w-full flex items-center justify-between gap-2 sm:gap-3.5 px-3.5 sm:px-5 py-2.5 sm:py-3.5 rounded-xl lg:rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap
                 ${activeTab === 'addresses'
                   ? 'bg-brand-500 text-white shadow-sm'
                   : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-dark-surface'
                 }
               `}
             >
-              <div className="flex items-center gap-3.5">
-                <MapPin className={`w-5 h-5 ${activeTab === 'addresses' ? 'text-white' : 'text-neutral-500 dark:text-neutral-400'}`} />
-                <span>Saved Addresses</span>
+              <div className="flex items-center gap-2 sm:gap-3.5">
+                <MapPin className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${activeTab === 'addresses' ? 'text-white' : 'text-neutral-500 dark:text-neutral-400'}`} />
+                <span>Addresses</span>
               </div>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${activeTab === 'addresses' ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-dark-surface text-neutral-600 dark:text-neutral-400'}`}>
+              <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold ml-1.5 ${activeTab === 'addresses' ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-dark-surface text-neutral-600 dark:text-neutral-400'}`}>
                 {savedAddresses?.length || 0}
               </span>
             </button>
 
             {/* Divider */}
-            <div className="my-2 border-t border-neutral-100 dark:border-dark-border" />
+            <div className="hidden lg:block my-2 border-t border-neutral-100 dark:border-dark-border" />
 
             {/* 5. Log Out Action */}
             <button
               type="button"
               onClick={handleLogout}
               className="
-                w-full flex items-center gap-3.5 px-5 py-3 rounded-2xl text-sm font-semibold
+                shrink-0 lg:w-full flex items-center gap-2 sm:gap-3.5 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl lg:rounded-2xl text-xs sm:text-sm font-semibold whitespace-nowrap
                 text-semantic-error hover:bg-rose-50 dark:hover:bg-rose-950/30
-                transition-all duration-200 cursor-pointer
+                transition-all duration-200 cursor-pointer ml-auto lg:ml-0
               "
             >
-              <LogOut className="w-5 h-5 text-semantic-error" />
+              <LogOut className="w-4 h-4 sm:w-5 sm:h-5 text-semantic-error shrink-0" />
               <span>Log Out</span>
             </button>
           </div>
@@ -398,7 +407,7 @@ export const Dashboard = ({
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full p-3.5 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-sm font-semibold text-neutral-900 dark:text-white outline-none focus:border-brand-500"
+                        className="w-full p-3.5 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-base sm:text-sm font-semibold text-neutral-900 dark:text-white outline-none focus:border-brand-500"
                       />
                     ) : (
                       <div className="p-4 rounded-2xl bg-neutral-50/80 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border/60">
@@ -419,7 +428,7 @@ export const Dashboard = ({
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full p-3.5 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-sm font-semibold text-neutral-900 dark:text-white outline-none focus:border-brand-500 font-mono"
+                        className="w-full p-3.5 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-base sm:text-sm font-semibold text-neutral-900 dark:text-white outline-none focus:border-brand-500 font-mono"
                       />
                     ) : (
                       <div className="p-4 rounded-2xl bg-neutral-50/80 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border/60">
@@ -455,7 +464,7 @@ export const Dashboard = ({
                         type="text"
                         value={formData.city}
                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                        className="w-full p-3.5 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-sm font-semibold text-neutral-900 dark:text-white outline-none focus:border-brand-500"
+                        className="w-full p-3.5 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-base sm:text-sm font-semibold text-neutral-900 dark:text-white outline-none focus:border-brand-500"
                       />
                     ) : (
                       <div className="p-4 rounded-2xl bg-neutral-50/80 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border/60">
@@ -510,7 +519,7 @@ export const Dashboard = ({
                         placeholder="Track by Order # or AWB..."
                         value={orderSearchQuery}
                         onChange={(e) => setOrderSearchQuery(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 rounded-xl bg-neutral-50 dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-brand-500 font-mono"
+                        className="w-full pl-9 pr-3 py-2 rounded-xl bg-neutral-50 dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-base sm:text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-brand-500 font-mono"
                       />
                     </div>
                   )}
@@ -715,90 +724,236 @@ export const Dashboard = ({
         </div>
       </div>
 
-      {/* Add Address Modal with Full Validation */}
-      {showAddAddressModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/65 backdrop-blur-sm">
-          <div className="bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl">
-            <h3 className="font-display font-bold text-xl text-neutral-900 dark:text-white mb-4">
-              Add New Address
-            </h3>
-            <form onSubmit={handleCreateAddress} noValidate className="flex flex-col gap-3">
-              <div className="flex gap-2 mb-1">
-                {['Home', 'Office', 'Studio'].map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setNewAddr({ ...newAddr, type })}
-                    className={`flex-1 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-                      newAddr.type === type
-                        ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400'
-                        : 'border-neutral-200 dark:border-dark-border text-neutral-600 dark:text-neutral-400'
-                    }`}
+      {/* Add Address Modal with Premium UI & Animations */}
+      <AnimatePresence>
+        {showAddAddressModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-neutral-950/75 backdrop-blur-md overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 14 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 14 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-white dark:bg-dark-card border border-neutral-200/90 dark:border-dark-border rounded-3xl p-5 sm:p-7 max-w-lg w-full shadow-2xl relative overflow-y-auto max-h-[88dvh] my-auto pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))]"
+            >
+              {/* Decorative Top Accent Line */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-brand-500 via-orange-400 to-brand-600" />
+
+              {/* Modal Header */}
+              <div className="flex items-center justify-between pb-4 mb-4 border-b border-neutral-100 dark:border-dark-border">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-brand-500/10 dark:bg-brand-500/15 text-brand-500 flex items-center justify-center shrink-0">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-bold text-lg sm:text-xl text-neutral-900 dark:text-white tracking-tight">
+                      Add New Delivery Address
+                    </h3>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                      Enter location details for insured courier dispatch
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAddAddressModal(false)}
+                  className="p-1.5 rounded-xl text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-dark-surface transition-colors cursor-pointer"
+                  aria-label="Close modal"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateAddress} noValidate className="flex flex-col gap-3.5">
+                {/* Address Type Selection Pills */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                    Address Label
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { type: 'Home', icon: Home },
+                      { type: 'Office', icon: Briefcase },
+                      { type: 'Studio', icon: Building2 },
+                    ].map(({ type, icon: Icon }) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setNewAddr({ ...newAddr, type })}
+                        className={`
+                          flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-semibold border transition-all cursor-pointer
+                          ${
+                            newAddr.type === type
+                              ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400 shadow-xs ring-1 ring-brand-500/30'
+                              : 'border-neutral-200 dark:border-dark-border text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-dark-surface'
+                          }
+                        `}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                        <span>{type}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Recipient Name & Phone in 2-col Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                      Recipient Name *
+                    </label>
+                    <div className="relative flex items-center">
+                      <User className="w-4 h-4 text-neutral-400 absolute left-3 pointer-events-none" />
+                      <input
+                        type="text"
+                        placeholder="John Doe"
+                        value={newAddr.fullName}
+                        onChange={(e) => setNewAddr({ ...newAddr, fullName: e.target.value })}
+                        className="w-full pl-9 pr-3 py-2 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-base sm:text-xs text-neutral-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all placeholder:text-neutral-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                      Mobile Number *
+                    </label>
+                    <div className="relative flex items-center">
+                      <Phone className="w-4 h-4 text-neutral-400 absolute left-3 pointer-events-none" />
+                      <input
+                        type="tel"
+                        inputMode="tel"
+                        placeholder="9876543210"
+                        maxLength={10}
+                        value={newAddr.phone}
+                        onChange={(e) => setNewAddr({ ...newAddr, phone: e.target.value })}
+                        className="w-full pl-9 pr-3 py-2 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-base sm:text-xs text-neutral-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all placeholder:text-neutral-400"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Street Address */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                    Street Address / Flat / Floor / Building *
+                  </label>
+                  <div className="relative flex items-center">
+                    <MapPin className="w-4 h-4 text-neutral-400 absolute left-3 pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder="e.g. Flat 402, Apex Residency, MG Road"
+                      value={newAddr.street}
+                      onChange={(e) => setNewAddr({ ...newAddr, street: e.target.value })}
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-base sm:text-xs text-neutral-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all placeholder:text-neutral-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Landmark */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                    Landmark <span className="text-neutral-400 font-normal">(Optional)</span>
+                  </label>
+                  <div className="relative flex items-center">
+                    <Compass className="w-4 h-4 text-neutral-400 absolute left-3 pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder="e.g. Near Metro Station / Behind Central Mall"
+                      value={newAddr.landmark}
+                      onChange={(e) => setNewAddr({ ...newAddr, landmark: e.target.value })}
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-base sm:text-xs text-neutral-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all placeholder:text-neutral-400"
+                    />
+                  </div>
+                </div>
+
+                {/* City, State, PIN Code in Responsive Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-300">
+                      City *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="New Delhi"
+                      value={newAddr.city}
+                      onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })}
+                      className="w-full px-2.5 py-2 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-base sm:text-xs text-neutral-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all placeholder:text-neutral-400"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-300">
+                      State *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Delhi"
+                      value={newAddr.state}
+                      onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })}
+                      className="w-full px-2.5 py-2 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-base sm:text-xs text-neutral-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all placeholder:text-neutral-400"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-300">
+                      PIN Code *
+                    </label>
+                    <div className="relative flex items-center">
+                      <Hash className="w-3.5 h-3.5 text-neutral-400 absolute left-2 pointer-events-none" />
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="110001"
+                        maxLength={6}
+                        value={newAddr.pincode}
+                        onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })}
+                        className="w-full pl-6 pr-2 py-2 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-base sm:text-xs text-neutral-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all placeholder:text-neutral-400"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Default Address Checkbox */}
+                <label className="flex items-center gap-2 pt-1 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={newAddr.isDefault}
+                    onChange={(e) => setNewAddr({ ...newAddr, isDefault: e.target.checked })}
+                    className="w-4 h-4 rounded text-brand-500 focus:ring-brand-500/30 accent-brand-500 cursor-pointer"
+                  />
+                  <span className="text-xs text-neutral-600 dark:text-neutral-300 font-medium">
+                    Set as default delivery address for future orders
+                  </span>
+                </label>
+
+                {/* Form Action Buttons */}
+                <div className="flex items-center gap-2.5 pt-2">
+                  <Button
+                    type="submit"
+                    size="md"
+                    isLoading={isSavingAddress}
+                    loadingText="Saving Address..."
+                    leftIcon={Check}
+                    className="flex-1 cursor-pointer shadow-subtle"
                   >
-                    {type}
-                  </button>
-                ))}
-              </div>
-              <input
-                type="text"
-                placeholder="Recipient Full Name *"
-                value={newAddr.fullName}
-                onChange={(e) => setNewAddr({ ...newAddr, fullName: e.target.value })}
-                className="w-full p-2.5 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-xs outline-none focus:border-brand-500"
-              />
-              <input
-                type="tel"
-                placeholder="10-Digit Phone Number *"
-                value={newAddr.phone}
-                onChange={(e) => setNewAddr({ ...newAddr, phone: e.target.value })}
-                className="w-full p-2.5 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-xs outline-none focus:border-brand-500"
-              />
-              <input
-                type="text"
-                placeholder="Street Address / Flat / Building *"
-                value={newAddr.street}
-                onChange={(e) => setNewAddr({ ...newAddr, street: e.target.value })}
-                className="w-full p-2.5 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-xs outline-none focus:border-brand-500"
-              />
-              <input
-                type="text"
-                placeholder="Landmark (Optional)"
-                value={newAddr.landmark}
-                onChange={(e) => setNewAddr({ ...newAddr, landmark: e.target.value })}
-                className="w-full p-2.5 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-xs outline-none focus:border-brand-500"
-              />
-              <div className="grid grid-cols-3 gap-2">
-                <input
-                  type="text"
-                  placeholder="City *"
-                  value={newAddr.city}
-                  onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-xs outline-none focus:border-brand-500"
-                />
-                <input
-                  type="text"
-                  placeholder="State *"
-                  value={newAddr.state}
-                  onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-xs outline-none focus:border-brand-500"
-                />
-                <input
-                  type="text"
-                  placeholder="6-digit PIN *"
-                  maxLength={6}
-                  value={newAddr.pincode}
-                  onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-neutral-200 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface text-xs outline-none focus:border-brand-500"
-                />
-              </div>
-              <div className="flex gap-2 mt-3">
-                <Button type="submit" size="sm" isLoading={isSavingAddress} loadingText="Saving Address..." className="flex-1 cursor-pointer">Save Address</Button>
-                <Button type="button" variant="outline" size="sm" onClick={() => setShowAddAddressModal(false)} className="cursor-pointer">Cancel</Button>
-              </div>
-            </form>
+                    Save Address
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="md"
+                    onClick={() => setShowAddAddressModal(false)}
+                    className="cursor-pointer"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };

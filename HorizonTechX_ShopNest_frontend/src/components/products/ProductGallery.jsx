@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { ProgressiveImage } from '../ui/ProgressiveImage';
 
 /**
- * Product Detail Image Gallery with mobile touch swipe & desktop thumbnail selector
+ * Product Detail Image Gallery with mobile touch swipe, synced thumbnail strip & desktop zoom selector
  */
 export const ProductGallery = ({ images = [], title = 'Product Image' }) => {
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
+  const [activeMobileIdx, setActiveMobileIdx] = useState(0);
+  const swiperInstance = useRef(null);
 
   const validImages = Array.isArray(images) ? images.filter(Boolean) : (images ? [images] : []);
   const displayImages = validImages.length > 0 ? validImages : [''];
@@ -53,26 +55,60 @@ export const ProductGallery = ({ images = [], title = 'Product Image' }) => {
         />
       </div>
 
-      {/* Mobile Swipeable Gallery using Swiper */}
-      <div className="lg:hidden w-full aspect-square rounded-3xl overflow-hidden border border-neutral-200/80 dark:border-dark-border relative shadow-subtle">
-        <Swiper
-          modules={[Pagination]}
-          pagination={{ clickable: true }}
-          className="w-full h-full"
-        >
-          {displayImages.map((img, idx) => (
-            <SwiperSlide key={idx} className="w-full h-full">
-              <ProgressiveImage
-                src={img}
-                alt={`${title} ${idx + 1}`}
-                width={800}
-                aspectRatio="aspect-square"
-                className="w-full h-full"
-                imgClassName="w-full h-full object-cover object-center"
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+      {/* Mobile Swipeable Gallery with Swiper + Horizontal Thumbnail Strip */}
+      <div className="lg:hidden flex flex-col gap-3 w-full">
+        <div className="w-full aspect-square rounded-3xl overflow-hidden border border-neutral-200/80 dark:border-dark-border relative shadow-subtle">
+          <Swiper
+            modules={[Pagination]}
+            pagination={{ clickable: true }}
+            onSwiper={(swiper) => (swiperInstance.current = swiper)}
+            onSlideChange={(swiper) => setActiveMobileIdx(swiper.activeIndex)}
+            className="w-full h-full"
+          >
+            {displayImages.map((img, idx) => (
+              <SwiperSlide key={idx} className="w-full h-full">
+                <ProgressiveImage
+                  src={img}
+                  alt={`${title} ${idx + 1}`}
+                  width={800}
+                  aspectRatio="aspect-square"
+                  className="w-full h-full"
+                  imgClassName="w-full h-full object-cover object-center"
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+
+        {/* Mobile Horizontal Thumbnail Strip */}
+        {displayImages.length > 1 && displayImages[0] !== '' && (
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            {displayImages.map((img, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => {
+                  setActiveMobileIdx(idx);
+                  swiperInstance.current?.slideTo(idx);
+                }}
+                className={`
+                  w-14 h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all p-0.5 cursor-pointer
+                  ${activeMobileIdx === idx
+                    ? 'border-brand-500 shadow-xs'
+                    : 'border-neutral-200/80 dark:border-dark-border opacity-70'
+                  }
+                `}
+                aria-label={`View image ${idx + 1}`}
+              >
+                <img
+                  src={img}
+                  alt={`${title} thumb ${idx + 1}`}
+                  className="w-full h-full object-cover object-center rounded-lg"
+                />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import toast from 'react-hot-toast';
 
 /**
  * Standardized Toast Notification System
- * Replaces browser alerts, default tooltips, and unstyled errors
+ * Strictly enforces ONLY success and error toasts across the application
  */
 export const notify = {
   success: (message, options = {}) => {
@@ -21,6 +21,7 @@ export const notify = {
     });
   },
 
+  // Legacy calls strictly mapped to success or error only
   info: (message, options = {}) => {
     return toast.success(message, {
       duration: 3000,
@@ -32,13 +33,6 @@ export const notify = {
   warning: (message, options = {}) => {
     return toast.error(message, {
       duration: 3500,
-      icon: null,
-      ...options,
-    });
-  },
-
-  loading: (message, options = {}) => {
-    return toast.loading(message, {
       icon: null,
       ...options,
     });

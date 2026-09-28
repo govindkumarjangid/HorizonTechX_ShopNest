@@ -188,7 +188,7 @@ export const AutocompleteSearch = ({
             border border-neutral-200/50 dark:border-dark-border
             focus:border-brand-500/60 focus:bg-white dark:focus:bg-dark-surface
             text-neutral-900 dark:text-dark-text
-            text-xs sm:text-sm rounded-2xl pl-10 pr-12 py-2.5 outline-none
+            text-base sm:text-sm rounded-2xl pl-10 pr-12 py-2.5 outline-none
             placeholder:text-neutral-400 dark:placeholder:text-neutral-500
             transition-all duration-200 shadow-xs focus:shadow-subtle focus:ring-2 focus:ring-brand-500/10
           "
@@ -274,10 +274,10 @@ export const AutocompleteSearch = ({
                         key={cat.id}
                         type="button"
                         onClick={() => handleSelectCategory(cat)}
-                        className="flex items-center gap-2 p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-dark-card transition-colors text-left cursor-pointer"
+                        className="flex items-center gap-2 p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-dark-card transition-colors text-left cursor-pointer min-w-0"
                       >
-                        <span className="w-2 h-2 rounded-full bg-brand-500" />
-                        <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+                        <span className="w-2 h-2 rounded-full bg-brand-500 shrink-0" />
+                        <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 truncate">
                           {cat.name}
                         </span>
                       </button>

@@ -51,8 +51,8 @@ export function getCloudinaryUrl(publicId, options = {}) {
       return { blurUrl, fullUrl, rawUrl: publicId };
     }
 
-    // Direct external CDN URL (Pexels, AWS S3, etc.)
-    return { blurUrl: publicId, fullUrl: publicId, rawUrl: publicId };
+    // Direct external CDN URL (DummyJSON, Pexels, AWS S3, etc.)
+    return { blurUrl: '', fullUrl: publicId, rawUrl: publicId };
   }
 
   // Cloudinary managed assets

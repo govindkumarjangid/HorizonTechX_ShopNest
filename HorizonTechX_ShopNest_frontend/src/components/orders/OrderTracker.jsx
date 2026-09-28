@@ -48,7 +48,7 @@ export const OrderTracker = ({ currentStep = 1 }) => {
               </div>
               <span
                 className={`
-                  text-[10px] sm:text-xs font-semibold mt-2 whitespace-nowrap
+                  text-[9px] xs:text-[10px] sm:text-xs font-semibold mt-2 text-center max-w-[60px] xs:max-w-[72px] sm:max-w-none sm:whitespace-nowrap leading-tight
                   ${isCurrent
                     ? 'text-brand-600 dark:text-brand-400'
                     : isDone

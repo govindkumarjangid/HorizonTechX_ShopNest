@@ -80,7 +80,7 @@ export const Auth = ({
 
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-dark-bg flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-dvh bg-neutral-50 dark:bg-dark-bg flex flex-col justify-center py-10 sm:py-12 sm:px-6 lg:px-8 relative overflow-hidden pb-20 lg:pb-12">
       {/* Background Decorative Glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -146,7 +146,7 @@ export const Auth = ({
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-neutral-50 dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-xs sm:text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-brand-500"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-neutral-50 dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-base sm:text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-brand-500"
                 />
                 <button
                   type="button"

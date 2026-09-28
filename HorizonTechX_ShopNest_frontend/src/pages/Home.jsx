@@ -24,6 +24,7 @@ import {
   SectionHeader,
   TestimonialCard,
   ProgressiveImage,
+  ProductCardSkeleton,
 } from '../components/ui';
 import {
   fadeInUp,
@@ -41,6 +42,7 @@ import { CountdownTimer } from '../components/home/CountdownTimer';
 import { StatCounter } from '../components/home/StatCounter';
 import { MarqueeStrip } from '../components/home/MarqueeStrip';
 import { useProductStore } from '../store/useProductStore';
+import { productApi } from '../api/productApi';
 
 export const Home = ({
   onAddToCart,
@@ -50,6 +52,8 @@ export const Home = ({
 }) => {
   const navigate = useNavigate();
   const [activeCategoryFilter, setActiveCategoryFilter] = useState('all');
+  const [archiveProducts, setArchiveProducts] = useState([]);
+  const [isArchiveLoading, setIsArchiveLoading] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
 
@@ -67,6 +71,35 @@ export const Home = ({
     fetchCategories();
     fetchFeaturedProducts(4);
   }, [fetchProducts, fetchCategories, fetchFeaturedProducts]);
+
+  // Dynamically load products whenever the category filter tab changes
+  useEffect(() => {
+    let isCurrent = true;
+    setIsArchiveLoading(true);
+
+    const params = {
+      limit: 8,
+      ...(activeCategoryFilter !== 'all' ? { category: activeCategoryFilter } : {}),
+    };
+
+    productApi
+      .getProducts(params)
+      .then((res) => {
+        if (!isCurrent) return;
+        setArchiveProducts(res.data?.products || []);
+      })
+      .catch((err) => {
+        console.error('[Home] Failed to load category products:', err);
+        if (isCurrent) setArchiveProducts([]);
+      })
+      .finally(() => {
+        if (isCurrent) setIsArchiveLoading(false);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [activeCategoryFilter]);
 
   // Flagship Hero Product: resolved from real DB products (prioritizing audio/hardware/horology)
   const flagshipProduct =
@@ -98,20 +131,11 @@ export const Home = ({
   // Dynamic filter tabs from real categories
   const filterTabs = [
     { label: 'All Products', value: 'all' },
-    ...categories.slice(0, 6).map((cat) => ({
+    ...categories.slice(0, 8).map((cat) => ({
       label: cat.name || cat,
       value: cat.slug || cat,
     })),
   ];
-
-  // Filter products based on selected tab for the archive catalog
-  const filteredProducts = activeCategoryFilter === 'all'
-    ? products
-    : products.filter(
-        (p) =>
-          p.category?.toLowerCase() === activeCategoryFilter.toLowerCase() ||
-          p.categorySlug?.toLowerCase() === activeCategoryFilter.toLowerCase()
-      );
 
   const handleCatalogNavigate = (link) => {
     if (typeof link === 'string' && link.startsWith('/')) {
@@ -195,12 +219,12 @@ export const Home = ({
               </motion.div>
 
               {/* Action CTAs */}
-              <motion.div variants={fadeInUp} className="flex flex-wrap items-center gap-4 mt-8 mb-10">
+              <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-8 mb-10 w-full sm:w-auto">
                 <Button
                   size="lg"
                   rightIcon={ArrowRight}
                   onClick={handleCatalogNavigate}
-                  className="shadow-elevated hover:shadow-glow-brand cursor-pointer"
+                  className="w-full sm:w-auto shadow-elevated hover:shadow-glow-brand cursor-pointer"
                 >
                   Explore Full Catalog
                 </Button>
@@ -212,7 +236,7 @@ export const Home = ({
                     const el = document.getElementById('featured-drops');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="cursor-pointer"
+                  className="w-full sm:w-auto cursor-pointer"
                 >
                   Featured Drops
                 </Button>
@@ -221,7 +245,7 @@ export const Home = ({
               {/* Animated Stats Count-up Strip (Item 7) */}
               <motion.div
                 variants={fadeInUp}
-                className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 py-4 px-6 rounded-2xl bg-white/80 dark:bg-dark-surface/80 backdrop-blur-md border border-neutral-200/60 dark:border-dark-border shadow-xs w-full max-w-xl"
+                className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 py-4 px-3 sm:px-6 rounded-2xl bg-white/80 dark:bg-dark-surface/80 backdrop-blur-md border border-neutral-200/60 dark:border-dark-border shadow-xs w-full max-w-xl"
               >
                 <div className="flex flex-col">
                   <span className="font-display font-black text-2xl text-neutral-900 dark:text-white flex items-center">
@@ -303,7 +327,7 @@ export const Home = ({
                 <motion.div
                   animate={{ y: [-5, 5, -5] }}
                   transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute top-4 left-2 sm:top-6 sm:-left-6 z-30 p-2.5 sm:p-3.5 rounded-2xl bg-white/95 dark:bg-dark-card/95 backdrop-blur-md border border-neutral-200/90 dark:border-dark-border shadow-elevated max-w-[190px] sm:max-w-[210px]"
+                  className="absolute top-2 left-2 sm:top-6 sm:-left-6 z-30 p-2 sm:p-3.5 rounded-2xl bg-white/95 dark:bg-dark-card/95 backdrop-blur-md border border-neutral-200/90 dark:border-dark-border shadow-elevated max-w-[160px] sm:max-w-[210px]"
                 >
                   <div className="flex items-center gap-1.5 text-amber-500 mb-1">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
@@ -326,7 +350,7 @@ export const Home = ({
                 <motion.div
                   animate={{ y: [5, -5, 5] }}
                   transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute bottom-4 right-2 sm:bottom-6 sm:-right-4 z-30 p-3 sm:p-4 rounded-2xl bg-white/95 dark:bg-dark-card/95 backdrop-blur-md border border-neutral-200/90 dark:border-dark-border shadow-elevated max-w-[200px] sm:max-w-[220px]"
+                  className="absolute bottom-2 right-2 sm:bottom-6 sm:-right-4 z-30 p-2.5 sm:p-4 rounded-2xl bg-white/95 dark:bg-dark-card/95 backdrop-blur-md border border-neutral-200/90 dark:border-dark-border shadow-elevated max-w-[170px] sm:max-w-[220px]"
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
@@ -378,14 +402,12 @@ export const Home = ({
           subtitle="Modern computing, smart audio, and designer lifestyle essentials engineered for everyday excellence."
         />
 
-        <div className="w-full grid grid-cols-12 gap-5 text-left">
+        <div className="w-full grid grid-cols-12 gap-4 sm:gap-5 text-left">
           {bentoCollections.map((collection) => {
             const matchingProd = products.find(
-              (p) =>
-                p.category?.toLowerCase() === collection.category?.toLowerCase() ||
-                (collection.link && collection.link.includes(p.category?.toLowerCase()))
+              (p) => p.category?.toLowerCase() === collection.categorySlug?.toLowerCase()
             );
-            const bentoImage = matchingProd?.image || (matchingProd?.images && matchingProd.images[0]) || collection.image || '';
+            const bentoImage = collection.image || matchingProd?.image || (matchingProd?.images && matchingProd.images[0]) || '';
 
             return (
               <motion.div
@@ -395,10 +417,11 @@ export const Home = ({
                 whileInView="visible"
                 viewport={{ once: true, margin: '-40px' }}
                 className={`
-                  ${collection.span} group relative rounded-3xl overflow-hidden
-                  min-h-[300px] sm:min-h-[420px] aspect-[16/10] sm:aspect-auto flex flex-col justify-end p-5 sm:p-8
+                  ${collection.span} group relative rounded-2xl sm:rounded-3xl overflow-hidden
+                  min-h-[220px] sm:min-h-[340px] lg:min-h-[400px] flex flex-col justify-end p-4 sm:p-6 lg:p-8
                   border border-neutral-200/80 dark:border-dark-border
-                  shadow-subtle hover:shadow-elevated select-none cursor-pointer bg-neutral-100 dark:bg-dark-surface
+                  shadow-subtle hover:shadow-elevated select-none cursor-pointer
+                  bg-neutral-100 dark:bg-dark-surface
                 `}
                 onClick={() => handleCatalogNavigate(collection.link)}
               >
@@ -406,40 +429,40 @@ export const Home = ({
                 <ProgressiveImage
                   src={bentoImage}
                   alt={collection.title}
-                  width={1000}
+                  width={1200}
                   aspectRatio=""
                   className="absolute inset-0 w-full h-full"
                   imgClassName="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-106"
                 />
 
-              {/* Dark Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/90 via-neutral-950/40 to-transparent" />
-              <div className="absolute inset-0 bg-neutral-950/10 group-hover:bg-neutral-950/0 transition-colors" />
+                {/* Dual-Theme Gradient Overlay for Full Image Background Coverage */}
+                <div className="absolute inset-0 bg-gradient-to-t from-white/92 via-white/45 via-35% to-transparent dark:from-neutral-950/95 dark:via-neutral-950/50 dark:via-35% dark:to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-black/5 dark:bg-white/5 group-hover:opacity-0 transition-opacity pointer-events-none" />
 
-              {/* Content */}
-              <div className="relative z-10 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <Badge variant="brand" size="sm">
-                    {collection.badge}
-                  </Badge>
-                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center group-hover:bg-brand-500 transition-colors transform group-hover:translate-x-1 group-hover:-translate-y-1">
-                    <ArrowUpRight className="w-5 h-5" />
+                {/* Content */}
+                <div className="relative z-10 flex flex-col gap-1.5 sm:gap-2">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="brand" size="sm">
+                      {collection.badge}
+                    </Badge>
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/90 dark:bg-white/20 backdrop-blur-md text-neutral-800 dark:text-white shadow-subtle flex items-center justify-center group-hover:bg-brand-500 group-hover:text-white transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1">
+                      <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </div>
                   </div>
+
+                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-widest text-brand-600 dark:text-brand-400 font-bold mt-1 sm:mt-2">
+                    {collection.category}
+                  </span>
+
+                  <h3 className="font-display font-bold text-lg sm:text-2xl lg:text-3xl text-neutral-900 dark:text-white tracking-tight leading-snug">
+                    {collection.title}
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-300 max-w-md line-clamp-2">
+                    {collection.subtitle}
+                  </p>
                 </div>
-
-                <span className="text-xs font-mono uppercase tracking-widest text-brand-300 font-semibold mt-2">
-                  {collection.category}
-                </span>
-
-                <h3 className="font-display font-bold text-2xl sm:text-3xl text-white tracking-tight leading-tight">
-                  {collection.title}
-                </h3>
-
-                <p className="text-sm text-neutral-300 max-w-md">
-                  {collection.subtitle}
-                </p>
-              </div>
-            </motion.div>
+              </motion.div>
             );
           })}
         </div>
@@ -531,26 +554,43 @@ export const Home = ({
           </div>
         </div>
 
-        {/* Product Cards Grid with Staggered Entrance */}
-        <motion.div
-          key={activeCategoryFilter}
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-        >
-          {filteredProducts.map((product) => (
-            <motion.div key={product.id} variants={staggerItem} className="h-full">
-              <ProductCard
-                {...product}
-                onAddToCart={() => handleAddToCart(product)}
-                onAddToWishlist={() => handleAddToWishlist(product)}
-                onQuickView={() => handleProductNavigate(product)}
-                onClick={() => handleProductNavigate(product)}
-              />
-            </motion.div>
-          ))}
-        </motion.div>
+        {/* Product Cards Grid with Dynamic Skeletons & Animated Entrance */}
+        {isArchiveLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : archiveProducts.length > 0 ? (
+          <motion.div
+            key={activeCategoryFilter}
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
+            {archiveProducts.map((product) => (
+              <motion.div key={product._id || product.id} variants={staggerItem} className="h-full">
+                <ProductCard
+                  {...product}
+                  onAddToCart={() => handleAddToCart(product)}
+                  onAddToWishlist={() => handleAddToWishlist(product)}
+                  onQuickView={() => handleProductNavigate(product)}
+                  onClick={() => handleProductNavigate(product)}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        ) : (
+          <div className="py-16 text-center flex flex-col items-center justify-center gap-4 bg-neutral-50 dark:bg-dark-card rounded-3xl border border-neutral-200/60 dark:border-dark-border">
+            <p className="text-neutral-500 dark:text-neutral-400 text-sm font-medium">
+              No products found in this category right now.
+            </p>
+            <Button size="sm" variant="outline" onClick={() => setActiveCategoryFilter('all')} className="cursor-pointer">
+              Browse All Products
+            </Button>
+          </div>
+        )}
 
         {/* Bottom Catalog Discovery CTA */}
         <div className="flex justify-center mt-12">
@@ -680,7 +720,7 @@ export const Home = ({
                   placeholder="Enter your executive email..."
                   className="
                     flex-1 bg-white/10 dark:bg-white/5 border border-white/20
-                    rounded-xl px-5 py-3 text-sm text-white placeholder:text-neutral-400
+                    rounded-xl px-5 py-3 text-base sm:text-sm text-white placeholder:text-neutral-400
                     focus:outline-none focus:border-brand-500 focus:bg-white/15 transition-all
                   "
                 />

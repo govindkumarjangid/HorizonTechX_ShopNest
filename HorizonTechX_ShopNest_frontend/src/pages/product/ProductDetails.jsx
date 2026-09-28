@@ -105,11 +105,31 @@ export const ProductDetails = ({
   const resolvedInStock = product.inStock !== undefined ? product.inStock : (product.stock > 0);
   const resolvedRating = product.rating || 4.8;
   const resolvedReviews = product.numReviews || product.reviewsCount || 64;
+  const [relatedProducts, setRelatedProducts] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'materials' | 'shipping'
   const [showStickyBar, setShowStickyBar] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+
+  // Fetch category-specific related products with real images
+  useEffect(() => {
+    let isCurrent = true;
+    if (product.category && product.category !== 'Electronics') {
+      productApi.getProducts({ category: product.category, limit: 10 })
+        .then((res) => {
+          if (!isCurrent) return;
+          const prods = (res.data?.products || []).filter((p) => (p._id || p.id) !== resolvedId);
+          setRelatedProducts(prods);
+        })
+        .catch(() => {
+          if (isCurrent) setRelatedProducts([]);
+        });
+    }
+    return () => {
+      isCurrent = false;
+    };
+  }, [product.category, resolvedId]);
 
   const addItem = useCartStore((state) => state.addItem);
 
@@ -143,7 +163,7 @@ export const ProductDetails = ({
     if (nextState) {
       notify.success(`${resolvedTitle} saved to your Wishlist`);
     } else {
-      notify.info(`${resolvedTitle} removed from Wishlist`);
+      notify.success(`${resolvedTitle} removed from Wishlist`);
     }
   };
 
@@ -258,18 +278,20 @@ export const ProductDetails = ({
               <button
                 type="button"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-sm font-bold hover:text-brand-500 cursor-pointer disabled:opacity-30"
+                className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center text-sm font-bold hover:text-brand-500 cursor-pointer disabled:opacity-30"
                 disabled={quantity <= 1}
+                aria-label="Decrease quantity"
               >
                 -
               </button>
-              <span className="w-7 sm:w-8 text-center font-mono font-bold text-xs sm:text-sm">
+              <span className="w-8 sm:w-8 text-center font-mono font-bold text-xs sm:text-sm">
                 {quantity}
               </span>
               <button
                 type="button"
                 onClick={() => setQuantity((q) => q + 1)}
-                className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-sm font-bold hover:text-brand-500 cursor-pointer"
+                className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center text-sm font-bold hover:text-brand-500 cursor-pointer"
+                aria-label="Increase quantity"
               >
                 +
               </button>
@@ -448,7 +470,7 @@ export const ProductDetails = ({
 
       {/* Related Products Carousel Section */}
       <RelatedProducts
-        products={storeProducts}
+        products={relatedProducts.length > 0 ? relatedProducts : storeProducts}
         currentProductId={resolvedId}
         category={product.category}
         onSelectProduct={handleSelectRelated}
@@ -465,7 +487,7 @@ export const ProductDetails = ({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 80, opacity: 0 }}
             className="
-              fixed bottom-16 sm:bottom-0 inset-x-0 z-30 lg:hidden
+              fixed bottom-[calc(3.75rem+env(safe-area-inset-bottom,0px))] sm:bottom-0 inset-x-0 z-30 lg:hidden
               bg-white/95 dark:bg-dark-surface/95 backdrop-blur-md
               border-t border-neutral-200 dark:border-dark-border
               p-3 px-4 shadow-elevated flex items-center justify-between gap-4

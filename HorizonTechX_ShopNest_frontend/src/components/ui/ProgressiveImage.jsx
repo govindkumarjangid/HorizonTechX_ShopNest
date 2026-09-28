@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'motion/react';
 import { getCloudinaryUrl } from '../../utils/cloudinary';
+import { ShoppingBag } from 'lucide-react';
 
 /**
- * ProgressiveImage - Cloudinary Blur-Up Progressive Loading
- * - Immediately renders heavily blurred placeholder (filter: blur(15px), scale(1.1))
- * - Preloads full resolution image in background
- * - Seamlessly crossfades blur(15px) -> blur(0px) with scale/opacity
- * - Guarantees full-div image coverage and zero layout shift
+ * ProgressiveImage - Cloudinary & CDN Progressive Image Loader
+ * - Renders blurred placeholder when available (Cloudinary/Unsplash)
+ * - Detects cached images immediately to prevent flashing/blank states
+ * - Renders full-quality image with smooth CSS opacity transition
+ * - Graceful fallback icon if image fails to load
  */
 export const ProgressiveImage = ({
   src,
@@ -28,119 +28,85 @@ export const ProgressiveImage = ({
   const { blurUrl, fullUrl, rawUrl } = getCloudinaryUrl(targetId, { width, height, crop });
 
   const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [displaySrc, setDisplaySrc] = useState(fullUrl || rawUrl || '');
-  const [displayBlurSrc, setDisplayBlurSrc] = useState(blurUrl || rawUrl || '');
-  const containerRef = useRef(null);
+  const [displayBlurSrc, setDisplayBlurSrc] = useState(blurUrl || '');
+  const imgRef = useRef(null);
 
-  // Sync state whenever image source changes
   useEffect(() => {
     const urls = getCloudinaryUrl(publicId || src, { width, height, crop });
     setDisplaySrc(urls.fullUrl || urls.rawUrl || '');
-    setDisplayBlurSrc(urls.blurUrl || urls.rawUrl || '');
+    setDisplayBlurSrc(urls.blurUrl || '');
+    setHasError(false);
     setIsLoaded(false);
   }, [src, publicId, width, height, crop]);
 
-  // Preload full quality image in memory
+  // Check if image is already completed in DOM cache
   useEffect(() => {
-    if (!displaySrc) return;
-
-    let isMounted = true;
-    const img = new Image();
-    img.src = displaySrc;
-
-    img.onload = () => {
-      if (isMounted) {
-        setIsLoaded(true);
-        if (onLoad) onLoad();
-      }
-    };
-
-    img.onerror = () => {
-      // Graceful fallback to original URL if fetch fails
-      if (rawUrl && rawUrl !== displaySrc) {
-        setDisplaySrc(rawUrl);
-        setDisplayBlurSrc(rawUrl);
-        const fallbackImg = new Image();
-        fallbackImg.src = rawUrl;
-        fallbackImg.onload = () => {
-          if (isMounted) {
-            setIsLoaded(true);
-            if (onLoad) onLoad();
-          }
-        };
-        fallbackImg.onerror = () => {
-          if (isMounted) {
-            setIsLoaded(true);
-            if (onLoad) onLoad();
-          }
-        };
-      } else {
-        if (isMounted) {
-          setIsLoaded(true);
-          if (onLoad) onLoad();
-        }
-      }
-    };
-
-    return () => {
-      isMounted = false;
-    };
-  }, [displaySrc, rawUrl, onLoad]);
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+      setIsLoaded(true);
+      if (onLoad) onLoad();
+    }
+  }, [displaySrc, onLoad]);
 
   const handleImageLoad = () => {
     setIsLoaded(true);
+    setHasError(false);
     if (onLoad) onLoad();
+  };
+
+  const handleImageError = () => {
+    if (rawUrl && displaySrc !== rawUrl) {
+      setDisplaySrc(rawUrl);
+    } else {
+      setHasError(true);
+      setIsLoaded(true);
+      if (onLoad) onLoad();
+    }
   };
 
   return (
     <div
-      ref={containerRef}
       onClick={onClick}
       className={`relative overflow-hidden bg-neutral-100 dark:bg-dark-surface ${aspectRatio} ${className}`}
     >
-      {/* 1. Low-Quality Heavily Blurred Placeholder */}
-      {displayBlurSrc && (
+      {/* 1. Low-Quality Heavily Blurred Placeholder (Only if distinct from fullUrl) */}
+      {displayBlurSrc && displayBlurSrc !== displaySrc && !isLoaded && (
         <img
           src={displayBlurSrc}
           alt=""
           aria-hidden="true"
-          onError={() => {
-            if (rawUrl && displayBlurSrc !== rawUrl) {
-              setDisplayBlurSrc(rawUrl);
-            }
-          }}
           className={`
             absolute inset-0 w-full h-full object-cover object-center
-            filter blur-[15px] scale-110 transition-opacity duration-500 pointer-events-none
-            ${isLoaded ? 'opacity-0' : 'opacity-100'}
+            filter blur-[12px] scale-105 pointer-events-none transition-opacity duration-300
             ${imgClassName}
           `}
         />
       )}
 
-      {/* 2. Full-Quality Image with Motion Crossfade */}
-      {displaySrc && (
-        <motion.img
+      {/* 2. Full-Quality Image */}
+      {displaySrc && !hasError && (
+        <img
+          ref={imgRef}
           src={displaySrc}
           alt={alt}
-          loading={loading}
+          loading={priority ? 'eager' : loading}
           onLoad={handleImageLoad}
-          onError={() => {
-            if (rawUrl && displaySrc !== rawUrl) {
-              setDisplaySrc(rawUrl);
-              setDisplayBlurSrc(rawUrl);
-            }
-            setIsLoaded(true);
-            if (onLoad) onLoad();
-          }}
-          initial={{ opacity: 0, filter: 'blur(6px)', scale: 1.02 }}
-          animate={isLoaded ? { opacity: 1, filter: 'blur(0px)', scale: 1 } : { opacity: 0 }}
-          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          onError={handleImageError}
           className={`
             absolute inset-0 w-full h-full object-cover object-center
+            transition-opacity duration-300
+            ${isLoaded ? 'opacity-100' : (displayBlurSrc && displayBlurSrc !== displaySrc ? 'opacity-0' : 'opacity-100')}
             ${imgClassName}
           `}
         />
+      )}
+
+      {/* 3. Graceful Fallback if image fails to load or empty */}
+      {(!displaySrc || hasError) && (
+        <div className="absolute inset-0 flex items-center justify-center bg-neutral-100 dark:bg-dark-surface text-neutral-300 dark:text-neutral-600">
+          <ShoppingBag className="w-8 h-8 stroke-[1.5]" />
+        </div>
       )}
     </div>
   );

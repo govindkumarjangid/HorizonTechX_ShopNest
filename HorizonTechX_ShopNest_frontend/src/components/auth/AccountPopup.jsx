@@ -60,7 +60,7 @@ export const AccountPopup = ({
   const handleLogout = () => {
     logout();
     onClose();
-    notify.info('You have signed out successfully.');
+    notify.success('You have signed out successfully.');
     navigate('/');
   };
 
@@ -68,7 +68,7 @@ export const AccountPopup = ({
 
   const handleTrackOrderGuest = () => {
     onClose();
-    notify.info('Directing to live order tracking...');
+    notify.success('Opening live order tracking...');
     navigate('/orders');
   };
 
@@ -87,7 +87,7 @@ export const AccountPopup = ({
           exit={{ opacity: 0, y: 8, scale: 0.96 }}
           transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
           className="
-            absolute right-0 top-full mt-3 w-80 sm:w-88
+            absolute right-0 top-full mt-3 w-[min(calc(100vw-2rem),22rem)]
             bg-white dark:bg-dark-card
             border border-neutral-200/90 dark:border-dark-border
             rounded-3xl shadow-floating z-50 overflow-hidden

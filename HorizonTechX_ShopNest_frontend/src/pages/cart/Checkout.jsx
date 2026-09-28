@@ -255,17 +255,18 @@ export const Checkout = ({
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-dark-bg text-neutral-900 dark:text-dark-text py-6 sm:py-10">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-dvh bg-neutral-50 dark:bg-dark-bg text-neutral-900 dark:text-dark-text py-4 sm:py-10">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
         {/* Distraction-Free Header */}
-        <div className="flex items-center justify-between pb-6 mb-8 border-b border-neutral-200/80 dark:border-dark-border">
+        <div className="flex items-center justify-between pb-4 sm:pb-6 mb-6 sm:mb-8 border-b border-neutral-200/80 dark:border-dark-border">
           <button
             type="button"
             onClick={handleReturnToBag}
-            className="flex items-center gap-2 text-xs font-semibold text-neutral-500 hover:text-brand-500 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 sm:gap-2 text-xs font-semibold text-neutral-500 hover:text-brand-500 transition-colors cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Return to Bag</span>
+            <ArrowLeft className="w-4 h-4 shrink-0" />
+            <span className="hidden xs:inline">Return to Bag</span>
+            <span className="xs:hidden">Bag</span>
           </button>
 
           <div className="flex items-center gap-2">
@@ -275,26 +276,27 @@ export const Checkout = ({
               className="flex items-center bg-transparent border-none p-0 cursor-pointer focus:outline-none"
               aria-label="ShopNest Home"
             >
-              <Logo className="h-7 w-auto" />
+              <Logo className="h-6 sm:h-7 w-auto" />
             </button>
             <span className="text-neutral-300 dark:text-neutral-700">|</span>
-            <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-              <Lock className="w-3.5 h-3.5" />
-              <span>Encrypted Checkout</span>
+            <div className="flex items-center gap-1 text-[11px] sm:text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+              <Lock className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden xs:inline">Encrypted Checkout</span>
+              <span className="xs:hidden">Encrypted</span>
             </div>
           </div>
         </div>
 
         {/* Step Indicator */}
-        <div className="flex items-center justify-center gap-3 sm:gap-8 mb-10 text-xs font-semibold select-none">
+        <div className="flex items-center justify-center gap-2 sm:gap-6 md:gap-8 mb-6 sm:mb-10 text-xs font-semibold select-none">
           <div
-            className={`flex items-center gap-2 cursor-pointer ${
+            className={`flex items-center gap-1.5 sm:gap-2 cursor-pointer ${
               currentStep === 1 ? 'text-brand-500 font-bold' : 'text-neutral-600 dark:text-neutral-400'
             }`}
             onClick={() => setCurrentStep(1)}
           >
             <span
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                 currentStep >= 1
                   ? 'bg-brand-500 text-white'
                   : 'bg-neutral-200 dark:bg-dark-surface'
@@ -302,13 +304,14 @@ export const Checkout = ({
             >
               1
             </span>
-            <span>Delivery Address</span>
+            <span className="hidden sm:inline">Delivery Address</span>
+            <span className="sm:hidden">Address</span>
           </div>
 
-          <ChevronRight className="w-4 h-4 text-neutral-400" />
+          <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400 shrink-0" />
 
           <div
-            className={`flex items-center gap-2 transition-all ${
+            className={`flex items-center gap-1.5 sm:gap-2 transition-all ${
               isAddressValid() ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
             } ${
               currentStep === 2 ? 'text-brand-500 font-bold' : 'text-neutral-600 dark:text-neutral-400'
@@ -323,7 +326,7 @@ export const Checkout = ({
             }}
           >
             <span
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                 currentStep >= 2
                   ? 'bg-brand-500 text-white'
                   : isAddressValid()
@@ -333,13 +336,14 @@ export const Checkout = ({
             >
               2
             </span>
-            <span>Payment Method</span>
+            <span className="hidden sm:inline">Payment Method</span>
+            <span className="sm:hidden">Payment</span>
           </div>
 
-          <ChevronRight className="w-4 h-4 text-neutral-400" />
+          <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400 shrink-0" />
 
           <div
-            className={`flex items-center gap-2 transition-all ${
+            className={`flex items-center gap-1.5 sm:gap-2 transition-all ${
               isAddressValid() && isPaymentValid() ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
             } ${
               currentStep === 3 ? 'text-brand-500 font-bold' : 'text-neutral-600 dark:text-neutral-400'
@@ -358,7 +362,7 @@ export const Checkout = ({
             }}
           >
             <span
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                 currentStep >= 3
                   ? 'bg-brand-500 text-white'
                   : isAddressValid() && isPaymentValid()
@@ -368,7 +372,8 @@ export const Checkout = ({
             >
               3
             </span>
-            <span>Review & Place</span>
+            <span className="hidden sm:inline">Review & Place</span>
+            <span className="sm:hidden">Review</span>
           </div>
         </div>
 
@@ -496,54 +501,62 @@ export const Checkout = ({
                         <input
                           type="text"
                           placeholder="Recipient Full Name *"
+                          autoComplete="name"
                           value={newAddress.fullName}
                           onChange={(e) => setNewAddress({ ...newAddress, fullName: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                         />
                         <input
                           type="tel"
+                          inputMode="tel"
+                          autoComplete="tel"
                           placeholder="10-Digit Mobile Number *"
                           value={newAddress.phone}
                           onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                         />
                       </div>
                       <input
                         type="text"
                         placeholder="Street Address / Flat / Building *"
+                        autoComplete="street-address"
                         value={newAddress.street}
                         onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                       />
                       <input
                         type="text"
                         placeholder="Landmark (Optional)"
                         value={newAddress.landmark}
                         onChange={(e) => setNewAddress({ ...newAddress, landmark: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                       />
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <input
                           type="text"
                           placeholder="City *"
+                          autoComplete="address-level2"
                           value={newAddress.city}
                           onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                         />
                         <input
                           type="text"
                           placeholder="State *"
+                          autoComplete="address-level1"
                           value={newAddress.state}
                           onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                         />
                         <input
                           type="text"
+                          inputMode="numeric"
                           placeholder="6-digit PIN *"
+                          autoComplete="postal-code"
                           maxLength={6}
                           value={newAddress.pincode}
                           onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                         />
                       </div>
                     </div>
@@ -612,7 +625,7 @@ export const Checkout = ({
                               value={upiId}
                               onChange={(e) => setUpiId(e.target.value)}
                               placeholder="Enter UPI ID (e.g. mobile@upi)"
-                              className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-xs font-mono"
+                              className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-base sm:text-xs font-mono outline-none focus:border-brand-500"
                             />
                           </div>
                         )}

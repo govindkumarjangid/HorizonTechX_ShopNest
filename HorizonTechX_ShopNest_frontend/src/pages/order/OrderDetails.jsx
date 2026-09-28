@@ -155,9 +155,10 @@ export const OrderDetails = ({
             loadingText="Generating..."
             onClick={handleDownloadInvoice}
             leftIcon={Download}
-            className="cursor-pointer"
+            className="cursor-pointer text-xs"
           >
-            {invoiceDownloaded ? 'Invoice Saved' : 'Download Tax Invoice'}
+            <span className="hidden sm:inline">{invoiceDownloaded ? 'Invoice Saved' : 'Download Tax Invoice'}</span>
+            <span className="sm:hidden">{invoiceDownloaded ? 'Saved' : 'Invoice'}</span>
           </Button>
         </div>
       </div>
@@ -191,13 +192,13 @@ export const OrderDetails = ({
             <Clock className="w-4 h-4 text-brand-500" />
             <span>Latest Dispatch Telemetry</span>
           </div>
-          <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-neutral-600 dark:text-neutral-400 gap-0.5 sm:gap-2">
             <span>Package passed optical calibration & acoustic seal inspection.</span>
-            <span className="font-mono text-[11px] text-neutral-400">Bengaluru Facility</span>
+            <span className="font-mono text-[11px] text-neutral-400 shrink-0">Bengaluru Facility</span>
           </div>
-          <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-neutral-600 dark:text-neutral-400 gap-0.5 sm:gap-2">
             <span>Air consignment manifested with BlueDart Express.</span>
-            <span className="font-mono text-[11px] text-neutral-400">Transit Terminal</span>
+            <span className="font-mono text-[11px] text-neutral-400 shrink-0">Transit Terminal</span>
           </div>
         </div>
       </div>
@@ -206,7 +207,7 @@ export const OrderDetails = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Items */}
         <div className="lg:col-span-7 flex flex-col gap-6">
-          <div className="p-6 rounded-3xl bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-xs flex flex-col gap-4">
+          <div className="p-4 sm:p-6 rounded-3xl bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-xs flex flex-col gap-4">
             <h3 className="font-display font-bold text-base text-neutral-900 dark:text-white">
               Package Contents ({order.items?.length || 0} items)
             </h3>
@@ -219,15 +220,15 @@ export const OrderDetails = ({
                 const itemPrice = item.price || 0;
 
                 return (
-                  <div key={idx} className="pt-4 first:pt-0 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
+                  <div key={idx} className="pt-4 first:pt-0 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       <img
                         src={itemImage}
                         alt={itemTitle}
-                        className="w-16 h-16 rounded-xl object-cover border border-neutral-200 dark:border-dark-border"
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-neutral-200 dark:border-dark-border shrink-0"
                       />
-                      <div>
-                        <h4 className="text-xs sm:text-sm font-semibold text-neutral-900 dark:text-white line-clamp-1">
+                      <div className="min-w-0">
+                        <h4 className="text-xs sm:text-sm font-semibold text-neutral-900 dark:text-white line-clamp-1 truncate">
                           {itemTitle}
                         </h4>
                         <p className="text-xs text-neutral-500">
@@ -236,7 +237,7 @@ export const OrderDetails = ({
                       </div>
                     </div>
 
-                    <span className="font-mono text-xs sm:text-sm font-bold text-neutral-900 dark:text-white">
+                    <span className="font-mono text-xs sm:text-sm font-bold text-neutral-900 dark:text-white shrink-0">
                       {formatPrice(itemPrice * itemQty)}
                     </span>
                   </div>

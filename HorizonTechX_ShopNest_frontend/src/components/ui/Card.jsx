@@ -330,17 +330,36 @@ export const ProductCard = ({
         </div>
 
         {/* Price & Action */}
-        <div className="flex items-center justify-between pt-1">
-          <div className="flex items-baseline gap-2">
-            <span className="font-display font-bold text-lg text-neutral-900 dark:text-dark-text">
+        <div className="flex items-center justify-between pt-1 gap-2">
+          <div className="flex items-baseline gap-1.5 flex-wrap min-w-0">
+            <span className="font-display font-bold text-base sm:text-lg text-neutral-900 dark:text-dark-text">
               {formatPrice(price)}
             </span>
             {resolvedOriginalPrice && resolvedOriginalPrice > price && (
-              <span className="text-xs text-neutral-400 dark:text-neutral-500 line-through">
+              <span className="text-[11px] sm:text-xs text-neutral-400 dark:text-neutral-500 line-through">
                 {formatPrice(resolvedOriginalPrice)}
               </span>
             )}
           </div>
+
+          {/* Touch-Friendly Quick Add Button for Mobile */}
+          {!resolvedOutOfStock && (
+            <motion.button
+              type="button"
+              onClick={handleAddToCart}
+              whileTap={buttonTap}
+              className="
+                sm:hidden flex items-center justify-center
+                w-8 h-8 rounded-full shrink-0
+                bg-neutral-900 hover:bg-brand-500 text-white
+                dark:bg-white dark:text-neutral-900 dark:hover:bg-brand-500 dark:hover:text-white
+                transition-colors shadow-xs cursor-pointer
+              "
+              aria-label="Quick Add to Cart"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+            </motion.button>
+          )}
         </div>
       </div>
     </motion.div>

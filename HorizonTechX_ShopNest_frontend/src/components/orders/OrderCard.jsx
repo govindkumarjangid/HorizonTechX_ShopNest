@@ -17,10 +17,10 @@ export const OrderCard = ({ order, onTrackDetails }) => {
   const currentStep = order.statusStep !== undefined ? order.statusStep : (displayStatus === 'Delivered' ? 3 : (displayStatus === 'Shipped' ? 2 : (displayStatus === 'Processing' ? 1 : 0)));
 
   return (
-    <div className="p-6 rounded-3xl bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-subtle flex flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-neutral-100 dark:border-dark-border/80">
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-xs font-bold text-neutral-900 dark:text-white bg-neutral-100 dark:bg-dark-surface px-3 py-1.5 rounded-xl border border-neutral-200/60 dark:border-dark-border">
+    <div className="p-4 sm:p-6 rounded-3xl bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-subtle flex flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 pb-4 border-b border-neutral-100 dark:border-dark-border/80">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <span className="font-mono text-xs font-bold text-neutral-900 dark:text-white bg-neutral-100 dark:bg-dark-surface px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border border-neutral-200/60 dark:border-dark-border">
             {displayId}
           </span>
           <span className="text-xs text-neutral-500">
@@ -31,7 +31,7 @@ export const OrderCard = ({ order, onTrackDetails }) => {
       </div>
 
       {/* Progress Timeline */}
-      <div className="px-2">
+      <div className="px-1 sm:px-2">
         <OrderTracker currentStep={currentStep} />
       </div>
 
@@ -45,15 +45,15 @@ export const OrderCard = ({ order, onTrackDetails }) => {
 
           return (
             <div key={idx} className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                 <img
                   src={itemImage}
                   alt={itemTitle}
                   loading="lazy"
-                  className="w-12 h-12 rounded-xl object-cover border border-neutral-200 dark:border-dark-border"
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl object-cover border border-neutral-200 dark:border-dark-border shrink-0"
                 />
-                <div>
-                  <h4 className="text-xs font-semibold text-neutral-900 dark:text-white line-clamp-1">
+                <div className="min-w-0">
+                  <h4 className="text-xs font-semibold text-neutral-900 dark:text-white line-clamp-1 truncate">
                     {itemTitle}
                   </h4>
                   <span className="text-[11px] text-neutral-400">
@@ -61,7 +61,7 @@ export const OrderCard = ({ order, onTrackDetails }) => {
                   </span>
                 </div>
               </div>
-              <span className="font-mono text-xs font-bold text-neutral-900 dark:text-white">
+              <span className="font-mono text-xs font-bold text-neutral-900 dark:text-white shrink-0">
                 {formatPrice(itemPrice * itemQty)}
               </span>
             </div>
@@ -70,11 +70,11 @@ export const OrderCard = ({ order, onTrackDetails }) => {
       </div>
 
       {/* Footer Info */}
-      <div className="flex items-center justify-between pt-4 border-t border-neutral-100 dark:border-dark-border text-xs">
-        <span className="text-neutral-500">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-neutral-100 dark:border-dark-border text-xs gap-3">
+        <span className="text-neutral-500 truncate">
           Airway Bill: <strong className="font-mono text-neutral-900 dark:text-white">{order.trackingNumber || 'Pending Dispatch'}</strong>
         </span>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
           <div className="flex items-center gap-2">
             <span className="text-neutral-500">Total:</span>
             <strong className="font-mono text-sm text-brand-500 font-bold">
