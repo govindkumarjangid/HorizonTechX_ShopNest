@@ -15,8 +15,7 @@ if (env.MONGO_URI.startsWith('mongodb+srv://')) {
 export const connectDB = async () => {
   try {
     const conn = await mongoose.connect(env.MONGO_URI, {
-      autoIndex: true,
-      dbName: 'shopnest',
+      autoIndex: true
     });
 
     console.log(`[MongoDB] Connected successfully to host: ${conn.connection.host}, database: ${conn.connection.name}`);

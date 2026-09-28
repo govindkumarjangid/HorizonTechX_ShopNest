@@ -51,16 +51,7 @@ export default function App() {
             fontWeight: '500',
             boxShadow: '0 8px 24px -4px rgba(0, 0, 0, 0.12)',
             fontFamily: 'inherit',
-          },
-          success: {
-            icon: null,
-          },
-          error: {
-            icon: null,
-          },
-          loading: {
-            icon: null,
-          },
+          }
         }}
       />
 

@@ -1,11 +1,6 @@
 import { create } from 'zustand';
 import { authApi } from '../api/authApi';
 
-/**
- * Authentication & User Profile Store (Real Backend MongoDB)
- * Manages JWT tokens, authenticated session state, user profile,
- * saved shipping addresses, and user wishlist synchronized with backend.
- */
 export const useAuthStore = create((set, get) => ({
   isAuthenticated: !!localStorage.getItem('shopnest_token'),
   token: localStorage.getItem('shopnest_token') || null,
@@ -15,9 +10,7 @@ export const useAuthStore = create((set, get) => ({
   isLoading: false,
   isInitialized: false,
 
-  /**
-   * Initialize session on app load from stored JWT
-   */
+  // Initialize session on app load from stored JWT
   initAuth: async () => {
     const token = localStorage.getItem('shopnest_token');
     if (!token) {
@@ -50,9 +43,7 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Real login with email and password
-   */
+  // Real login with email and password
   login: async (credentials) => {
     set({ isLoading: true });
     try {
@@ -78,9 +69,7 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Real user registration
-   */
+  // Real user registration
   register: async (userData) => {
     set({ isLoading: true });
     try {
@@ -106,15 +95,11 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Logout user and clear session
-   */
+  //  Logout user and clear session
   logout: async () => {
     try {
       await authApi.logout();
-    } catch {
-      // Ignore network errors on logout
-    }
+    } catch { }
     localStorage.removeItem('shopnest_token');
     set({
       isAuthenticated: false,
@@ -125,9 +110,7 @@ export const useAuthStore = create((set, get) => ({
     });
   },
 
-  /**
-   * Update profile details
-   */
+  // Update profile details
   updateProfile: async (updatedData) => {
     set({ isLoading: true });
     try {
@@ -146,9 +129,7 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Add a new shipping address
-   */
+  // Add a new shipping address
   addAddress: async (newAddress) => {
     try {
       const response = await authApi.addAddress(newAddress);
@@ -167,9 +148,7 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Delete an existing shipping address
-   */
+  // Delete an existing shipping address
   deleteAddress: async (addressId) => {
     try {
       await authApi.deleteAddress(addressId);
@@ -181,9 +160,7 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Set default shipping address
-   */
+  // Set default shipping address
   setDefaultAddress: async (addressId) => {
     try {
       await authApi.setDefaultAddress(addressId);
@@ -198,12 +175,10 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Toggle item in wishlist
-   */
+  // Toggle item in wishlist
   toggleWishlist: async (productId) => {
     const id = typeof productId === 'object' ? (productId._id || productId.id) : productId;
-    
+
     // Optimistic update
     set((state) => {
       const exists = state.wishlist.includes(id);

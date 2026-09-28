@@ -1,10 +1,6 @@
 import { create } from 'zustand';
 import { productApi } from '../api/productApi';
 
-/**
- * Zustand Product & Catalog Store (Real Database Backend)
- * Connected directly to MongoDB Atlas product collection.
- */
 export const useProductStore = create((set, get) => ({
   products: [],
   categories: [],
@@ -50,9 +46,7 @@ export const useProductStore = create((set, get) => ({
     get().fetchProducts();
   },
 
-  /**
-   * Fetch products from real backend API with current active filters
-   */
+  // Fetch products from real backend API with current active filters
   fetchProducts: async (overrideParams = {}) => {
     const { searchQuery, activeCategory, priceRange, sortBy, inStockOnly, page } = get();
 
@@ -98,9 +92,7 @@ export const useProductStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Fetch all distinct categories from backend
-   */
+  // Fetch all distinct categories from backend
   fetchCategories: async () => {
     try {
       const response = await productApi.getCategories();
@@ -118,7 +110,12 @@ export const useProductStore = create((set, get) => ({
             slug: cat,
           };
         }
-        return cat;
+        return {
+          id: cat.id || `cat-${cat.slug || cat._id}`,
+          name: cat.name || cat.slug,
+          slug: cat.slug || cat._id,
+          itemCount: cat.itemCount,
+        };
       });
 
       set({ categories: formatted });
@@ -129,9 +126,7 @@ export const useProductStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Fetch featured products for homepage showcase
-   */
+  // Fetch featured products for homepage showcase
   fetchFeaturedProducts: async (limit = 8) => {
     try {
       const response = await productApi.getFeaturedProducts(limit);
@@ -144,9 +139,7 @@ export const useProductStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Fetch single product by MongoDB ID or slug
-   */
+  // Fetch single product by MongoDB ID or slug
   fetchProductById: async (id) => {
     set({ isLoading: true, error: null });
     try {
@@ -161,9 +154,7 @@ export const useProductStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Selector helper for backward compatibility
-   */
+  // Selector helper for backward compatibility
   getFilteredProducts: () => {
     return get().products;
   },

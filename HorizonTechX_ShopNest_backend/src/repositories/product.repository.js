@@ -37,7 +37,18 @@ export const findFeatured = async (limit = 8) => {
 };
 
 export const getDistinctCategories = async () => {
-  return await Product.distinct('category');
+  const result = await Product.aggregate([
+    { $group: { _id: '$category', count: { $sum: 1 } } },
+    { $sort: { _id: 1 } },
+  ]);
+  return result.map((r) => ({
+    name: r._id
+      .split('-')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' '),
+    slug: r._id,
+    itemCount: r.count,
+  }));
 };
 
 export const bulkInsert = async (docs) => {

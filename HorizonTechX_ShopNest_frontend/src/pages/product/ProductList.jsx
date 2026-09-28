@@ -142,7 +142,7 @@ export const ProductList = ({ onSelectProduct, onAddToWishlist }) => {
       {/* Main Layout (Filters Sidebar + Products Grid) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Desktop Sidebar Filters (Sticky Top) */}
-        <div className="hidden lg:block lg:col-span-3 sticky top-24 self-start z-10">
+        <div className="hidden lg:block lg:col-span-3 sticky top-24 self-start z-20">
           <ProductFilters
             categories={categories}
             activeCategory={activeCategory}

@@ -8,7 +8,7 @@ export const getAllProducts = async (queryParams) => {
   const filter = {};
 
   // Category filter
-  if (queryParams.category && queryParams.category !== 'All') {
+  if (queryParams.category && queryParams.category.toLowerCase() !== 'all') {
     filter.category = { $regex: new RegExp(`^${queryParams.category}$`, 'i') };
   }
 

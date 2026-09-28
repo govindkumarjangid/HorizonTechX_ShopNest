@@ -1,10 +1,6 @@
 import { create } from 'zustand';
 import { orderApi } from '../api/orderApi';
 
-/**
- * Zustand Order Store (Real Database Backend)
- * Connected directly to MongoDB Order collection. Zero hardcoded mock orders.
- */
 export const useOrderStore = create((set, get) => ({
   orders: [],
   activeOrder: null,
@@ -13,9 +9,7 @@ export const useOrderStore = create((set, get) => ({
 
   setActiveOrder: (order) => set({ activeOrder: order }),
 
-  /**
-   * Fetch all orders for current user from backend
-   */
+  // Fetch all orders for current user from backend
   fetchOrders: async () => {
     const token = localStorage.getItem('shopnest_token');
     if (!token) {
@@ -43,9 +37,7 @@ export const useOrderStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Fetch specific single order details by ID
-   */
+  // Fetch specific single order details by ID
   fetchOrderById: async (id) => {
     set({ isLoading: true, error: null });
     try {
@@ -60,9 +52,8 @@ export const useOrderStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Create and place a new order on backend
-   */
+
+  // Create and place a new order on backend
   createOrder: async (orderPayload) => {
     set({ isLoading: true, error: null });
     try {

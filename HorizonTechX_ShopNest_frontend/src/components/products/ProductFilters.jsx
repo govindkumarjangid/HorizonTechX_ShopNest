@@ -52,10 +52,15 @@ export const ProductFilters = ({
 
       {/* 1. Categories */}
       <div className="flex flex-col gap-2.5">
-        <label className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-white">
-          Categories
-        </label>
-        <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-white">
+            Categories
+          </label>
+          <span className="text-[11px] text-neutral-400 font-mono">
+            {categories.length} Topics
+          </span>
+        </div>
+        <div className="flex flex-col gap-1 max-h-[360px] overflow-y-auto pr-1 select-none">
           <button
             type="button"
             onClick={() => onCategoryChange('all')}
@@ -68,7 +73,13 @@ export const ProductFilters = ({
             `}
           >
             <span>All Categories</span>
-            {activeCategory === 'all' && <Check className="w-3.5 h-3.5" />}
+            {activeCategory === 'all' ? (
+              <Check className="w-3.5 h-3.5 text-brand-500" />
+            ) : (
+              <span className="text-[10px] text-neutral-400 font-mono">
+                {categories.reduce((acc, c) => acc + (c.itemCount || 0), 0) || 194}
+              </span>
+            )}
           </button>
           {categories.map((cat) => {
             const catSlug = cat.slug || (typeof cat === 'string' ? cat : cat.id);
@@ -88,13 +99,13 @@ export const ProductFilters = ({
                   }
                 `}
               >
-                <span>{catName}</span>
-                {cat.itemCount ? (
-                  <span className="text-[10px] text-neutral-400 font-mono">
+                <span className="truncate pr-2">{catName}</span>
+                {isSelected ? (
+                  <Check className="w-3.5 h-3.5 text-brand-500 shrink-0" />
+                ) : cat.itemCount ? (
+                  <span className="text-[10px] text-neutral-400 font-mono shrink-0">
                     {cat.itemCount}
                   </span>
-                ) : isSelected ? (
-                  <Check className="w-3.5 h-3.5 text-brand-500" />
                 ) : null}
               </button>
             );

@@ -15,15 +15,10 @@ const getInitialItems = () => {
 const saveItems = (items) => {
   try {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-  } catch {
-    // Ignore storage quota limits
-  }
+  } catch { }
 };
 
-/**
- * Zustand Cart Store (Real Database Backend & Local Persistence)
- * Zero hardcoded items: Starts clean and syncs with MongoDB Cart collection.
- */
+
 export const useCartStore = create((set, get) => ({
   items: getInitialItems(),
   isDrawerOpen: false,
@@ -32,9 +27,7 @@ export const useCartStore = create((set, get) => ({
   openDrawer: () => set({ isDrawerOpen: true }),
   closeDrawer: () => set({ isDrawerOpen: false }),
 
-  /**
-   * Add item to cart with normalization
-   */
+  // Add item to cart with normalization
   addItem: (product, quantity = 1) => {
     const resolvedId = product._id || product.id;
     const resolvedTitle = product.name || product.title;
@@ -80,9 +73,7 @@ export const useCartStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Update quantity of a product in cart
-   */
+  // Update quantity of a product in cart
   updateQuantity: (productId, quantity) => {
     const resolvedId = typeof productId === 'object' ? (productId._id || productId.id) : productId;
 
@@ -101,13 +92,11 @@ export const useCartStore = create((set, get) => ({
 
     const token = localStorage.getItem('shopnest_token');
     if (token) {
-      cartApi.updateQuantity(resolvedId, quantity).catch(() => {});
+      cartApi.updateQuantity(resolvedId, quantity).catch(() => { });
     }
   },
 
-  /**
-   * Remove item from cart
-   */
+  // Remove item from cart
   removeItem: (productId) => {
     const resolvedId = typeof productId === 'object' ? (productId._id || productId.id) : productId;
 
@@ -119,26 +108,21 @@ export const useCartStore = create((set, get) => ({
 
     const token = localStorage.getItem('shopnest_token');
     if (token) {
-      cartApi.removeFromCart(resolvedId).catch(() => {});
+      cartApi.removeFromCart(resolvedId).catch(() => { });
     }
   },
 
-  /**
-   * Clear all items in cart
-   */
+  // Clear all items in cart
   clearCart: () => {
     saveItems([]);
     set({ items: [] });
 
     const token = localStorage.getItem('shopnest_token');
-    if (token) {
-      cartApi.clearCart().catch(() => {});
-    }
+    if (token)
+      cartApi.clearCart().catch(() => { });
   },
 
-  /**
-   * Fetch and sync cart with backend server
-   */
+  // Fetch and sync cart with backend server
   fetchCart: async () => {
     const token = localStorage.getItem('shopnest_token');
     if (!token) return;

@@ -19,14 +19,24 @@ const DUMMY_JSON_URL = 'https://dummyjson.com/products?limit=197';
 
 async function seedDummyJsonProducts() {
   console.log('--------------------------------------------------');
-  console.log('[Seed] Connecting to MongoDB Atlas...');
-  await mongoose.connect(env.MONGO_URI);
-  console.log('[Seed] Connected successfully to MongoDB Atlas.');
+  console.log('[Seed] Connecting to shopnest MongoDB Atlas...');
+  await mongoose.connect(env.MONGO_URI, { dbName: 'shopnest' });
+  console.log('[Seed] Connected successfully to database: shopnest');
 
-  // 1. Delete all previous products
-  console.log('[Seed] Deleting old products from database...');
+  // Also clean up any products from test db
+  try {
+    const testConn = await mongoose.createConnection(env.MONGO_URI, { dbName: 'test' }).asPromise();
+    const testDel = await testConn.collection('products').deleteMany({});
+    console.log(`[Seed] Cleaned up ${testDel.deletedCount} products from temporary 'test' database.`);
+    await testConn.close();
+  } catch (cleanErr) {
+    console.warn('[Seed] Note on test db cleanup:', cleanErr.message);
+  }
+
+  // 1. Delete all previous products from shopnest database
+  console.log('[Seed] Deleting old products from shopnest database...');
   const deleteResult = await Product.deleteMany({});
-  console.log(`[Seed] Deleted ${deleteResult.deletedCount} old products from collection.`);
+  console.log(`[Seed] Deleted ${deleteResult.deletedCount} old products from shopnest collection.`);
 
   // 2. Fetch products from DummyJSON
   console.log(`[Seed] Fetching products from ${DUMMY_JSON_URL}...`);
@@ -55,9 +65,13 @@ async function seedDummyJsonProducts() {
       : price;
 
     const primaryImage = p.thumbnail || (p.images && p.images[0]) || '';
-    const imagesList = Array.isArray(p.images) && p.images.length > 0
-      ? p.images
-      : (primaryImage ? [primaryImage] : []);
+    
+    // Combine thumbnail and all images into unique ordered list so every product has multiple images
+    const rawImagesList = [
+      primaryImage,
+      ...(Array.isArray(p.images) ? p.images : []),
+    ].filter(Boolean);
+    const imagesList = Array.from(new Set(rawImagesList));
 
     const reviews = Array.isArray(p.reviews)
       ? p.reviews.map((r) => ({
@@ -113,21 +127,20 @@ async function seedDummyJsonProducts() {
       image: primaryImage,
       thumbnail: primaryImage,
       images: imagesList,
-      colors: ['#171613', '#64748b', '#cbd5e1'],
       specs: specs,
       isFeatured: (Number(p.rating) >= 4.5) || [1, 2, 5, 8, 12, 16, 20, 24, 30].includes(p.id),
     };
   });
 
-  // 4. Bulk insert
-  console.log(`[Seed] Inserting ${transformedProducts.length} products into MongoDB...`);
+  // 4. Bulk insert into shopnest database
+  console.log(`[Seed] Inserting ${transformedProducts.length} products into shopnest MongoDB...`);
   const inserted = await Product.insertMany(transformedProducts);
-  console.log(`[Seed] Successfully inserted ${inserted.length} products into MongoDB!`);
+  console.log(`[Seed] Successfully inserted ${inserted.length} products into shopnest database!`);
 
   // 5. Verification
   const totalInDb = await Product.countDocuments();
   const distinctCategories = await Product.distinct('category');
-  console.log(`[Seed] Verification: Total products now in database: ${totalInDb}`);
+  console.log(`[Seed] Verification: Total products now in shopnest database: ${totalInDb}`);
   console.log(`[Seed] Distinct categories (${distinctCategories.length}):`, distinctCategories);
 
   await mongoose.disconnect();

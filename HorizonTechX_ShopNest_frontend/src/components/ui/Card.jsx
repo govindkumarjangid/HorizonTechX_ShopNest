@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ShoppingBag, Heart, Eye } from 'lucide-react';
+import { ShoppingBag, Heart, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Badge } from './Badge';
 import { Rating } from './Rating';
 import { Skeleton } from './Skeleton';
@@ -74,6 +74,13 @@ export const ProductCard = ({
   const resolvedReviewsCount = reviewsCount || numReviews || 0;
   const resolvedOutOfStock = isOutOfStock !== undefined ? isOutOfStock : !inStock;
 
+  const resolvedImages = Array.isArray(images) && images.length > 0
+    ? images.filter(Boolean)
+    : (resolvedImage ? [resolvedImage] : []);
+
+  const [activeImageIdx, setActiveImageIdx] = useState(0);
+  const currentImage = resolvedImages[activeImageIdx] || resolvedImages[0] || resolvedImage || '';
+
   const productObj = {
     id: resolvedId,
     _id: resolvedId,
@@ -82,8 +89,8 @@ export const ProductCard = ({
     price,
     originalPrice: resolvedOriginalPrice,
     mrp: resolvedOriginalPrice,
-    image: resolvedImage,
-    images: images || (resolvedImage ? [resolvedImage] : []),
+    image: currentImage || resolvedImage,
+    images: resolvedImages,
     category,
     rating,
     reviewsCount: resolvedReviewsCount,
@@ -198,7 +205,7 @@ export const ProductCard = ({
 
         {/* Product Image with Progressive Blur-Up & Hover Zoom */}
         <ProgressiveImage
-          src={resolvedImage}
+          src={currentImage}
           alt={resolvedTitle}
           width={600}
           aspectRatio="aspect-square"
@@ -206,6 +213,34 @@ export const ProductCard = ({
           imgClassName="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-106"
           onLoad={() => setIsImageLoaded(true)}
         />
+
+        {/* Left / Right Arrows on Hover (Desktop) */}
+        {resolvedImages.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveImageIdx((prev) => (prev - 1 + resolvedImages.length) % resolvedImages.length);
+              }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white/90 dark:bg-dark-surface/90 backdrop-blur-md flex items-center justify-center text-neutral-700 dark:text-neutral-200 opacity-0 group-hover:opacity-100 hover:scale-110 transition-all shadow-subtle cursor-pointer"
+              aria-label="Previous photo"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveImageIdx((prev) => (prev + 1) % resolvedImages.length);
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white/90 dark:bg-dark-surface/90 backdrop-blur-md flex items-center justify-center text-neutral-700 dark:text-neutral-200 opacity-0 group-hover:opacity-100 hover:scale-110 transition-all shadow-subtle cursor-pointer"
+              aria-label="Next photo"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </>
+        )}
 
         {/* Quick View & Quick Add Action Bar (Hover Overlay) */}
         <div className="
@@ -250,6 +285,34 @@ export const ProductCard = ({
           )}
         </div>
       </div>
+
+      {/* Multiple Images Dots Indicator (Positioned neatly below image - zero overlap) */}
+      {resolvedImages.length > 1 && (
+        <div className="flex items-center justify-center gap-1.5 py-1.5 px-3 bg-neutral-50/90 dark:bg-dark-surface/80 border-b border-neutral-100 dark:border-dark-border/40 select-none">
+          {resolvedImages.slice(0, 5).map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveImageIdx(idx);
+              }}
+              onMouseEnter={() => setActiveImageIdx(idx)}
+              className={`h-1.5 rounded-full transition-all duration-200 cursor-pointer ${
+                activeImageIdx === idx
+                  ? 'w-5 bg-brand-500'
+                  : 'w-1.5 bg-neutral-300 dark:bg-neutral-600 hover:bg-neutral-400'
+              }`}
+              aria-label={`Switch to image ${idx + 1}`}
+            />
+          ))}
+          {resolvedImages.length > 5 && (
+            <span className="text-[9px] text-neutral-400 font-mono">
+              +{resolvedImages.length - 5}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Product Content Details (Uniform sizing across all cards) */}
       <div className="flex flex-col flex-1 p-4 gap-2">

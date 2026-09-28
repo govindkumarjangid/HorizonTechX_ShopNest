@@ -189,10 +189,6 @@ const productSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
-    colors: {
-      type: [String],
-      default: ['#171613', '#64748b', '#cbd5e1'],
-    },
     specs: {
       type: Map,
       of: String,

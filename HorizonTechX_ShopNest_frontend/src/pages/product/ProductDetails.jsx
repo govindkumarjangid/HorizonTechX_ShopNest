@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   Truck,
   RotateCcw,
-  Check,
   ChevronRight,
   Award,
 } from 'lucide-react';
@@ -106,8 +105,6 @@ export const ProductDetails = ({
   const resolvedInStock = product.inStock !== undefined ? product.inStock : (product.stock > 0);
   const resolvedRating = product.rating || 4.8;
   const resolvedReviews = product.numReviews || product.reviewsCount || 64;
-
-  const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] || '#171613');
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'materials' | 'shipping'
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -254,33 +251,6 @@ export const ProductDetails = ({
             {product.description}
           </p>
 
-          {/* Variant Swatches (Colors) */}
-          {product.colors && product.colors.length > 0 && (
-            <div className="flex flex-col gap-2 pt-2">
-              <span className="text-xs font-semibold text-neutral-900 dark:text-white">
-                Finish & Anodization:
-              </span>
-              <div className="flex items-center gap-2.5">
-                {product.colors.map((color, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setSelectedColor(color)}
-                    className={`
-                      w-7 h-7 rounded-full transition-transform cursor-pointer relative
-                      ${selectedColor === color ? 'ring-2 ring-brand-500 ring-offset-2 dark:ring-offset-dark-bg scale-110' : 'hover:scale-105'}
-                    `}
-                    style={{ backgroundColor: color }}
-                    aria-label={`Select color ${color}`}
-                  >
-                    {selectedColor === color && (
-                      <Check className="w-3.5 h-3.5 text-white absolute inset-0 m-auto drop-shadow" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Quantity Stepper & Main Action Button */}
           <div className="flex items-center gap-2.5 sm:gap-3 pt-4">
