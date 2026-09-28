@@ -6,7 +6,6 @@ import {
   User,
   ArrowRight,
   ArrowLeft,
-  Sparkles,
   Eye,
   EyeOff,
 } from 'lucide-react';
@@ -30,14 +29,14 @@ export const Auth = ({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuthStore();
+  const { login, register } = useAuthStore();
 
   const handleReturnHome = () => {
     if (onNavigateHome) onNavigateHome();
     else navigate('/');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (mode === 'register' && !name.trim()) {
@@ -57,43 +56,27 @@ export const Auth = ({
     }
 
     setLoading(true);
-    setTimeout(() => {
-      login({
-        name: mode === 'register' && name ? name : 'Govind Jangid',
-        email,
-        role: 'User',
-      });
-      setLoading(false);
-      notify.success(
-        mode === 'register'
-          ? 'Account created successfully! Welcome to ShopNest.'
-          : 'Signed in successfully! Welcome back.'
-      );
+    try {
+      if (mode === 'register') {
+        await register({ name, email, password });
+        notify.success('Account created successfully! Welcome to ShopNest.');
+      } else {
+        await login({ email, password });
+        notify.success('Signed in successfully! Welcome back.');
+      }
       if (onSuccess) {
         onSuccess();
       } else {
         navigate('/dashboard');
       }
-    }, 800);
+    } catch (err) {
+      notify.error(err.message || 'Authentication failed. Please verify credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDemoLogin = () => {
-    setLoading(true);
-    setTimeout(() => {
-      login({
-        name: 'Govind Jangid',
-        email: 'govindjangid@gmail.com',
-        role: 'User',
-      });
-      setLoading(false);
-      notify.success('Signed in as Govind Jangid!');
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        navigate('/dashboard');
-      }
-    }, 500);
-  };
+
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-dark-bg flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -130,39 +113,12 @@ export const Auth = ({
             </Subtitle>
           </div>
 
-          {/* Quick Demo Login Option */}
-          <div className="mb-6 p-4 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-center flex flex-col gap-2">
-            <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-brand-600 dark:text-brand-400">
-              <Sparkles className="w-3.5 h-3.5" /> Quick Access Demo
-            </div>
-            <p className="text-[11px] text-neutral-600 dark:text-neutral-400">
-              Explore the fully-featured customer dashboard instantly:
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              loading={loading}
-              onClick={handleDemoLogin}
-              className="w-full text-xs font-semibold cursor-pointer"
-            >
-              Sign In as Govind Jangid
-            </Button>
-          </div>
-
-          <div className="relative flex py-2 items-center mb-6">
-            <div className="flex-grow border-t border-neutral-200 dark:border-dark-border" />
-            <span className="flex-shrink mx-4 text-[11px] uppercase tracking-wider text-neutral-400 font-mono">
-              Or with credentials
-            </span>
-            <div className="flex-grow border-t border-neutral-200 dark:border-dark-border" />
-          </div>
-
           {/* Form */}
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             {mode === 'register' && (
               <Input
                 label="Full Name"
-                placeholder="Govind Jangid"
+                placeholder="John Doe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 leftIcon={User}
@@ -172,7 +128,7 @@ export const Auth = ({
             <Input
               label="Email Address"
               type="email"
-              placeholder="govindjangid@gmail.com"
+              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               leftIcon={Mail}
@@ -205,6 +161,7 @@ export const Auth = ({
               type="submit"
               size="lg"
               loading={loading}
+              loadingText={mode === 'login' ? 'Signing In...' : 'Creating Account...'}
               className="w-full mt-4 cursor-pointer"
               rightIcon={ArrowRight}
             >

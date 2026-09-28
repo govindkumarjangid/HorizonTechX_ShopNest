@@ -17,7 +17,6 @@ import {
   ChevronLeft,
   ChevronDown,
   Star,
-  Sparkles,
   Filter,
   SlidersHorizontal,
   Eye,
@@ -119,7 +118,7 @@ export const icons = {
 
   // Feedback & Ratings
   star: Star,
-  sparkle: Sparkles,
+  award: Award,
   check: Check,
   checkCircle: CheckCircle2,
   alertCircle: AlertCircle,
@@ -144,62 +143,17 @@ export const icons = {
  */
 export const navLinks = [
   { label: 'Shop All', href: '/shop' },
-  { label: 'Audio', href: '/shop?category=audio' },
-  { label: 'Workstation', href: '/shop?category=workstation' },
-  { label: 'Timepieces', href: '/shop?category=timepieces' },
-  { label: 'Lighting', href: '/shop?category=lighting' },
+  { label: 'Laptops', href: '/shop?category=laptops' },
+  { label: 'Smartphones', href: '/shop?category=smartphones' },
+  { label: 'Accessories', href: '/shop?category=mobile-accessories' },
+  { label: 'Watches', href: '/shop?category=mens-watches' },
+  { label: 'Sports', href: '/shop?category=sports-accessories' },
 ];
 
 /**
- * Editorial Categories with Curated Imagery
+ * Categories are loaded dynamically from real backend API: /api/products/categories
  */
-export const categories = [
-  {
-    id: 'cat-audio',
-    name: 'Acoustic Engineering',
-    slug: 'audio',
-    tagline: 'High-fidelity lossless transducers & open-back studio headphones',
-    itemCount: 18,
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80',
-    featured: true,
-  },
-  {
-    id: 'cat-workstation',
-    name: 'Desk Architecture',
-    slug: 'workstation',
-    tagline: 'Precision CNC aluminum peripherals, tactile keyboards & leather desk pads',
-    itemCount: 24,
-    image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80',
-    featured: true,
-  },
-  {
-    id: 'cat-timepieces',
-    name: 'Horology & Objects',
-    slug: 'timepieces',
-    tagline: 'Ceramic automatic chronographs & minimalist mechanical desk clocks',
-    itemCount: 14,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80',
-    featured: true,
-  },
-  {
-    id: 'cat-lighting',
-    name: 'Optics & Illumination',
-    slug: 'lighting',
-    tagline: 'Circadian OLED light bars & sculptural anodized task lamps',
-    itemCount: 12,
-    image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&auto=format&fit=crop&q=80',
-    featured: false,
-  },
-  {
-    id: 'cat-accessories',
-    name: 'Hardware & EDC',
-    slug: 'accessories',
-    tagline: 'Grade 5 titanium key organizers, MagSafe stands & ballistic carry cases',
-    itemCount: 29,
-    image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=800&auto=format&fit=crop&q=80',
-    featured: false,
-  },
-];
+export const categories = [];
 
 /**
  * Rich Products Catalog
@@ -420,43 +374,43 @@ export const products = [
 export const bentoCollections = [
   {
     id: 'col-1',
-    title: 'The Sound Sanctuary',
-    subtitle: 'Zero resonance. Pure studio accuracy.',
-    category: 'Flagship Audio',
+    title: 'Smart Audio & Earwear',
+    subtitle: 'Immersive soundscapes and noise-cancelling clarity.',
+    category: 'Mobile & Audio',
     image: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=1000&auto=format&fit=crop&q=80',
-    link: '/products?category=audio',
+    link: '/shop?category=mobile-accessories',
     span: 'col-span-12 lg:col-span-7',
-    badge: 'Seasonal Archive',
+    badge: 'Trending Now',
   },
   {
     id: 'col-2',
-    title: 'Tactile Precision',
-    subtitle: 'Machined aluminum mechanical tools.',
-    category: 'Workstation',
-    image: 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=800&auto=format&fit=crop&q=80',
-    link: '/products?category=workstation',
+    title: 'Modern Laptops & Computing',
+    subtitle: 'High-performance laptops engineered for speed and precision.',
+    category: 'Laptops',
+    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=80',
+    link: '/shop?category=laptops',
     span: 'col-span-12 sm:col-span-6 lg:col-span-5',
-    badge: 'Limited Drop',
+    badge: 'Popular Choice',
   },
   {
     id: 'col-3',
-    title: 'Chronographic Form',
-    subtitle: 'Ceramic horological masterpieces.',
-    category: 'Timepieces',
+    title: 'Luxury Timepieces',
+    subtitle: 'Chronographs and smart watches designed for everyday elegance.',
+    category: 'Watches',
     image: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800&auto=format&fit=crop&q=80',
-    link: '/products?category=timepieces',
+    link: '/shop?category=mens-watches',
     span: 'col-span-12 sm:col-span-6 lg:col-span-5',
-    badge: 'Collector Batch',
+    badge: 'Curated Drop',
   },
   {
     id: 'col-4',
-    title: 'Circadian Workspace',
-    subtitle: 'High-CRI sculptural lighting tailored for deep focus.',
-    category: 'Lighting & Environment',
-    image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=1000&auto=format&fit=crop&q=80',
-    link: '/products?category=lighting',
+    title: 'Next-Gen Smartphones',
+    subtitle: 'Flagship mobile devices with breakthrough cameras and displays.',
+    category: 'Smartphones',
+    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1000&auto=format&fit=crop&q=80',
+    link: '/shop?category=smartphones',
     span: 'col-span-12 lg:col-span-7',
-    badge: 'New Standard',
+    badge: 'Best Seller',
   },
 ];
 

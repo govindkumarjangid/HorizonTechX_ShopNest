@@ -1,28 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Search, ArrowLeft } from 'lucide-react';
+import { Package, Search, ArrowLeft, Loader2 } from 'lucide-react';
 import { H1, Subtitle, Badge } from '../../components/ui';
 import { OrderCard } from '../../components/orders/OrderCard';
 import { EmptyState } from '../../components/common/EmptyState';
 import { useOrderStore } from '../../store/useOrderStore';
 
 /**
- * Dedicated Orders Listing Page
+ * Dedicated Orders Listing Page (Real Backend Connected)
  */
 export const Orders = ({
   onSelectOrder,
   onNavigateToCatalog,
 }) => {
   const navigate = useNavigate();
-  const { orders } = useOrderStore();
+  const { orders, fetchOrders, isLoading } = useOrderStore();
   const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'processing' | 'delivered'
   const [searchQuery, setSearchQuery] = useState('');
 
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
   const handleOrderClick = (order) => {
+    const targetId = order.orderId || order._id || order.id;
     if (onSelectOrder) {
       onSelectOrder(order);
     } else {
-      navigate(`/orders/${order.id}`);
+      navigate(`/orders/${targetId}`);
     }
   };
 
@@ -34,17 +39,19 @@ export const Orders = ({
     }
   };
 
-  const filteredOrders = orders.filter((order) => {
+  const filteredOrders = (orders || []).filter((order) => {
+    const status = (order.orderStatus || order.status || '').toLowerCase();
     // Filter by status tab
-    if (activeFilter === 'processing' && order.status !== 'Processing') return false;
-    if (activeFilter === 'delivered' && order.status !== 'Delivered') return false;
+    if (activeFilter === 'processing' && status !== 'processing' && status !== 'placed') return false;
+    if (activeFilter === 'delivered' && status !== 'delivered') return false;
 
     // Filter by search query (order ID or item name)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      const matchesId = order.id.toLowerCase().includes(q);
+      const idStr = (order.orderId || order._id || order.id || '').toLowerCase();
+      const matchesId = idStr.includes(q);
       const matchesItem = order.items?.some((item) =>
-        item.title?.toLowerCase().includes(q)
+        (item.title || item.name || item.product?.name || '').toLowerCase().includes(q)
       );
       return matchesId || matchesItem;
     }
@@ -53,7 +60,7 @@ export const Orders = ({
   });
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
+    <div className="max-w-6xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-10 w-full">
       {/* Top Header */}
       <div className="flex flex-col gap-2 mb-8">
         <button
@@ -67,11 +74,11 @@ export const Orders = ({
 
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <H1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
+            <H1 className="text-xl sm:text-2xl font-bold tracking-tight">
               Your Orders & Shipments
             </H1>
             <Subtitle className="text-sm">
-              Real-time telemetry and dispatch records for your precision hardware orders.
+              Real-time updates and dispatch records for your orders.
             </Subtitle>
           </div>
 
@@ -84,7 +91,7 @@ export const Orders = ({
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-xs mb-8">
         {/* Status Filter Tabs */}
-        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar">
           {['all', 'processing', 'delivered'].map((filter) => (
             <button
               key={filter}
@@ -118,7 +125,12 @@ export const Orders = ({
       </div>
 
       {/* Orders List */}
-      {filteredOrders.length === 0 ? (
+      {isLoading && (!orders || orders.length === 0) ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-3 text-neutral-400">
+          <Loader2 className="w-8 h-8 animate-spin text-brand-500" />
+          <p className="text-xs">Synchronizing precision order telemetry from database...</p>
+        </div>
+      ) : filteredOrders.length === 0 ? (
         <EmptyState
           icon={Package}
           title="No Orders Found"
@@ -134,7 +146,7 @@ export const Orders = ({
         <div className="flex flex-col gap-6">
           {filteredOrders.map((order) => (
             <OrderCard
-              key={order.id}
+              key={order._id || order.orderId || order.id}
               order={order}
               onTrackDetails={handleOrderClick}
             />

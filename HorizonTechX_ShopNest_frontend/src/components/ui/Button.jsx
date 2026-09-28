@@ -9,6 +9,8 @@ export const Button = React.forwardRef(({
   variant = 'primary',
   size = 'md',
   isLoading = false,
+  loading = false,
+  loadingText,
   isDisabled = false,
   leftIcon: LeftIcon,
   rightIcon: RightIcon,
@@ -17,7 +19,8 @@ export const Button = React.forwardRef(({
   type = 'button',
   ...props
 }, ref) => {
-  const disabled = isDisabled || isLoading;
+  const isCurrentlyLoading = isLoading || loading;
+  const disabled = isDisabled || isCurrentlyLoading;
 
   const baseStyles = 'relative inline-flex items-center justify-center font-sans font-medium select-none transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-bg cursor-pointer disabled:cursor-not-allowed disabled:opacity-55';
 
@@ -53,10 +56,10 @@ export const Button = React.forwardRef(({
       `}
       {...props}
     >
-      {isLoading ? (
+      {isCurrentlyLoading ? (
         <>
-          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-          <span>Loading...</span>
+          <Loader2 className="w-4 h-4 animate-spin mr-2 shrink-0" />
+          <span>{loadingText || (typeof children === 'string' ? children : 'Loading...')}</span>
         </>
       ) : (
         <>

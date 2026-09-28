@@ -99,8 +99,8 @@ export const Cart = ({
         <EmptyState
           icon={ShoppingBag}
           title="Your Bag is Empty"
-          description="You haven't added any precision hardware or accessories to your bag yet. Explore our handcrafted instruments."
-          actionLabel="Explore Hardware Archive"
+          description="You haven't added any items to your bag yet. Explore our store collection to find premium tech and lifestyle essentials."
+          actionLabel="Explore Products"
           onAction={handleContinueShopping}
         />
       </div>
@@ -108,7 +108,7 @@ export const Cart = ({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
+    <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-10 w-full">
       {/* Page Title & Breadcrumb */}
       <div className="flex flex-col gap-2 mb-8">
         <div className="flex items-center justify-between">
@@ -130,37 +130,12 @@ export const Cart = ({
           </button>
         </div>
 
-        <H1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
+        <H1 className="text-xl sm:text-2xl font-bold tracking-tight">
           Your Curated Bag ({items.reduce((acc, item) => acc + (item.quantity || 1), 0)})
         </H1>
         <Subtitle className="text-sm">
-          Review your selected audio, mechanical, and desktop gear before proceeding to dispatch.
+          Review your selected items before proceeding to checkout.
         </Subtitle>
-      </div>
-
-      {/* Free Shipping Progress Card */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border mb-8 shadow-xs">
-        <div className="flex items-center justify-between text-xs sm:text-sm font-medium mb-2.5">
-          <div className="flex items-center gap-2 text-neutral-900 dark:text-white">
-            <Truck className="w-4 h-4 text-brand-500" />
-            {amountNeededForFreeShipping === 0 ? (
-              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                You've unlocked Complimentary Express Shipping!
-              </span>
-            ) : (
-              <span>
-                Add <strong className="text-brand-500 font-mono">{formatPrice(amountNeededForFreeShipping)}</strong> more to qualify for Free Express Shipping
-              </span>
-            )}
-          </div>
-          <span className="font-mono text-xs text-neutral-500">{progressToFreeShipping}%</span>
-        </div>
-        <div className="w-full h-2 bg-neutral-100 dark:bg-dark-surface rounded-full overflow-hidden">
-          <div
-            className="h-full bg-brand-500 transition-all duration-500 rounded-full"
-            style={{ width: `${progressToFreeShipping}%` }}
-          />
-        </div>
       </div>
 
       {/* Layout Grid: Items vs Order Summary */}
@@ -213,7 +188,7 @@ export const Cart = ({
         </div>
 
         {/* Right Column: Sticky Summary */}
-        <div className="lg:col-span-4 lg:sticky lg:top-24 flex flex-col gap-5">
+        <div className="lg:col-span-4 lg:sticky lg:top-24 self-start z-10 flex flex-col gap-5">
           <CartSummary
             subtotal={subtotal}
             shippingFee={shippingFee}
@@ -221,24 +196,6 @@ export const Cart = ({
             total={finalTotal}
             onCheckout={handleProceedCheckout}
           />
-
-          {/* Trust Guarantees */}
-          <div className="p-5 rounded-2xl bg-neutral-100/70 dark:bg-dark-card/50 border border-neutral-200/60 dark:border-dark-border flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <ShieldCheck className="w-5 h-5 text-brand-500 shrink-0" />
-              <div>
-                <h5 className="text-xs font-bold text-neutral-900 dark:text-white">2-Year Horizon Warranty</h5>
-                <p className="text-[11px] text-neutral-500">Full mechanical and acoustic replacement warranty.</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <RotateCcw className="w-5 h-5 text-brand-500 shrink-0" />
-              <div>
-                <h5 className="text-xs font-bold text-neutral-900 dark:text-white">30-Day Hassle-Free Returns</h5>
-                <p className="text-[11px] text-neutral-500">Test the acoustic signature in your studio risk-free.</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

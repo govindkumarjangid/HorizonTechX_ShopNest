@@ -52,6 +52,7 @@ export const ProductGrid = ({
             onAddToCart={() => onAddToCart && onAddToCart(product)}
             onAddToWishlist={() => onAddToWishlist && onAddToWishlist(product)}
             onQuickView={() => onQuickView && onQuickView(product)}
+            onClick={() => onQuickView && onQuickView(product)}
           />
         </motion.div>
       ))}

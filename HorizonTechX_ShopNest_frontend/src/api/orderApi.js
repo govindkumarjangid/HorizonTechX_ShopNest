@@ -1,68 +1,29 @@
 import api from './axios';
 
 /**
- * Order Management & Tracking API Service
+ * Order Management & Tracking API Service (Real Backend)
+ * Zero mock fallbacks: Direct integration with MongoDB Order collection.
  */
 export const orderApi = {
   /**
-   * Fetch all orders for current user
+   * Fetch all orders for current authenticated user
    */
-  getOrders: async () => {
-    try {
-      return await api.get('/orders');
-    } catch {
-      return { success: true, orders: [] };
-    }
+  getOrders: async (params = {}) => {
+    return await api.get('/orders/my-orders', { params });
   },
 
   /**
    * Fetch specific order details by ID
    */
   getOrderById: async (orderId) => {
-    try {
-      return await api.get(`/orders/${orderId}`);
-    } catch {
-      return { success: true, orderId };
-    }
+    return await api.get(`/orders/${orderId}`);
   },
 
   /**
    * Create a new order (Checkout)
    */
   createOrder: async (orderData) => {
-    try {
-      return await api.post('/orders', orderData);
-    } catch {
-      const generatedId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
-      return {
-        success: true,
-        order: {
-          id: generatedId,
-          trackingNumber: `HTX-IND-${Math.floor(10000 + Math.random() * 90000)}`,
-          date: 'Just Now',
-          status: 'Processing',
-          statusStep: 1,
-          ...orderData,
-        },
-      };
-    }
-  },
-
-  /**
-   * Track order by tracking number or airway bill
-   */
-  trackOrder: async (trackingNumber) => {
-    try {
-      return await api.get(`/orders/track/${trackingNumber}`);
-    } catch {
-      return {
-        success: true,
-        trackingNumber,
-        status: 'In Transit (Air)',
-        currentStep: 2,
-        estimatedDelivery: 'Within 48 hours',
-      };
-    }
+    return await api.post('/orders', orderData);
   },
 };
 

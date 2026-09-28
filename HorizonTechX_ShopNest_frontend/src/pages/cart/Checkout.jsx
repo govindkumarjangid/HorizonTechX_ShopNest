@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -13,8 +13,11 @@ import {
   Banknote,
   ChevronRight,
   MapPin,
+  Plus,
+  User,
 } from 'lucide-react';
 import { Button } from '../../components/ui';
+import { AuthModal } from '../../components/auth/AuthModal';
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useOrderStore } from '../../store/useOrderStore';
@@ -32,24 +35,44 @@ export const Checkout = ({
 }) => {
   const navigate = useNavigate();
   const { items, getSubtotal, getShippingFee, getTax, getTotal, clearCart } = useCartStore();
-  const { user, savedAddresses } = useAuthStore();
+  const { user, savedAddresses, isAuthenticated } = useAuthStore();
   const { createOrder } = useOrderStore();
 
   const [currentStep, setCurrentStep] = useState(1); // 1: Address, 2: Payment, 3: Review
-  const [selectedAddressId, setSelectedAddressId] = useState(savedAddresses[0]?.id || 'custom');
+  const [selectedAddressId, setSelectedAddressId] = useState(
+    savedAddresses && savedAddresses.length > 0
+      ? (savedAddresses[0]._id || savedAddresses[0].id)
+      : 'custom'
+  );
   const [paymentMethod, setPaymentMethod] = useState('upi'); // 'upi' | 'card' | 'netbanking' | 'cod'
-  const [upiId, setUpiId] = useState('govind@okaxis');
+  const [upiId, setUpiId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // Custom address fields if user chooses new address
-  const [newAddress] = useState({
-    fullName: user?.name || 'Govind Jangid',
-    phone: user?.phone || '+91 98765 43210',
-    street: 'Flat 402, Block C, Heritage Heights',
-    city: 'New Delhi',
-    state: 'Delhi',
-    pincode: '110001',
+  // Address fields if user enters a new address or has no saved addresses
+  const [newAddress, setNewAddress] = useState({
+    fullName: user?.name || '',
+    phone: user?.phone || '',
+    street: '',
+    landmark: '',
+    city: user?.city || '',
+    state: '',
+    pincode: '',
   });
+
+  useEffect(() => {
+    if (user) {
+      setNewAddress((prev) => ({
+        ...prev,
+        fullName: prev.fullName || user.name || '',
+        phone: prev.phone || user.phone || '',
+        city: prev.city || user.city || '',
+      }));
+      if (savedAddresses && savedAddresses.length > 0 && selectedAddressId === 'custom') {
+        setSelectedAddressId(savedAddresses[0]._id || savedAddresses[0].id);
+      }
+    }
+  }, [user, savedAddresses]);
 
   const subtotal = getSubtotal();
   const shippingFee = getShippingFee();
@@ -57,9 +80,9 @@ export const Checkout = ({
   const total = getTotal();
 
   const activeShippingAddress =
-    selectedAddressId === 'custom'
+    selectedAddressId === 'custom' || !savedAddresses || savedAddresses.length === 0
       ? newAddress
-      : savedAddresses.find((a) => a.id === selectedAddressId) || savedAddresses[0];
+      : savedAddresses.find((a) => (a._id || a.id) === selectedAddressId) || newAddress;
 
   const handleReturnToBag = () => {
     if (onReturnToCart) onReturnToCart();
@@ -71,71 +94,146 @@ export const Checkout = ({
     else navigate('/shop');
   };
 
+  const isAddressValid = () => {
+    if (!activeShippingAddress) return false;
+    if (!activeShippingAddress.fullName?.trim()) return false;
+    const cleanPhone = (activeShippingAddress.phone || '').replace(/\D/g, '');
+    if (cleanPhone.length < 10) return false;
+    if (!activeShippingAddress.street?.trim()) return false;
+    if (!activeShippingAddress.city?.trim()) return false;
+    if (!activeShippingAddress.state?.trim()) return false;
+    const cleanPin = (activeShippingAddress.pincode || '').trim();
+    if (cleanPin.length !== 6) return false;
+    return true;
+  };
+
+  const isPaymentValid = () => {
+    if (paymentMethod === 'upi') {
+      return Boolean(upiId.trim() && upiId.includes('@'));
+    }
+    return Boolean(paymentMethod);
+  };
+
   const handleProceedToPayment = () => {
+    const isAuthed = isAuthenticated || !!localStorage.getItem('shopnest_token');
+    if (!isAuthed) {
+      notify.error('Please sign in or create an account to proceed with checkout.');
+      setShowAuthModal(true);
+      return false;
+    }
+
     if (!activeShippingAddress) {
-      notify.error('Please choose a valid shipping address');
-      return;
+      notify.error('Please choose or enter a shipping address');
+      return false;
     }
     if (!activeShippingAddress.fullName?.trim()) {
       notify.error('Please specify recipient full name');
-      return;
+      return false;
     }
-    if (!activeShippingAddress.phone?.trim() || activeShippingAddress.phone.length < 10) {
+    const cleanPhone = (activeShippingAddress.phone || '').replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
       notify.error('Please provide a valid 10-digit mobile number');
-      return;
+      return false;
     }
     if (!activeShippingAddress.street?.trim()) {
       notify.error('Please provide street / flat delivery details');
-      return;
+      return false;
     }
-    if (!activeShippingAddress.pincode?.trim() || activeShippingAddress.pincode.length < 6) {
+    if (!activeShippingAddress.city?.trim()) {
+      notify.error('Please provide delivery city');
+      return false;
+    }
+    if (!activeShippingAddress.state?.trim()) {
+      notify.error('Please provide delivery state');
+      return false;
+    }
+    const cleanPin = (activeShippingAddress.pincode || '').trim();
+    if (cleanPin.length !== 6) {
       notify.error('Please provide a valid 6-digit Indian PIN code');
-      return;
+      return false;
     }
     setCurrentStep(2);
+    return true;
   };
 
   const handleProceedToReview = () => {
+    if (!isAddressValid()) {
+      handleProceedToPayment();
+      return false;
+    }
     if (paymentMethod === 'upi') {
-      if (!upiId || !upiId.includes('@')) {
+      if (!upiId.trim() || !upiId.includes('@')) {
         notify.error('Please enter a valid UPI address (e.g. yourname@upi)');
-        return;
+        return false;
       }
     }
     setCurrentStep(3);
+    return true;
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
+    const isAuthed = isAuthenticated || !!localStorage.getItem('shopnest_token');
+    if (!isAuthed) {
+      notify.error('Please sign in to place your order');
+      setShowAuthModal(true);
+      return;
+    }
+
+    if (!isAddressValid()) {
+      handleProceedToPayment();
+      return;
+    }
+    if (!isPaymentValid()) {
+      handleProceedToReview();
+      return;
+    }
+
     setIsSubmitting(true);
     notify.loading('Authorizing dispatch and generating airway bill...', { id: 'checkout-order' });
-    setTimeout(() => {
-      const placedOrder = createOrder({
-        items: [...items],
-        shippingAddress: activeShippingAddress,
+
+    try {
+      const orderPayload = {
+        items: items.map((item) => ({
+          product: item._id || (typeof item.product === 'string' ? item.product : item.product?._id) || item.id,
+          quantity: Math.max(1, parseInt(item.quantity, 10) || 1),
+        })),
+        shippingAddress: {
+          fullName: activeShippingAddress.fullName.trim(),
+          phone: (activeShippingAddress.phone || '').replace(/\D/g, '').slice(-10),
+          street: activeShippingAddress.street.trim(),
+          landmark: (activeShippingAddress.landmark || '').trim(),
+          city: activeShippingAddress.city.trim(),
+          state: activeShippingAddress.state.trim(),
+          pincode: (activeShippingAddress.pincode || '').trim(),
+        },
         paymentMethod:
           paymentMethod === 'upi'
-            ? `UPI (${upiId})`
+            ? (upiId ? `UPI (${upiId})` : 'UPI')
             : paymentMethod === 'card'
             ? 'Credit Card'
             : paymentMethod === 'netbanking'
             ? 'NetBanking'
             : 'Cash on Delivery (COD)',
-        total,
-        subtotal,
-        shippingFee,
-        tax,
-      });
+      };
 
+      const placedOrder = await createOrder(orderPayload);
       clearCart();
       setIsSubmitting(false);
-      notify.success('Order placed successfully! Telemetry registered.', { id: 'checkout-order' });
+      notify.success('Order placed successfully! Real telemetry registered.', { id: 'checkout-order' });
 
+      const targetId = placedOrder?.orderId || placedOrder?._id || placedOrder?.id;
       if (onOrderSuccess) {
         onOrderSuccess(placedOrder);
+      } else if (targetId) {
+        navigate(`/orders/${targetId}`);
       } else {
-        navigate(`/orders/${placedOrder.id}`);
+        navigate('/orders');
       }
-    }, 1100);
+    } catch (err) {
+      setIsSubmitting(false);
+      const errMsg = err?.response?.data?.message || err?.message || 'Failed to place order';
+      notify.error(errMsg, { id: 'checkout-order' });
+    }
   };
 
   if (items.length === 0) {
@@ -182,15 +280,15 @@ export const Checkout = ({
         </div>
 
         {/* Step Indicator */}
-        <div className="flex items-center justify-center gap-3 sm:gap-8 mb-10 text-xs font-semibold">
+        <div className="flex items-center justify-center gap-3 sm:gap-8 mb-10 text-xs font-semibold select-none">
           <div
             className={`flex items-center gap-2 cursor-pointer ${
-              currentStep === 1 ? 'text-brand-500' : 'text-neutral-500'
+              currentStep === 1 ? 'text-brand-500 font-bold' : 'text-neutral-600 dark:text-neutral-400'
             }`}
             onClick={() => setCurrentStep(1)}
           >
             <span
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                 currentStep >= 1
                   ? 'bg-brand-500 text-white'
                   : 'bg-neutral-200 dark:bg-dark-surface'
@@ -204,16 +302,27 @@ export const Checkout = ({
           <ChevronRight className="w-4 h-4 text-neutral-400" />
 
           <div
-            className={`flex items-center gap-2 cursor-pointer ${
-              currentStep === 2 ? 'text-brand-500' : 'text-neutral-500'
+            className={`flex items-center gap-2 transition-all ${
+              isAddressValid() ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+            } ${
+              currentStep === 2 ? 'text-brand-500 font-bold' : 'text-neutral-600 dark:text-neutral-400'
             }`}
-            onClick={() => setCurrentStep(2)}
+            onClick={() => {
+              if (currentStep === 2) return;
+              if (!isAddressValid()) {
+                handleProceedToPayment();
+                return;
+              }
+              setCurrentStep(2);
+            }}
           >
             <span
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                 currentStep >= 2
                   ? 'bg-brand-500 text-white'
-                  : 'bg-neutral-200 dark:bg-dark-surface'
+                  : isAddressValid()
+                  ? 'bg-brand-100 dark:bg-brand-950/40 text-brand-600 dark:text-brand-400'
+                  : 'bg-neutral-200 dark:bg-dark-surface text-neutral-400'
               }`}
             >
               2
@@ -224,16 +333,31 @@ export const Checkout = ({
           <ChevronRight className="w-4 h-4 text-neutral-400" />
 
           <div
-            className={`flex items-center gap-2 cursor-pointer ${
-              currentStep === 3 ? 'text-brand-500' : 'text-neutral-500'
+            className={`flex items-center gap-2 transition-all ${
+              isAddressValid() && isPaymentValid() ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+            } ${
+              currentStep === 3 ? 'text-brand-500 font-bold' : 'text-neutral-600 dark:text-neutral-400'
             }`}
-            onClick={() => setCurrentStep(3)}
+            onClick={() => {
+              if (currentStep === 3) return;
+              if (!isAddressValid()) {
+                handleProceedToPayment();
+                return;
+              }
+              if (!isPaymentValid()) {
+                handleProceedToReview();
+                return;
+              }
+              setCurrentStep(3);
+            }}
           >
             <span
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                 currentStep >= 3
                   ? 'bg-brand-500 text-white'
-                  : 'bg-neutral-200 dark:bg-dark-surface'
+                  : isAddressValid() && isPaymentValid()
+                  ? 'bg-brand-100 dark:bg-brand-950/40 text-brand-600 dark:text-brand-400'
+                  : 'bg-neutral-200 dark:bg-dark-surface text-neutral-400'
               }`}
             >
               3
@@ -263,15 +387,74 @@ export const Checkout = ({
                     </h3>
                   </div>
 
+                  {/* Guest Notice */}
+                  {!isAuthenticated && !localStorage.getItem('shopnest_token') && (
+                    <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex flex-wrap items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
+                        <User className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>Sign in for saved addresses and live tracking telemetry.</span>
+                      </div>
+                      <Button size="sm" variant="outline" onClick={() => setShowAuthModal(true)} className="cursor-pointer text-xs py-1">
+                        Sign In / Register
+                      </Button>
+                    </div>
+                  )}
+
                   {/* Saved Addresses List */}
                   <div className="flex flex-col gap-3">
-                    {savedAddresses.map((addr) => (
+                    {savedAddresses && savedAddresses.length > 0 && savedAddresses.map((addr) => {
+                      const addrId = addr._id || addr.id;
+                      return (
+                        <label
+                          key={addrId}
+                          className={`
+                            p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3
+                            ${
+                              selectedAddressId === addrId
+                                ? 'border-brand-500 bg-brand-500/5 ring-2 ring-brand-500/20'
+                                : 'border-neutral-200 dark:border-dark-border hover:border-neutral-300'
+                            }
+                          `}
+                        >
+                          <input
+                            type="radio"
+                            name="address"
+                            checked={selectedAddressId === addrId}
+                            onChange={() => setSelectedAddressId(addrId)}
+                            className="mt-1 text-brand-500 accent-brand-500"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-xs text-neutral-900 dark:text-white">
+                                {addr.fullName}
+                              </span>
+                              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-dark-surface text-neutral-600 dark:text-neutral-400">
+                                {addr.type || 'Home'}
+                              </span>
+                              {addr.isDefault && (
+                                <span className="text-[10px] text-brand-500 font-semibold">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
+                              {addr.street}, {addr.city}, {addr.state} - {addr.pincode}
+                            </p>
+                            <p className="text-xs text-neutral-500 mt-0.5">
+                              Phone: {addr.phone}
+                            </p>
+                          </div>
+                        </label>
+                      );
+                    })}
+
+                    {/* Radio Option to Use Custom / New Address */}
+                    {savedAddresses && savedAddresses.length > 0 && (
                       <label
-                        key={addr.id}
                         className={`
                           p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3
                           ${
-                            selectedAddressId === addr.id
+                            selectedAddressId === 'custom'
                               ? 'border-brand-500 bg-brand-500/5 ring-2 ring-brand-500/20'
                               : 'border-neutral-200 dark:border-dark-border hover:border-neutral-300'
                           }
@@ -280,34 +463,85 @@ export const Checkout = ({
                         <input
                           type="radio"
                           name="address"
-                          checked={selectedAddressId === addr.id}
-                          onChange={() => setSelectedAddressId(addr.id)}
+                          checked={selectedAddressId === 'custom'}
+                          onChange={() => setSelectedAddressId('custom')}
                           className="mt-1 text-brand-500 accent-brand-500"
                         />
                         <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-xs text-neutral-900 dark:text-white">
-                              {addr.fullName}
-                            </span>
-                            <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-dark-surface text-neutral-600 dark:text-neutral-400">
-                              {addr.type}
-                            </span>
-                            {addr.isDefault && (
-                              <span className="text-[10px] text-brand-500 font-semibold">
-                                Default
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
-                            {addr.street}, {addr.city}, {addr.state} - {addr.pincode}
-                          </p>
+                          <span className="font-semibold text-xs text-neutral-900 dark:text-white flex items-center gap-1.5">
+                            <Plus className="w-3.5 h-3.5 text-brand-500" />
+                            Deliver to a new address
+                          </span>
                           <p className="text-xs text-neutral-500 mt-0.5">
-                            Phone: {addr.phone}
+                            Specify alternative shipping coordinates for this delivery.
                           </p>
                         </div>
                       </label>
-                    ))}
+                    )}
                   </div>
+
+                  {/* New / Custom Address Input Fields */}
+                  {(selectedAddressId === 'custom' || !savedAddresses || savedAddresses.length === 0) && (
+                    <div className="p-4 sm:p-5 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-200/80 dark:border-dark-border flex flex-col gap-3">
+                      <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
+                        {savedAddresses && savedAddresses.length > 0 ? 'Enter New Delivery Address' : 'Enter Delivery Address'}
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input
+                          type="text"
+                          placeholder="Recipient Full Name *"
+                          value={newAddress.fullName}
+                          onChange={(e) => setNewAddress({ ...newAddress, fullName: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                        />
+                        <input
+                          type="tel"
+                          placeholder="10-Digit Mobile Number *"
+                          value={newAddress.phone}
+                          onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Street Address / Flat / Building *"
+                        value={newAddress.street}
+                        onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Landmark (Optional)"
+                        value={newAddress.landmark}
+                        onChange={(e) => setNewAddress({ ...newAddress, landmark: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                      />
+                      <div className="grid grid-cols-3 gap-2">
+                        <input
+                          type="text"
+                          placeholder="City *"
+                          value={newAddress.city}
+                          onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                        />
+                        <input
+                          type="text"
+                          placeholder="State *"
+                          value={newAddress.state}
+                          onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                        />
+                        <input
+                          type="text"
+                          placeholder="6-digit PIN *"
+                          maxLength={6}
+                          value={newAddress.pincode}
+                          onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-xs outline-none focus:border-brand-500"
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   <Button
                     size="lg"
@@ -576,7 +810,8 @@ export const Checkout = ({
                     </Button>
                     <Button
                       size="lg"
-                      loading={isSubmitting}
+                      isLoading={isSubmitting}
+                      loadingText="Placing Order..."
                       onClick={handlePlaceOrder}
                       className="flex-1 shadow-elevated"
                     >
@@ -637,6 +872,13 @@ export const Checkout = ({
           </div>
         </div>
       </div>
+
+      {/* Authentication Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        initialTab="login"
+      />
     </div>
   );
 };

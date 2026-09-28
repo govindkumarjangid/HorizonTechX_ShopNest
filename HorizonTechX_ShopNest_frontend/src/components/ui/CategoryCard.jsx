@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import { cardHover } from '../../styles/motion';
-import { Skeleton } from './Skeleton';
+import { ProgressiveImage } from './ProgressiveImage';
 
 /**
  * Editorial Category Bento Card with zero layout shift and lazy image loading
@@ -16,8 +16,6 @@ export const CategoryCard = ({
   className = '',
   onClick,
 }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-
   return (
     <motion.a
       href={href}
@@ -33,22 +31,14 @@ export const CategoryCard = ({
         ${className}
       `}
     >
-      {/* Background Image Placeholder Skeleton before load */}
-      {!isLoaded && (
-        <Skeleton className="absolute inset-0 w-full h-full rounded-none" />
-      )}
-
-      {/* Background Image with Zoom & Lazy Loading */}
-      <img
+      {/* Background Image with Progressive Blur-Up & Hover Zoom */}
+      <ProgressiveImage
         src={image}
         alt={name}
-        loading="lazy"
-        onLoad={() => setIsLoaded(true)}
-        className={`
-          absolute inset-0 w-full h-full object-cover object-center
-          transition-all duration-700 ease-out group-hover:scale-108
-          ${isLoaded ? 'opacity-100' : 'opacity-0'}
-        `}
+        width={800}
+        aspectRatio=""
+        className="absolute inset-0 w-full h-full"
+        imgClassName="w-full h-full object-cover object-center transition-all duration-700 ease-out group-hover:scale-108"
       />
 
       {/* Gradient Overlays */}

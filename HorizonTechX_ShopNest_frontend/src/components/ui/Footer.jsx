@@ -1,25 +1,8 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ShieldCheck, Truck, RotateCcw, Lock } from 'lucide-react';
-import { Button } from './Button';
-import { notify } from '../../utils/notify';
+import { ShieldCheck, Truck, RotateCcw, Lock, Headphones, MapPin } from 'lucide-react';
 
 export const Footer = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [isSubscribed, setIsSubscribed] = useState(false);
-
-  const handleSubscribe = (e) => {
-    e.preventDefault();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email.trim() || !emailRegex.test(email.trim())) {
-      notify.error('Please enter a valid email address');
-      return;
-    }
-    setIsSubscribed(true);
-    setEmail('');
-    notify.success('Thank you for subscribing to the Horizon bulletin!');
-  };
 
   const footerLinks = {
     shop: [
@@ -38,15 +21,15 @@ export const Footer = () => {
       { label: 'About ShopNest', path: '/' },
       { label: 'Hardware Ethos', path: '/' },
       { label: 'Material Science', path: '/shop' },
-      { label: 'Contact Us', path: '/' },
+      { label: 'Security Protocols', path: '/' },
     ],
   };
 
   const trustBadges = [
-    { icon: Truck, title: 'Complimentary Shipping', desc: 'On orders over ₹4,999' },
-    { icon: ShieldCheck, title: '2-Year Warranty', desc: 'Crafted to endure' },
-    { icon: RotateCcw, title: '30-Day Free Returns', desc: 'Hassle-free guarantee' },
-    { icon: Lock, title: 'Encrypted Checkout', desc: 'Bank-level security' },
+    { icon: Truck, title: 'Complimentary Shipping', desc: 'On all orders across India' },
+    { icon: ShieldCheck, title: '2-Year Warranty', desc: 'Comprehensive hardware cover' },
+    { icon: RotateCcw, title: '30-Day Free Returns', desc: 'Zero hassle evaluation' },
+    { icon: Lock, title: 'Encrypted Checkout', desc: 'Bank-level 256-bit security' },
   ];
 
   return (
@@ -80,8 +63,8 @@ export const Footer = () => {
       {/* Main Footer Directory */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
-          {/* Brand Info & Newsletter (5 Columns) */}
-          <div className="md:col-span-5 flex flex-col gap-6">
+          {/* Brand Info & Studio Concierge (5 Columns) */}
+          <div className="md:col-span-5 flex flex-col gap-5">
             <button
               type="button"
               onClick={() => navigate('/')}
@@ -96,42 +79,24 @@ export const Footer = () => {
             </button>
 
             <p className="text-sm text-neutral-600 dark:text-neutral-400 max-w-sm leading-relaxed">
-              Curating elevated tech essentials and lifestyle hardware with meticulous craftsmanship and uncompromising aesthetics.
+              Curating elevated tech essentials and lifestyle hardware with meticulous craftsmanship, aerospace aluminum, and uncompromising acoustic tolerances.
             </p>
 
-            {/* Newsletter Form */}
-            <form onSubmit={handleSubscribe} noValidate className="flex flex-col gap-2 max-w-sm">
-              <span className="text-xs font-semibold uppercase tracking-wider text-neutral-900 dark:text-neutral-200">
-                Join the Private Archive
-              </span>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                Receive private release previews and exclusive collector drops.
-              </p>
-
-              {isSubscribed ? (
-                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-medium border border-emerald-200 dark:border-emerald-800">
-                  Welcome aboard. Look out for our welcome correspondence.
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 mt-1">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email address..."
-                    className="
-                      flex-1 bg-neutral-100 dark:bg-dark-card
-                      border border-neutral-200 dark:border-dark-border
-                      rounded-xl px-4 py-2.5 text-xs text-neutral-900 dark:text-dark-text
-                      outline-none focus:border-brand-500
-                    "
-                  />
-                  <Button type="submit" size="sm" rightIcon={ArrowRight} className="cursor-pointer">
-                    Join
-                  </Button>
-                </div>
-              )}
-            </form>
+            {/* Studio Concierge Information */}
+            <div className="flex flex-col gap-2.5 pt-2 text-xs text-neutral-600 dark:text-neutral-400 border-t border-neutral-100 dark:border-dark-border/40 max-w-sm">
+              <div className="flex items-center gap-2">
+                <Headphones className="w-4 h-4 text-brand-500 shrink-0" />
+                <span>Concierge Desk: <strong className="text-neutral-900 dark:text-neutral-200">concierge@shopnest.design</strong></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-brand-500 shrink-0" />
+                <span>Bengaluru Design Lab & Mumbai Hub • Mon–Sat 10:00–19:00 IST</span>
+              </div>
+              <div className="flex items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-500 mt-1">
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                <span>Private Vault Status: Operational • All shipments insured</span>
+              </div>
+            </div>
           </div>
 
           {/* Navigation Column Groups (7 Columns) */}
@@ -198,8 +163,59 @@ export const Footer = () => {
           </div>
         </div>
 
+        {/* Visual Payment Providers & Encrypted Trust Strip (Item 6) */}
+        <div className="pt-8 mt-12 border-t border-neutral-100 dark:border-dark-border/60 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mr-1 flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5 text-emerald-500" /> Encrypted Checkout:
+            </span>
+
+            {/* UPI Badge */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-100 dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-2xs">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                <path d="M4 4l8 8-8 8h5.5l8-8-8-8H4z" fill="#00B894" />
+                <path d="M11 4l8 8-8 8h5.5l8-8-8-8H11z" fill="#E17055" />
+              </svg>
+              <span className="font-black text-xs tracking-tight text-neutral-900 dark:text-white">UPI</span>
+            </div>
+
+            {/* Visa Badge */}
+            <div className="flex items-center px-3 py-1.5 rounded-lg bg-neutral-100 dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-2xs">
+              <span className="font-sans font-black italic text-xs tracking-tight text-blue-600 dark:text-blue-400">
+                VISA
+              </span>
+            </div>
+
+            {/* Mastercard Badge */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-100 dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-2xs">
+              <div className="flex -space-x-1.5">
+                <div className="w-3.5 h-3.5 rounded-full bg-[#EB001B]" />
+                <div className="w-3.5 h-3.5 rounded-full bg-[#F79E1B]" />
+              </div>
+              <span className="text-[11px] font-bold text-neutral-900 dark:text-white">Mastercard</span>
+            </div>
+
+            {/* RuPay Badge */}
+            <div className="flex items-center px-3 py-1.5 rounded-lg bg-neutral-100 dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-2xs">
+              <span className="text-xs font-black tracking-tight text-neutral-900 dark:text-white">
+                Ru<span className="text-cyan-600 dark:text-cyan-400">Pay</span>
+              </span>
+            </div>
+
+            {/* NetBanking / Cards Pill */}
+            <div className="hidden sm:flex items-center px-2.5 py-1.5 rounded-lg bg-neutral-100 dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border text-[11px] font-medium text-neutral-600 dark:text-neutral-400">
+              NetBanking & EMI
+            </div>
+          </div>
+
+          <div className="text-[11px] text-neutral-500 dark:text-neutral-400 flex items-center gap-2">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span>256-Bit SSL • Razorpay Secured • PCI-DSS Level 1</span>
+          </div>
+        </div>
+
         {/* Bottom Rights Bar */}
-        <div className="pt-12 mt-12 border-t border-neutral-100 dark:border-dark-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
+        <div className="pt-6 mt-6 border-t border-neutral-100 dark:border-dark-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
           <p>© 2026 HorizonTechX ShopNest Pvt. Ltd. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <span className="hover:text-neutral-900 dark:hover:text-white cursor-pointer">Privacy Protocol</span>

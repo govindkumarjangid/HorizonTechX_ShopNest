@@ -8,6 +8,7 @@ export const notify = {
   success: (message, options = {}) => {
     return toast.success(message, {
       duration: 3000,
+      icon: null,
       ...options,
     });
   },
@@ -15,28 +16,32 @@ export const notify = {
   error: (message, options = {}) => {
     return toast.error(message, {
       duration: 4000,
+      icon: null,
       ...options,
     });
   },
 
   info: (message, options = {}) => {
-    return toast(message, {
-      duration: 3500,
-      icon: '✨',
+    return toast.success(message, {
+      duration: 3000,
+      icon: null,
       ...options,
     });
   },
 
   warning: (message, options = {}) => {
-    return toast(message, {
+    return toast.error(message, {
       duration: 3500,
-      icon: '⚠️',
+      icon: null,
       ...options,
     });
   },
 
   loading: (message, options = {}) => {
-    return toast.loading(message, options);
+    return toast.loading(message, {
+      icon: null,
+      ...options,
+    });
   },
 
   dismiss: (toastId) => {

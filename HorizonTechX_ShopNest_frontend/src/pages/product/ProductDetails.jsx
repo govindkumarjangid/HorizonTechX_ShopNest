@@ -9,14 +9,15 @@ import {
   RotateCcw,
   Check,
   ChevronRight,
-  Sparkles,
+  Award,
 } from 'lucide-react';
-import { H1, Button, Badge, Rating } from '../../components/ui';
+import { H1, Button, Badge, Rating, Skeleton } from '../../components/ui';
 import { ProductGallery } from '../../components/products/ProductGallery';
 import { RelatedProducts } from '../../components/products/RelatedProducts';
 import { formatPrice } from '../../utils/formatPrice';
 import { useCartStore } from '../../store/useCartStore';
-import { products } from '../../assets/assets';
+import { useProductStore } from '../../store/useProductStore';
+import { productApi } from '../../api/productApi';
 import { notify } from '../../utils/notify';
 
 /**
@@ -32,17 +33,86 @@ export const ProductDetails = ({
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Resolve product by route param ID, prop, or fallback
-  const product =
-    (id ? products.find((p) => p.id === id) : null) ||
-    propProduct ||
-    products[0];
+  const [productData, setProductData] = useState(propProduct || null);
+  const [loading, setLoading] = useState(!propProduct);
+
+  const { products: storeProducts, fetchProducts } = useProductStore();
+
+  useEffect(() => {
+    if (!storeProducts || storeProducts.length === 0) {
+      fetchProducts({ limit: 8 });
+    }
+  }, [storeProducts, fetchProducts]);
+
+  useEffect(() => {
+    let isMounted = true;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (id) {
+      const matchInStore = storeProducts.find((p) => (p._id || p.id) === id || p.slug === id);
+      if (matchInStore) {
+        setProductData(matchInStore);
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
+
+      productApi.getProductById(id)
+        .then((res) => {
+          if (isMounted && res?.data) {
+            setProductData(res.data);
+          }
+        })
+        .catch(() => {
+          // If not mongo ID, try by slug
+          productApi.getProductBySlug(id)
+            .then((res) => {
+              if (isMounted && res?.data) setProductData(res.data);
+            })
+            .catch((err) => {
+              console.error('Failed to load product from API:', err);
+            });
+        })
+        .finally(() => {
+          if (isMounted) setLoading(false);
+        });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [id, storeProducts]);
+
+  // Normalized product object
+  const product = productData || propProduct || storeProducts[0] || {
+    id: id || 'loading',
+    _id: id || 'loading',
+    title: 'Curated Product',
+    name: 'Curated Product',
+    price: 0,
+    mrp: 0,
+    category: 'Electronics',
+    description: 'Loading product specifications...',
+    inStock: true,
+    rating: 4.8,
+    numReviews: 84,
+    images: [],
+    image: '',
+  };
+
+  const resolvedId = product._id || product.id;
+  const resolvedTitle = product.name || product.title;
+  const resolvedPrice = Number(product.price) || 0;
+  const resolvedOriginalPrice = product.mrp || product.originalPrice;
+  const resolvedGallery = product.images && product.images.length > 0 ? product.images : [product.image || ''];
+  const resolvedInStock = product.inStock !== undefined ? product.inStock : (product.stock > 0);
+  const resolvedRating = product.rating || 4.8;
+  const resolvedReviews = product.numReviews || product.reviewsCount || 64;
 
   const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] || '#171613');
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'materials' | 'shipping'
   const [showStickyBar, setShowStickyBar] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
 
   const addItem = useCartStore((state) => state.addItem);
 
@@ -55,12 +125,17 @@ export const ProductDetails = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleAddToCart = () => {
-    if (product.inStock) {
-      addItem(product, quantity);
-      notify.success(`${product.title} (${quantity}) added to your bag!`);
-    } else {
-      notify.error('This instrument is currently awaiting new batch fabrication');
+  const handleAddToCart = async () => {
+    if (!resolvedInStock) {
+      notify.error('This product is currently out of stock');
+      return;
+    }
+    setIsAdding(true);
+    try {
+      await addItem(product, quantity);
+      notify.success(`${resolvedTitle} (${quantity}) added to your bag!`);
+    } finally {
+      setTimeout(() => setIsAdding(false), 500);
     }
   };
 
@@ -69,9 +144,9 @@ export const ProductDetails = ({
     setIsWishlisted(nextState);
     if (onAddToWishlist) onAddToWishlist(product);
     if (nextState) {
-      notify.success(`${product.title} saved to your Wishlist`);
+      notify.success(`${resolvedTitle} saved to your Wishlist`);
     } else {
-      notify.info(`${product.title} removed from Wishlist`);
+      notify.info(`${resolvedTitle} removed from Wishlist`);
     }
   };
 
@@ -82,39 +157,43 @@ export const ProductDetails = ({
 
   const handleSelectRelated = (relatedProd) => {
     if (onSelectProduct) onSelectProduct(relatedProd);
-    navigate(`/product/${relatedProd.id}`);
+    const relId = typeof relatedProd === 'string' ? relatedProd : (relatedProd?._id || relatedProd?.id);
+    if (relId) {
+      navigate(`/product/${relId}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const tabs = [
-    { id: 'specs', label: 'Technical Specifications' },
-    { id: 'materials', label: 'Material Science & Ethics' },
-    { id: 'shipping', label: 'Concierge Delivery' },
+    { id: 'specs', label: 'Specifications' },
+    { id: 'materials', label: 'Product Details' },
+    { id: 'shipping', label: 'Shipping & Returns' },
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full flex flex-col gap-16">
-      {/* Breadcrumb Navigation */}
-      <nav className="flex items-center gap-2 text-xs text-neutral-500">
+    <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-10 w-full flex flex-col gap-8 sm:gap-14">
+      {/* Breadcrumb Navigation - Strictly 1 line on mobile */}
+      <nav className="flex items-center gap-1.5 text-xs text-neutral-500 whitespace-nowrap overflow-x-auto no-scrollbar py-0.5 max-w-full">
         <button
           type="button"
           onClick={() => navigate('/')}
-          className="hover:text-brand-500 cursor-pointer"
+          className="hover:text-brand-500 cursor-pointer shrink-0"
         >
           Home
         </button>
-        <ChevronRight className="w-3.5 h-3.5 text-neutral-400" />
+        <ChevronRight className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
         <button
           type="button"
           onClick={handleCatalogClick}
-          className="hover:text-brand-500 cursor-pointer"
+          className="hover:text-brand-500 cursor-pointer shrink-0"
         >
           Catalog
         </button>
-        <ChevronRight className="w-3.5 h-3.5 text-neutral-400" />
-        <span className="text-neutral-400">{product.category}</span>
-        <ChevronRight className="w-3.5 h-3.5 text-neutral-400" />
-        <span className="text-neutral-900 dark:text-white font-medium truncate max-w-[200px]">
-          {product.title}
+        <ChevronRight className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+        <span className="text-neutral-400 max-w-[110px] truncate shrink-0 capitalize">{product.category}</span>
+        <ChevronRight className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+        <span className="text-neutral-900 dark:text-white font-medium truncate max-w-[140px] sm:max-w-[260px] shrink-0">
+          {resolvedTitle}
         </span>
       </nav>
 
@@ -123,8 +202,8 @@ export const ProductDetails = ({
         {/* Left: Interactive Touch & Zoom Gallery */}
         <div className="lg:col-span-7 w-full">
           <ProductGallery
-            images={product.gallery || [product.image]}
-            title={product.title}
+            images={resolvedGallery}
+            title={resolvedTitle}
           />
         </div>
 
@@ -133,8 +212,8 @@ export const ProductDetails = ({
           {/* Header Badges & Title */}
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center gap-2">
-              <Badge variant={product.inStock ? 'brand' : 'outOfStock'} size="sm">
-                {product.inStock ? 'In Stock • Immediate Dispatch' : 'Sold Out'}
+              <Badge variant={resolvedInStock ? 'brand' : 'outOfStock'} size="sm">
+                {resolvedInStock ? 'In Stock • Immediate Dispatch' : 'Sold Out'}
               </Badge>
               {product.badgeText && (
                 <Badge variant={product.badgeVariant || 'neutral'} size="sm">
@@ -143,15 +222,15 @@ export const ProductDetails = ({
               )}
             </div>
 
-            <H1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
-              {product.title}
+            <H1 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight">
+              {resolvedTitle}
             </H1>
 
             {/* Rating summary */}
             <div className="flex items-center gap-3 pt-1">
-              <Rating rating={product.rating} reviewsCount={product.reviewsCount} size="sm" />
+              <Rating rating={resolvedRating} reviewsCount={resolvedReviews} size="sm" />
               <span className="text-xs text-neutral-400 font-mono">
-                SKU: {product.id.toUpperCase()}
+                SKU: {String(resolvedId).slice(-6).toUpperCase()}
               </span>
             </div>
           </div>
@@ -159,11 +238,11 @@ export const ProductDetails = ({
           {/* Pricing Display */}
           <div className="flex items-baseline gap-3">
             <span className="font-mono text-3xl font-extrabold text-neutral-900 dark:text-white">
-              {formatPrice(product.price)}
+              {formatPrice(resolvedPrice)}
             </span>
-            {product.originalPrice && (
+            {resolvedOriginalPrice && resolvedOriginalPrice > resolvedPrice && (
               <span className="font-mono text-sm text-neutral-400 line-through">
-                {formatPrice(product.originalPrice)}
+                {formatPrice(resolvedOriginalPrice)}
               </span>
             )}
             <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full">
@@ -204,23 +283,23 @@ export const ProductDetails = ({
           )}
 
           {/* Quantity Stepper & Main Action Button */}
-          <div className="flex items-center gap-3 pt-4">
-            <div className="flex items-center border border-neutral-200 dark:border-dark-border rounded-xl bg-neutral-50 dark:bg-dark-surface p-1">
+          <div className="flex items-center gap-2.5 sm:gap-3 pt-4">
+            <div className="flex items-center border border-neutral-200 dark:border-dark-border rounded-xl bg-neutral-50 dark:bg-dark-surface p-1 shrink-0">
               <button
                 type="button"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="w-8 h-8 flex items-center justify-center text-sm font-bold hover:text-brand-500 cursor-pointer disabled:opacity-30"
+                className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-sm font-bold hover:text-brand-500 cursor-pointer disabled:opacity-30"
                 disabled={quantity <= 1}
               >
                 -
               </button>
-              <span className="w-8 text-center font-mono font-bold text-sm">
+              <span className="w-7 sm:w-8 text-center font-mono font-bold text-xs sm:text-sm">
                 {quantity}
               </span>
               <button
                 type="button"
                 onClick={() => setQuantity((q) => q + 1)}
-                className="w-8 h-8 flex items-center justify-center text-sm font-bold hover:text-brand-500 cursor-pointer"
+                className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-sm font-bold hover:text-brand-500 cursor-pointer"
               >
                 +
               </button>
@@ -228,19 +307,23 @@ export const ProductDetails = ({
 
             <Button
               size="lg"
-              disabled={!product.inStock}
+              disabled={!product.inStock || isAdding}
+              isLoading={isAdding}
+              loadingText="Adding to Bag..."
               onClick={handleAddToCart}
               leftIcon={ShoppingBag}
-              className="flex-1 shadow-elevated cursor-pointer"
+              className="flex-1 shadow-elevated cursor-pointer min-w-0"
             >
-              {product.inStock ? `Add to Bag • ${formatPrice(product.price * quantity)}` : 'Sold Out'}
+              <span className="truncate">
+                {product.inStock ? `Add to Bag • ${formatPrice(resolvedPrice * quantity)}` : 'Sold Out'}
+              </span>
             </Button>
 
             <motion.button
               type="button"
               whileTap={{ scale: 0.92 }}
               onClick={handleToggleWishlist}
-              className="p-3.5 rounded-xl border border-neutral-200 dark:border-dark-border hover:bg-neutral-100 dark:hover:bg-dark-card transition-colors cursor-pointer"
+              className="p-3 sm:p-3.5 rounded-xl border border-neutral-200 dark:border-dark-border hover:bg-neutral-100 dark:hover:bg-dark-card transition-colors cursor-pointer shrink-0"
               aria-label="Wishlist"
             >
               <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-brand-500 text-brand-500' : 'text-neutral-500'}`} />
@@ -248,38 +331,38 @@ export const ProductDetails = ({
           </div>
 
           {/* Trust Guarantees */}
-          <div className="grid grid-cols-2 gap-3 pt-4 border-t border-neutral-100 dark:border-dark-border text-xs text-neutral-500">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-4 border-t border-neutral-100 dark:border-dark-border text-xs text-neutral-500">
             <div className="flex items-center gap-2">
-              <Truck className="w-4 h-4 text-brand-500" />
-              <span>Complimentary Courier</span>
+              <Truck className="w-4 h-4 text-brand-500 shrink-0" />
+              <span className="text-[11px] sm:text-xs">Free Express Delivery</span>
             </div>
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-brand-500" />
-              <span>2-Year Full Coverage</span>
+              <ShieldCheck className="w-4 h-4 text-brand-500 shrink-0" />
+              <span className="text-[11px] sm:text-xs">2-Year Official Warranty</span>
             </div>
             <div className="flex items-center gap-2">
-              <RotateCcw className="w-4 h-4 text-brand-500" />
-              <span>30-Day Studio Trial</span>
+              <RotateCcw className="w-4 h-4 text-brand-500 shrink-0" />
+              <span className="text-[11px] sm:text-xs">30-Day Easy Returns</span>
             </div>
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-brand-500" />
-              <span>Hand-Calibrated Unit</span>
+              <Award className="w-4 h-4 text-brand-500 shrink-0" />
+              <span className="text-[11px] sm:text-xs">100% Genuine Certified</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Technical Specifications Tabs */}
-      <div className="w-full bg-white dark:bg-dark-card rounded-3xl border border-neutral-200/80 dark:border-dark-border p-6 sm:p-10 shadow-subtle">
+      <div className="w-full bg-white dark:bg-dark-card rounded-2xl sm:rounded-3xl border border-neutral-200/80 dark:border-dark-border p-4 sm:p-8 shadow-subtle">
         {/* Tab Header Buttons */}
-        <div className="flex items-center gap-4 sm:gap-8 border-b border-neutral-200 dark:border-dark-border pb-4 overflow-x-auto">
+        <div className="flex items-center gap-4 sm:gap-8 border-b border-neutral-200 dark:border-dark-border pb-4 overflow-x-auto no-scrollbar">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
               className={`
-                text-sm font-semibold whitespace-nowrap transition-colors relative pb-2 cursor-pointer
+                text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors relative pb-2 cursor-pointer
                 ${activeTab === tab.id ? 'text-brand-500' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}
               `}
             >
@@ -295,33 +378,41 @@ export const ProductDetails = ({
         </div>
 
         {/* Tab Content Display */}
-        <div className="py-6">
+        <div className="py-5">
           {activeTab === 'specs' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {product.specs ? (
-                Object.entries(product.specs).map(([key, value], idx) => (
-                  <div key={idx} className="flex flex-col gap-1 p-4 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border">
-                    <span className="text-[11px] font-mono uppercase text-neutral-400 font-bold">
-                      {key}
-                    </span>
-                    <span className="text-sm font-semibold text-neutral-900 dark:text-white">
-                      {value}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-xs text-neutral-500">Standard aerospace specifications apply.</p>
-              )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
+              <div className="flex flex-col gap-1 p-3.5 sm:p-4 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border">
+                <span className="text-[10px] sm:text-[11px] font-mono uppercase text-neutral-400 font-bold">Category</span>
+                <span className="text-xs sm:text-sm font-semibold text-neutral-900 dark:text-white capitalize">{product.category}</span>
+              </div>
+              <div className="flex flex-col gap-1 p-3.5 sm:p-4 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border">
+                <span className="text-[10px] sm:text-[11px] font-mono uppercase text-neutral-400 font-bold">Brand</span>
+                <span className="text-xs sm:text-sm font-semibold text-neutral-900 dark:text-white">{product.brand || 'ShopNest Curated'}</span>
+              </div>
+              <div className="flex flex-col gap-1 p-3.5 sm:p-4 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border">
+                <span className="text-[10px] sm:text-[11px] font-mono uppercase text-neutral-400 font-bold">Stock Status</span>
+                <span className="text-xs sm:text-sm font-semibold text-emerald-600 dark:text-emerald-400">{resolvedInStock ? 'In Stock (Ready to Dispatch)' : 'Out of Stock'}</span>
+              </div>
+              {product.specs && Object.entries(product.specs).map(([key, value], idx) => (
+                <div key={idx} className="flex flex-col gap-1 p-3.5 sm:p-4 rounded-2xl bg-neutral-50 dark:bg-dark-surface border border-neutral-100 dark:border-dark-border">
+                  <span className="text-[10px] sm:text-[11px] font-mono uppercase text-neutral-400 font-bold">
+                    {key}
+                  </span>
+                  <span className="text-xs sm:text-sm font-semibold text-neutral-900 dark:text-white">
+                    {value}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
 
           {activeTab === 'materials' && (
-            <div className="flex flex-col gap-4 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-3xl">
+            <div className="flex flex-col gap-3 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-3xl">
               <p>
-                Machined exclusively from solid monolithic blocks of 6063 aerospace aluminum, utilizing 5-axis CNC high-precision mills with tolerance boundaries beneath 0.02mm.
+                Crafted using premium high-grade materials with rigorous quality standards, engineered for durability, reliability, and modern lifestyle aesthetics.
               </p>
               <p>
-                Anodized utilizing closed-loop sulfur electrolyte tanks to minimize environmental effluent. All internal PCB solder tracks incorporate 100% lead-free, RoHS-compliant silver composite alloy.
+                100% compliant with standard global safety, RoHS, and consumer electronics environmental standards. Each piece passes comprehensive quality assurance checks before shipment.
               </p>
             </div>
           )}
@@ -329,10 +420,10 @@ export const ProductDetails = ({
           {activeTab === 'shipping' && (
             <div className="flex flex-col gap-3 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-3xl">
               <p>
-                Orders placed before 2:00 PM IST are manifested for guaranteed same-day dispatch via BlueDart Air Express or Delhivery Direct Cargo.
+                Orders placed before 2:00 PM IST are processed for guaranteed same-day dispatch via BlueDart Air Express or Delhivery with real-time tracking.
               </p>
               <p>
-                Every hardware shipment is insured up to 100% of transit valuation against courier loss or optical transit vibration.
+                All shipments are fully insured during transit with tamper-evident premium packaging and easy 30-day hassle-free returns.
               </p>
             </div>
           )}
@@ -341,9 +432,12 @@ export const ProductDetails = ({
 
       {/* Related Products Carousel Section */}
       <RelatedProducts
-        currentProductId={product.id}
+        products={storeProducts}
+        currentProductId={resolvedId}
         category={product.category}
         onSelectProduct={handleSelectRelated}
+        onQuickView={handleSelectRelated}
+        onClick={handleSelectRelated}
         onAddToCart={addItem}
       />
 
@@ -363,21 +457,23 @@ export const ProductDetails = ({
           >
             <div className="flex flex-col min-w-0">
               <span className="font-semibold text-xs text-neutral-900 dark:text-white truncate">
-                {product.title}
+                {resolvedTitle}
               </span>
               <span className="font-mono text-xs font-bold text-brand-500">
-                {formatPrice(product.price)}
+                {formatPrice(resolvedPrice)}
               </span>
             </div>
 
             <Button
               size="sm"
-              disabled={!product.inStock}
+              disabled={!resolvedInStock || isAdding}
+              isLoading={isAdding}
+              loadingText="Adding..."
               onClick={handleAddToCart}
               leftIcon={ShoppingBag}
               className="shrink-0 cursor-pointer"
             >
-              {product.inStock ? 'Add to Bag' : 'Sold Out'}
+              {resolvedInStock ? 'Add to Bag' : 'Sold Out'}
             </Button>
           </motion.div>
         )}

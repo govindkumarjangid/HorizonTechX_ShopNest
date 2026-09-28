@@ -30,6 +30,16 @@ export const SmoothScrollProvider = ({ children }) => {
       touchMultiplier: 1.2,
       smoothTouch: false, // Preserves native momentum touch scrolling on mobile devices
       infinite: false,
+      prevent: (node) => {
+        if (!node) return false;
+        return Boolean(
+          node.hasAttribute?.('data-lenis-prevent') ||
+          node.closest?.('[data-lenis-prevent]') ||
+          node.closest?.('.overflow-y-auto') ||
+          node.closest?.('.overflow-auto') ||
+          node.closest?.('.overflow-y-scroll')
+        );
+      },
     });
 
     lenisRef.current = lenis;

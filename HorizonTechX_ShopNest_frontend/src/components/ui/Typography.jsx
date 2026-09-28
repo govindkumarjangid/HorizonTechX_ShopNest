@@ -1,6 +1,6 @@
 export const H1 = ({ children, className = '', ...props }) => (
   <h1
-    className={`font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 dark:text-dark-text leading-[1.1] ${className}`}
+    className={`font-display text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-neutral-900 dark:text-dark-text leading-[1.2] ${className}`}
     {...props}
   >
     {children}
@@ -9,7 +9,7 @@ export const H1 = ({ children, className = '', ...props }) => (
 
 export const H2 = ({ children, className = '', ...props }) => (
   <h2
-    className={`font-display text-3xl sm:text-4xl font-bold tracking-tight text-neutral-900 dark:text-dark-text leading-tight ${className}`}
+    className={`font-display text-lg sm:text-xl lg:text-2xl font-bold tracking-tight text-neutral-900 dark:text-dark-text leading-tight ${className}`}
     {...props}
   >
     {children}
@@ -18,7 +18,7 @@ export const H2 = ({ children, className = '', ...props }) => (
 
 export const H3 = ({ children, className = '', ...props }) => (
   <h3
-    className={`font-display text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-dark-text leading-snug ${className}`}
+    className={`font-display text-base sm:text-lg lg:text-xl font-semibold tracking-tight text-neutral-900 dark:text-dark-text leading-snug ${className}`}
     {...props}
   >
     {children}
@@ -27,7 +27,7 @@ export const H3 = ({ children, className = '', ...props }) => (
 
 export const H4 = ({ children, className = '', ...props }) => (
   <h4
-    className={`font-display text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900 dark:text-dark-text ${className}`}
+    className={`font-display text-base sm:text-lg font-semibold tracking-tight text-neutral-900 dark:text-dark-text ${className}`}
     {...props}
   >
     {children}
@@ -36,7 +36,7 @@ export const H4 = ({ children, className = '', ...props }) => (
 
 export const H5 = ({ children, className = '', ...props }) => (
   <h5
-    className={`font-display text-lg font-semibold tracking-tight text-neutral-900 dark:text-dark-text ${className}`}
+    className={`font-display text-sm sm:text-base font-semibold tracking-tight text-neutral-900 dark:text-dark-text ${className}`}
     {...props}
   >
     {children}
@@ -45,7 +45,7 @@ export const H5 = ({ children, className = '', ...props }) => (
 
 export const H6 = ({ children, className = '', ...props }) => (
   <h6
-    className={`font-display text-base font-semibold tracking-wide uppercase text-neutral-700 dark:text-neutral-300 ${className}`}
+    className={`font-display text-xs sm:text-sm font-semibold tracking-wide uppercase text-neutral-700 dark:text-neutral-300 ${className}`}
     {...props}
   >
     {children}
@@ -54,7 +54,7 @@ export const H6 = ({ children, className = '', ...props }) => (
 
 export const Subtitle = ({ children, className = '', ...props }) => (
   <p
-    className={`font-sans text-lg sm:text-xl text-neutral-600 dark:text-dark-textMuted leading-relaxed ${className}`}
+    className={`font-sans text-xs sm:text-sm text-neutral-600 dark:text-dark-textMuted leading-relaxed ${className}`}
     {...props}
   >
     {children}

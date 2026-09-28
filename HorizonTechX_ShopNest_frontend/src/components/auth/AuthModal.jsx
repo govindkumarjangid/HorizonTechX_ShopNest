@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Mail, Lock, User, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { X, Mail, Lock, User, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Badge } from '../ui/Badge';
@@ -18,9 +18,11 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
   const [password, setPassword] = useState('');
   const [city, setCity] = useState('');
 
+  const [loading, setLoading] = useState(false);
   const login = useAuthStore((state) => state.login);
+  const register = useAuthStore((state) => state.register);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (tab === 'register' && !name.trim()) {
@@ -39,30 +41,24 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
       return;
     }
 
-    login({
-      name: name || (tab === 'login' ? 'Govind Jangid' : 'New Member'),
-      email: email || 'govindjangid@gmail.com',
-      city: city || 'New Delhi • 110001',
-    });
-
-    notify.success(
-      tab === 'register'
-        ? 'Account created successfully! Welcome to ShopNest.'
-        : 'Signed in successfully! Welcome back.'
-    );
-    onClose();
+    setLoading(true);
+    try {
+      if (tab === 'register') {
+        await register({ name, email, password });
+        notify.success('Account created successfully! Welcome to ShopNest.');
+      } else {
+        await login({ email, password });
+        notify.success('Signed in successfully! Welcome back.');
+      }
+      onClose();
+    } catch (err) {
+      notify.error(err.message || 'Authentication failed. Please verify credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleQuickDemoLogin = () => {
-    login({
-      name: 'Govind Jangid',
-      email: 'govindjangid@gmail.com',
-      city: 'New Delhi • 110001',
-      role: 'User',
-    });
-    notify.success('Signed in as Govind Jangid!');
-    onClose();
-  };
+
 
   return (
     <AnimatePresence>
@@ -106,9 +102,6 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
 
             {/* Header */}
             <div className="flex flex-col gap-1 mb-6">
-              <Badge variant="brand" icon={Sparkles} size="sm" className="self-start mb-1">
-                ShopNest Identity
-              </Badge>
               <h2 className="font-display font-bold text-2xl text-neutral-900 dark:text-white tracking-tight">
                 {tab === 'login' ? 'Welcome Back' : 'Create an Account'}
               </h2>
@@ -155,7 +148,7 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
                 <>
                   <Input
                     label="Full Name"
-                    placeholder="Govind Jangid"
+                    placeholder="John Doe"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     leftIcon={User}
@@ -172,7 +165,7 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
               <Input
                 label="Email Address"
                 type="email"
-                placeholder="govindjangid@gmail.com"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 leftIcon={Mail}
@@ -197,27 +190,20 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
                 </div>
               )}
 
-              <Button type="submit" size="lg" className="w-full mt-2" rightIcon={ArrowRight}>
+              <Button
+                type="submit"
+                size="lg"
+                isLoading={loading}
+                loadingText={tab === 'login' ? 'Signing In...' : 'Registering...'}
+                className="w-full mt-2 cursor-pointer"
+                rightIcon={ArrowRight}
+              >
                 {tab === 'login' ? 'Sign In to Account' : 'Complete Registration'}
               </Button>
             </form>
 
-            {/* Quick Demo 1-Click Login Option */}
-            <div className="mt-5 pt-5 border-t border-neutral-100 dark:border-dark-border flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={handleQuickDemoLogin}
-                className="
-                  w-full py-2.5 px-4 rounded-xl text-xs font-semibold
-                  bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/40 dark:hover:bg-brand-950/70
-                  text-brand-600 dark:text-brand-400 border border-brand-200/60 dark:border-brand-800/40
-                  flex items-center justify-center gap-2 transition-colors cursor-pointer
-                "
-              >
-                <CheckCircle2 className="w-4 h-4 text-brand-500" />
-                <span>Instant 1-Click Login as Govind Jangid</span>
-              </button>
-            </div>
+
+
           </motion.div>
         </div>
       )}

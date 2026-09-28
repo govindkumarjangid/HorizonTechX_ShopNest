@@ -7,7 +7,6 @@ import {
   Heart,
   MapPin,
   LogOut,
-  Sparkles,
   ShieldCheck,
   ChevronRight,
   HelpCircle,
@@ -30,7 +29,7 @@ export const AccountPopup = ({
 }) => {
   const navigate = useNavigate();
   const popupRef = useRef(null);
-  const { isAuthenticated, user, orders, savedAddresses, logout, login } = useAuthStore();
+  const { isAuthenticated, user, orders, savedAddresses, logout } = useAuthStore();
 
   // Close on outside click
   useEffect(() => {
@@ -64,18 +63,7 @@ export const AccountPopup = ({
     navigate('/');
   };
 
-  const handleDemoLogin = () => {
-    login({
-      name: 'Govind Jangid',
-      email: 'govindjangid@gmail.com',
-      role: 'User',
-      city: 'New Delhi • 110001',
-      phone: '+91 98765 43210',
-    });
-    notify.success('Signed in as Govind Jangid!');
-    onClose();
-    navigate('/dashboard');
-  };
+
 
   const handleTrackOrderGuest = () => {
     onClose();
@@ -115,19 +103,19 @@ export const AccountPopup = ({
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 text-white font-bold text-base flex items-center justify-center shadow-xs">
                     {user?.name
                       ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-                      : 'GJ'}
+                      : 'U'}
                   </div>
                   <div className="flex flex-col min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white truncate">
-                        {user?.name || 'Govind Jangid'}
+                        {user?.name || 'User'}
                       </h4>
                       <Badge variant="brand" size="sm">
                         {user?.role || 'User'}
                       </Badge>
                     </div>
                     <span className="text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
-                      {user?.email || 'govindjangid@gmail.com'}
+                      {user?.email || ''}
                     </span>
                   </div>
                 </div>
@@ -167,7 +155,7 @@ export const AccountPopup = ({
                     <span>Order History & Tracking</span>
                   </div>
                   <span className="px-2 py-0.5 rounded-full bg-brand-50 text-brand-600 dark:bg-brand-950/60 dark:text-brand-400 text-[10px] font-bold">
-                    {orders?.length || 2}
+                    {orders?.length || 0}
                   </span>
                 </button>
 
@@ -205,7 +193,7 @@ export const AccountPopup = ({
                     <span>Saved Addresses</span>
                   </div>
                   <span className="px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-dark-surface text-neutral-600 dark:text-neutral-300 text-[10px] font-bold">
-                    {savedAddresses?.length || 2}
+                    {savedAddresses?.length || 0}
                   </span>
                 </button>
               </div>
@@ -234,9 +222,9 @@ export const AccountPopup = ({
             <div className="flex flex-col p-6 gap-5">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1.5 text-brand-500">
-                  <Sparkles className="w-4 h-4" />
+                  <User className="w-4 h-4" />
                   <span className="text-[11px] font-bold uppercase tracking-wider">
-                    ShopNest Account
+                    My Account
                   </span>
                 </div>
                 <h4 className="font-display font-bold text-base text-neutral-900 dark:text-white leading-tight mt-1">
@@ -271,21 +259,6 @@ export const AccountPopup = ({
                 >
                   Create Account
                 </Button>
-
-                {/* 1-Click Demo Login to Govind Jangid */}
-                <button
-                  type="button"
-                  onClick={handleDemoLogin}
-                  className="
-                    w-full py-2 px-3 rounded-xl text-[11px] font-semibold
-                    bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/40 dark:hover:bg-brand-950/70
-                    text-brand-600 dark:text-brand-400 border border-brand-200/60 dark:border-brand-800/40
-                    flex items-center justify-center gap-1.5 transition-colors cursor-pointer mt-1
-                  "
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-brand-500" />
-                  <span>1-Click Demo Login (Govind Jangid)</span>
-                </button>
               </div>
 
               {/* Quick Helper Links for Guests */}

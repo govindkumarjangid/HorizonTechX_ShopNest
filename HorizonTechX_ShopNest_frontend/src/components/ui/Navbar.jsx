@@ -12,7 +12,7 @@ import {
   ChevronRight,
   LogOut,
 } from 'lucide-react';
-import { SearchBar } from './Input';
+import { AutocompleteSearch } from '../navigation/AutocompleteSearch';
 import { drawerSlide, backdropFade, buttonTap } from '../../styles/motion';
 import { AccountPopup } from '../auth/AccountPopup';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -42,7 +42,7 @@ export const Navbar = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchActive, setIsSearchActive] = useState(false);
 
   const { isAuthenticated, user, logout, wishlist } = useAuthStore();
   const effectiveWishlistCount = wishlistCount || wishlist?.length || 0;
@@ -55,12 +55,6 @@ export const Navbar = ({
   const handleNavLinkClick = (link) => {
     if (onNavLinkClick) onNavLinkClick(link);
     else if (link.href && link.href !== '#') navigate(link.href);
-    else navigate('/shop');
-  };
-
-  const handleSearch = (query) => {
-    if (onSearch) onSearch(query);
-    else if (query && query.trim()) navigate(`/shop?search=${encodeURIComponent(query.trim())}`);
     else navigate('/shop');
   };
 
@@ -96,7 +90,7 @@ export const Navbar = ({
 
   const userInitials = user?.name
     ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-    : 'GJ';
+    : 'U';
 
   return (
     <>
@@ -139,28 +133,41 @@ export const Navbar = ({
               </button>
             </div>
 
-            {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-8">
-              {navLinks.map((link, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleNavLinkClick(link)}
-                  className="text-sm font-sans font-medium text-neutral-600 dark:text-neutral-300 hover:text-brand-500 dark:hover:text-brand-400 transition-colors cursor-pointer"
-                >
-                  {link.label}
-                </button>
-              ))}
-            </nav>
+            {/* Desktop Navigation Links & Integrated Search Bar */}
+            <div className="hidden md:flex items-center justify-end flex-1 gap-4 xl:gap-6 min-w-0">
+              {/* Category Nav Links - smoothly hides when search expands left */}
+              <nav
+                className={`hidden lg:flex items-center gap-5 xl:gap-7 transition-all duration-300 ease-out whitespace-nowrap overflow-hidden ${
+                  isSearchActive
+                    ? 'opacity-0 max-w-0 pointer-events-none -translate-x-4'
+                    : 'opacity-100 max-w-[700px] translate-x-0'
+                }`}
+              >
+                {navLinks.map((link, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleNavLinkClick(link)}
+                    className="text-sm font-sans font-medium text-neutral-600 dark:text-neutral-300 hover:text-brand-500 dark:hover:text-brand-400 transition-colors cursor-pointer"
+                  >
+                    {link.label}
+                  </button>
+                ))}
+              </nav>
 
-            {/* Middle: Integrated Search Bar (Desktop) */}
-            <div className="hidden md:flex flex-1 max-w-sm mx-4">
-              <SearchBar
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onClear={() => setSearchQuery('')}
-                onSearch={handleSearch}
-              />
+              {/* Autocomplete Search Bar - Smoothly expands to the left */}
+              <div
+                className={`transition-all duration-300 ease-out origin-right shrink-0 ${
+                  isSearchActive
+                    ? 'w-full max-w-[480px] lg:max-w-[580px]'
+                    : 'w-48 lg:w-60'
+                }`}
+              >
+                <AutocompleteSearch
+                  onActiveChange={setIsSearchActive}
+                  placeholder="Search products, laptops, accessories..."
+                />
+              </div>
             </div>
 
             {/* Right: Actions (Theme, Wishlist, Cart, Account Dropdown) */}
@@ -247,14 +254,9 @@ export const Navbar = ({
             </div>
           </div>
 
-          {/* Mobile Search Bar Row */}
+          {/* Mobile Autocomplete Search Bar Row */}
           <div className="md:hidden pb-3">
-            <SearchBar
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onClear={() => setSearchQuery('')}
-              onSearch={handleSearch}
-            />
+            <AutocompleteSearch placeholder="Search products, laptops, accessories..." />
           </div>
         </div>
       </header>

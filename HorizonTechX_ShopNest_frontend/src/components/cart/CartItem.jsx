@@ -1,6 +1,7 @@
 import React from 'react';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { formatPrice } from '../../utils/formatPrice';
+import { ProgressiveImage } from '../ui/ProgressiveImage';
 
 /**
  * Reusable Single Cart Row Item
@@ -9,11 +10,13 @@ export const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
   return (
     <div className="p-4 rounded-2xl bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border flex gap-4 items-center shadow-xs">
       <div className="w-20 h-20 rounded-xl bg-neutral-100 dark:bg-dark-surface shrink-0 overflow-hidden border border-neutral-200/60 dark:border-dark-border">
-        <img
+        <ProgressiveImage
           src={item.image}
           alt={item.title}
-          loading="lazy"
-          className="w-full h-full object-cover object-center"
+          width={160}
+          aspectRatio="aspect-square"
+          className="w-full h-full"
+          imgClassName="w-full h-full object-cover object-center"
         />
       </div>
 

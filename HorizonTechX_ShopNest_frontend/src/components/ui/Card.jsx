@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ShoppingBag, Heart, Eye } from 'lucide-react';
 import { Badge } from './Badge';
 import { Rating } from './Rating';
 import { Skeleton } from './Skeleton';
+import { ProgressiveImage } from './ProgressiveImage';
 import { cardHover, buttonTap } from '../../styles/motion';
 import { formatPrice } from '../../utils/formatPrice';
 
@@ -42,42 +44,101 @@ export const Card = ({
  */
 export const ProductCard = ({
   id,
+  _id,
   title,
+  name,
   price,
   originalPrice,
+  mrp,
   category,
   image,
+  images,
   rating = 0,
   reviewsCount = 0,
+  numReviews = 0,
   badgeText,
   badgeVariant = 'sale',
-  isOutOfStock = false,
+  isOutOfStock,
+  inStock = true,
   onAddToCart,
   onAddToWishlist,
   onQuickView,
+  onClick,
   className = '',
 }) => {
+  const navigate = useNavigate();
+  const resolvedId = id || _id;
+  const resolvedTitle = title || name;
+  const resolvedOriginalPrice = originalPrice || mrp;
+  const resolvedImage = image || (images && images.length > 0 ? images[0] : '');
+  const resolvedReviewsCount = reviewsCount || numReviews || 0;
+  const resolvedOutOfStock = isOutOfStock !== undefined ? isOutOfStock : !inStock;
+
+  const productObj = {
+    id: resolvedId,
+    _id: resolvedId,
+    title: resolvedTitle,
+    name: resolvedTitle,
+    price,
+    originalPrice: resolvedOriginalPrice,
+    mrp: resolvedOriginalPrice,
+    image: resolvedImage,
+    images: images || (resolvedImage ? [resolvedImage] : []),
+    category,
+    rating,
+    reviewsCount: resolvedReviewsCount,
+    numReviews: resolvedReviewsCount,
+    inStock: !resolvedOutOfStock,
+    isOutOfStock: resolvedOutOfStock,
+  };
+
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
-  const discountPercentage = originalPrice && price < originalPrice
-    ? Math.round(((originalPrice - price) / originalPrice) * 100)
+  const discountPercentage = resolvedOriginalPrice && price < resolvedOriginalPrice
+    ? Math.round(((resolvedOriginalPrice - price) / resolvedOriginalPrice) * 100)
     : null;
 
   const handleWishlist = (e) => {
     e.stopPropagation();
     setIsWishlisted(!isWishlisted);
-    if (onAddToWishlist) onAddToWishlist(id, !isWishlisted);
+    if (onAddToWishlist) onAddToWishlist(resolvedId, !isWishlisted);
   };
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
-    if (!isOutOfStock && onAddToCart) onAddToCart(id);
+    if (!resolvedOutOfStock && onAddToCart) onAddToCart(resolvedId);
+  };
+
+  const handleCardClick = (e) => {
+    if (onClick) {
+      onClick(productObj, e);
+      return;
+    }
+    if (onQuickView) {
+      onQuickView(productObj);
+      return;
+    }
+    if (resolvedId) {
+      navigate(`/product/${resolvedId}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleQuickView = (e) => {
     e.stopPropagation();
-    if (onQuickView) onQuickView(id);
+    if (onQuickView) {
+      onQuickView(productObj);
+      return;
+    }
+    if (onClick) {
+      onClick(productObj, e);
+      return;
+    }
+    if (resolvedId) {
+      navigate(`/product/${resolvedId}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -85,6 +146,7 @@ export const ProductCard = ({
       variants={cardHover}
       initial="rest"
       whileHover="hover"
+      onClick={handleCardClick}
       className={`
         group relative flex flex-col bg-white dark:bg-dark-card
         border border-neutral-200/70 dark:border-dark-border
@@ -103,7 +165,7 @@ export const ProductCard = ({
 
         {/* Floating Top Badges */}
         <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 items-start">
-          {isOutOfStock ? (
+          {resolvedOutOfStock ? (
             <Badge variant="outOfStock">Sold Out</Badge>
           ) : discountPercentage ? (
             <Badge variant="sale">-{discountPercentage}%</Badge>
@@ -134,44 +196,42 @@ export const ProductCard = ({
           />
         </motion.button>
 
-        {/* Product Image with Zoom on Card Hover & Lazy Loading */}
-        <img
-          src={image}
-          alt={title}
-          loading="lazy"
+        {/* Product Image with Progressive Blur-Up & Hover Zoom */}
+        <ProgressiveImage
+          src={resolvedImage}
+          alt={resolvedTitle}
+          width={600}
+          aspectRatio="aspect-square"
+          className="w-full h-full"
+          imgClassName="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-106"
           onLoad={() => setIsImageLoaded(true)}
-          className={`
-            w-full h-full object-cover object-center
-            transition-all duration-500 ease-out group-hover:scale-106
-            ${isImageLoaded ? 'opacity-100' : 'opacity-0'}
-          `}
         />
 
         {/* Quick View & Quick Add Action Bar (Hover Overlay) */}
-        {!isOutOfStock && (
-          <div className="
-            absolute inset-x-3 bottom-3 z-10 flex items-center gap-2
-            translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100
-            transition-all duration-250 ease-out pointer-events-none group-hover:pointer-events-auto
-          ">
-            {onQuickView && (
-              <motion.button
-                type="button"
-                onClick={handleQuickView}
-                whileTap={buttonTap}
-                className="
-                  p-2.5 rounded-xl bg-white/90 dark:bg-dark-surface/90 backdrop-blur-md
-                  border border-neutral-200/60 dark:border-dark-border
-                  text-neutral-700 dark:text-dark-text hover:text-brand-500
-                  transition-colors shadow-subtle cursor-pointer
-                "
-                title="Quick View"
-                aria-label="Quick View"
-              >
-                <Eye className="w-4 h-4" />
-              </motion.button>
-            )}
+        <div className="
+          absolute inset-x-3 bottom-3 z-10 flex items-center gap-2
+          translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100
+          transition-all duration-250 ease-out pointer-events-none group-hover:pointer-events-auto
+        ">
+          <motion.button
+            type="button"
+            onClick={handleQuickView}
+            whileTap={buttonTap}
+            className={`
+              p-2.5 rounded-xl bg-white/90 dark:bg-dark-surface/90 backdrop-blur-md
+              border border-neutral-200/60 dark:border-dark-border
+              text-neutral-700 dark:text-dark-text hover:text-brand-500
+              transition-colors shadow-subtle cursor-pointer
+              ${resolvedOutOfStock ? 'w-full flex items-center justify-center gap-2 py-2.5 text-xs font-medium' : ''}
+            `}
+            title="View Details"
+            aria-label="View Details"
+          >
+            <Eye className="w-4 h-4" />
+            {resolvedOutOfStock && <span>View Details</span>}
+          </motion.button>
 
+          {!resolvedOutOfStock && (
             <motion.button
               type="button"
               onClick={handleAddToCart}
@@ -187,25 +247,23 @@ export const ProductCard = ({
               <ShoppingBag className="w-3.5 h-3.5" />
               <span>Quick Add</span>
             </motion.button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Product Content Details (Reserved space to eliminate layout shifts) */}
+      {/* Product Content Details (Uniform sizing across all cards) */}
       <div className="flex flex-col flex-1 p-4 gap-2">
-        {category && (
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
-            {category}
-          </span>
-        )}
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 truncate h-4 block">
+          {category || 'Hardware'}
+        </span>
 
-        <h3 className="font-display font-medium text-sm text-neutral-900 dark:text-dark-text line-clamp-2 leading-snug group-hover:text-brand-500 transition-colors min-h-[2.5rem]">
-          {title}
+        <h3 className="font-display font-medium text-sm text-neutral-900 dark:text-dark-text line-clamp-2 leading-snug group-hover:text-brand-500 transition-colors h-10">
+          {resolvedTitle}
         </h3>
 
         {/* Rating */}
-        <div className="mt-auto pt-1">
-          <Rating rating={rating} reviewsCount={reviewsCount} size="sm" />
+        <div className="mt-auto pt-2">
+          <Rating rating={rating} reviewsCount={resolvedReviewsCount} size="sm" />
         </div>
 
         {/* Price & Action */}
@@ -214,9 +272,9 @@ export const ProductCard = ({
             <span className="font-display font-bold text-lg text-neutral-900 dark:text-dark-text">
               {formatPrice(price)}
             </span>
-            {originalPrice && originalPrice > price && (
+            {resolvedOriginalPrice && resolvedOriginalPrice > price && (
               <span className="text-xs text-neutral-400 dark:text-neutral-500 line-through">
-                {formatPrice(originalPrice)}
+                {formatPrice(resolvedOriginalPrice)}
               </span>
             )}
           </div>

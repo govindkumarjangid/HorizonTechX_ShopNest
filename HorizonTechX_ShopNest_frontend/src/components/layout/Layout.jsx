@@ -7,7 +7,8 @@ import { CartDrawer } from '../cart/CartDrawer';
 import { AuthModal } from '../auth/AuthModal';
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
-import { navLinks } from '../../assets/assets';
+import { useProductStore } from '../../store/useProductStore';
+import { navLinks as defaultNavLinks } from '../../assets/assets';
 
 /**
  * Master Application Layout
@@ -29,10 +30,33 @@ export const Layout = ({
   const navigate = useNavigate();
   const { items, isDrawerOpen, closeDrawer, openDrawer, updateQuantity, removeItem, getCartCount } = useCartStore();
   const { wishlist } = useAuthStore();
+  const { categories, fetchCategories } = useProductStore();
+
+  React.useEffect(() => {
+    if (!categories || categories.length === 0) {
+      fetchCategories();
+    }
+  }, [categories, fetchCategories]);
+
   const effectiveWishlistCount = wishlistCount !== undefined ? wishlistCount : (wishlist?.length || 0);
 
   const [internalAuthModal, setInternalAuthModal] = useState({ isOpen: false, mode: 'login' });
   const currentAuthModal = authModalState || internalAuthModal;
+
+  // Filter top categories from real DB for clean navigation
+  const prioritySlugs = ['laptops', 'smartphones', 'mobile-accessories', 'mens-watches', 'sports-accessories', 'sunglasses', 'tablets'];
+  const formattedNavLinks = categories && categories.length > 0
+    ? [
+        { label: 'Shop All', href: '/shop' },
+        ...categories
+          .filter((c) => prioritySlugs.includes(c.slug?.toLowerCase()))
+          .slice(0, 5)
+          .map((c) => ({
+            label: c.name.replace('Mens Watches', 'Watches').replace('Mobile Accessories', 'Accessories').replace('Sports Accessories', 'Sports'),
+            href: `/shop?category=${encodeURIComponent(c.slug)}`,
+          })),
+      ]
+    : defaultNavLinks;
 
   const handleOpenAuth = (mode = 'login') => {
     if (onOpenAuthModal) onOpenAuthModal(mode);
@@ -57,12 +81,12 @@ export const Layout = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-50 dark:bg-dark-bg text-neutral-900 dark:text-dark-text transition-colors duration-200">
+    <div className="min-h-screen flex flex-col bg-neutral-50 dark:bg-dark-bg text-neutral-900 dark:text-dark-text transition-colors duration-200 w-full overflow-x-clip relative">
       {/* Sticky Header */}
       <Navbar
         cartCount={getCartCount()}
         wishlistCount={effectiveWishlistCount}
-        navLinks={navLinks}
+        navLinks={formattedNavLinks}
         onCartClick={openDrawer}
         onWishlistClick={() => {
           if (onTabChange) onTabChange('wishlist');
@@ -79,8 +103,8 @@ export const Layout = ({
         onNavLinkClick={onNavLinkClick}
       />
 
-      {/* Main Content Area - pb-20 on mobile so bottom tab bar doesn't overlap */}
-      <main className="flex-1 w-full pb-20 lg:pb-0">
+      {/* Main Content Area - pb-24 on mobile so bottom tab bar doesn't overlap */}
+      <main className="flex-1 w-full overflow-x-clip pb-24 lg:pb-0">
         {children}
       </main>
 

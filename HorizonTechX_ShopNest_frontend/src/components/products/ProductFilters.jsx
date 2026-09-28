@@ -9,13 +9,27 @@ export const ProductFilters = ({
   categories = [],
   activeCategory = 'all',
   onCategoryChange,
-  priceRange = [0, 40000],
+  priceRange = [0, 100000],
   onPriceChange,
   inStockOnly = false,
   onInStockChange,
   onResetFilters,
   className = '',
 }) => {
+  const [localMaxPrice, setLocalMaxPrice] = React.useState(priceRange[1] || 100000);
+
+  React.useEffect(() => {
+    setLocalMaxPrice(priceRange[1]);
+  }, [priceRange]);
+
+  const handleSliderChange = (e) => {
+    const newVal = Number(e.target.value);
+    setLocalMaxPrice(newVal);
+    if (onPriceChange) {
+      onPriceChange([priceRange[0], newVal]);
+    }
+  };
+
   return (
     <div className={`flex flex-col gap-6 p-6 rounded-3xl bg-white dark:bg-dark-card border border-neutral-200/80 dark:border-dark-border shadow-subtle ${className}`}>
       {/* Header */}
@@ -23,7 +37,7 @@ export const ProductFilters = ({
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-brand-500" />
           <h3 className="font-display font-bold text-base text-neutral-900 dark:text-white">
-            Filter Archive
+            Filter Products
           </h3>
         </div>
         <button
@@ -39,7 +53,7 @@ export const ProductFilters = ({
       {/* 1. Categories */}
       <div className="flex flex-col gap-2.5">
         <label className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-white">
-          Hardware Divisions
+          Categories
         </label>
         <div className="flex flex-col gap-1">
           <button
@@ -53,28 +67,38 @@ export const ProductFilters = ({
               }
             `}
           >
-            <span>All Curations</span>
+            <span>All Categories</span>
             {activeCategory === 'all' && <Check className="w-3.5 h-3.5" />}
           </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => onCategoryChange(cat.slug)}
-              className={`
-                w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer
-                ${activeCategory === cat.slug
-                  ? 'bg-brand-50 text-brand-600 dark:bg-brand-950/60 dark:text-brand-400 font-bold'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-dark-surface'
-                }
-              `}
-            >
-              <span>{cat.name}</span>
-              <span className="text-[10px] text-neutral-400 font-mono">
-                {cat.itemCount}
-              </span>
-            </button>
-          ))}
+          {categories.map((cat) => {
+            const catSlug = cat.slug || (typeof cat === 'string' ? cat : cat.id);
+            const catName = cat.name || (typeof cat === 'string' ? cat : cat.slug);
+            const isSelected = activeCategory?.toLowerCase() === catSlug?.toLowerCase();
+
+            return (
+              <button
+                key={cat.id || catSlug}
+                type="button"
+                onClick={() => onCategoryChange(catSlug)}
+                className={`
+                  w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer
+                  ${isSelected
+                    ? 'bg-brand-50 text-brand-600 dark:bg-brand-950/60 dark:text-brand-400 font-bold'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-dark-surface'
+                  }
+                `}
+              >
+                <span>{catName}</span>
+                {cat.itemCount ? (
+                  <span className="text-[10px] text-neutral-400 font-mono">
+                    {cat.itemCount}
+                  </span>
+                ) : isSelected ? (
+                  <Check className="w-3.5 h-3.5 text-brand-500" />
+                ) : null}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -82,31 +106,31 @@ export const ProductFilters = ({
       <div className="flex flex-col gap-3 pt-4 border-t border-neutral-100 dark:border-dark-border">
         <div className="flex items-center justify-between">
           <label className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-white">
-            Max Price
+            Maximum Price
           </label>
           <span className="font-mono text-xs font-bold text-brand-500">
-            {formatPrice(priceRange[1])}
+            {formatPrice(localMaxPrice)}
           </span>
         </div>
         <input
           type="range"
-          min="5000"
-          max="40000"
-          step="1000"
-          value={priceRange[1]}
-          onChange={(e) => onPriceChange([priceRange[0], Number(e.target.value)])}
+          min="500"
+          max="100000"
+          step="500"
+          value={localMaxPrice}
+          onChange={handleSliderChange}
           className="w-full accent-brand-500 cursor-pointer"
         />
         <div className="flex justify-between text-[10px] font-mono text-neutral-400">
-          <span>₹5,000</span>
-          <span>₹40,000</span>
+          <span>₹500</span>
+          <span>₹1,00,000+</span>
         </div>
       </div>
 
       {/* 3. Availability Toggle */}
       <div className="flex items-center justify-between pt-4 border-t border-neutral-100 dark:border-dark-border">
         <label className="text-xs font-bold text-neutral-900 dark:text-white cursor-pointer select-none">
-          Immediate Dispatch Only
+          In Stock Only
         </label>
         <input
           type="checkbox"

@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ScrollToTop } from './components/common/ScrollToTop';
 import { Layout } from './components/layout/Layout';
+import { useAuthStore } from './store/useAuthStore';
+import { useCartStore } from './store/useCartStore';
 import { Home } from './pages/Home';
 import { ProductList } from './pages/product/ProductList';
 import { ProductDetails } from './pages/product/ProductDetails';
@@ -20,38 +22,44 @@ import { NotFound } from './pages/NotFound';
  * automatic scroll restoration, and obsidian toast notification architecture.
  */
 export default function App() {
+  const initAuth = useAuthStore((state) => state.initAuth);
+  const fetchCart = useCartStore((state) => state.fetchCart);
+
+  useEffect(() => {
+    initAuth();
+    fetchCart();
+  }, [initAuth, fetchCart]);
+
   return (
     <>
       {/* Route-Change Smooth Scroll Restoration */}
       <ScrollToTop />
 
-      {/* Global Toast Notification System */}
+      {/* Global Toast Notification System (Theme-Adaptive, Compact Padding, Small Text, Zero Icons) */}
       <Toaster
         position="top-right"
         toastOptions={{
-          duration: 3500,
+          duration: 3200,
+          icon: null,
           style: {
-            background: '#18181b',
-            color: '#f4f4f5',
-            borderRadius: '16px',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            padding: '12px 18px',
-            fontSize: '13px',
+            background: 'var(--toast-bg)',
+            color: 'var(--toast-color)',
+            borderRadius: '12px',
+            border: '1px solid var(--toast-border)',
+            padding: '8px 14px',
+            fontSize: '12px',
             fontWeight: '500',
-            boxShadow: '0 12px 32px -8px rgba(0, 0, 0, 0.45)',
+            boxShadow: '0 8px 24px -4px rgba(0, 0, 0, 0.12)',
             fontFamily: 'inherit',
           },
           success: {
-            iconTheme: {
-              primary: '#E0533C',
-              secondary: '#FFFFFF',
-            },
+            icon: null,
           },
           error: {
-            iconTheme: {
-              primary: '#EF4444',
-              secondary: '#FFFFFF',
-            },
+            icon: null,
+          },
+          loading: {
+            icon: null,
           },
         }}
       />

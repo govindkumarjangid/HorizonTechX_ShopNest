@@ -30,11 +30,11 @@ export const NotFound = ({ onNavigateHome, onExploreCatalog }) => {
           </div>
         </div>
 
-        <H1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-white">
-          Signal Out of Range
+        <H1 className="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-white">
+          Page Not Found
         </H1>
         <Subtitle className="text-xs sm:text-sm max-w-sm mt-2 text-neutral-500 dark:text-neutral-400">
-          The hardware blueprint or archive directory you requested does not exist or has been recalibrated.
+          The page or product collection you requested does not exist or has been moved.
         </Subtitle>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 mt-8 w-full sm:w-auto">

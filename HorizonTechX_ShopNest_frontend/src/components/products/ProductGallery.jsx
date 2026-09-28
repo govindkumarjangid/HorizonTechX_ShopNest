@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
+import { ProgressiveImage } from '../ui/ProgressiveImage';
 
 /**
  * Product Detail Image Gallery with mobile touch swipe & desktop thumbnail selector
@@ -40,10 +41,14 @@ export const ProductGallery = ({ images = [], title = 'Product Image' }) => {
 
       {/* Main Image Showcase (Desktop) */}
       <div className="hidden lg:block flex-1 rounded-3xl overflow-hidden bg-neutral-100 dark:bg-dark-surface border border-neutral-200/80 dark:border-dark-border relative aspect-square shadow-subtle group">
-        <img
+        <ProgressiveImage
           src={displayImages[selectedImageIdx]}
           alt={title}
-          className="w-full h-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-106"
+          width={1200}
+          priority={true}
+          aspectRatio="aspect-square"
+          className="w-full h-full"
+          imgClassName="w-full h-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-106"
         />
       </div>
 
@@ -56,10 +61,13 @@ export const ProductGallery = ({ images = [], title = 'Product Image' }) => {
         >
           {displayImages.map((img, idx) => (
             <SwiperSlide key={idx} className="w-full h-full">
-              <img
+              <ProgressiveImage
                 src={img}
                 alt={`${title} ${idx + 1}`}
-                className="w-full h-full object-cover object-center"
+                width={800}
+                aspectRatio="aspect-square"
+                className="w-full h-full"
+                imgClassName="w-full h-full object-cover object-center"
               />
             </SwiperSlide>
           ))}

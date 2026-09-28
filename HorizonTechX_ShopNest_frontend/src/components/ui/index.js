@@ -10,3 +10,4 @@ export * from './Footer';
 export * from './SectionHeader';
 export * from './CategoryCard';
 export * from './TestimonialCard';
+export * from './ProgressiveImage';
