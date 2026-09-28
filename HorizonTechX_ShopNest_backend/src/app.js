@@ -42,6 +42,10 @@ const isOriginAllowed = (origin) => {
   if (allowedOrigins.some((allowed) => allowed.replace(/\/+$/, '') === cleanOrigin))
     return true;
 
+  // Allow all Vercel deployments (production domain, preview branches, and preview hashes)
+  if (/^https:\/\/([a-zA-Z0-9_-]+\.)?vercel\.app$/.test(cleanOrigin))
+    return true;
+
   // In non-production environments, allow local development loopback addresses
   if (env.NODE_ENV !== 'production' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(cleanOrigin))
     return true;
