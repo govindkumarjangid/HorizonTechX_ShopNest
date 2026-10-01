@@ -17,11 +17,9 @@ import { OrderStatusBadge } from '../../components/orders/OrderStatusBadge';
 import { formatPrice } from '../../utils/formatPrice';
 import { useOrderStore } from '../../store/useOrderStore';
 import { notify } from '../../utils/notify';
+import { ProgressiveImage } from '../../components/ui/ProgressiveImage';
 
-/**
- * Dedicated Single Order Details & Live Telemetry Page (Real Backend Connected)
- * Zero mock fallbacks: Direct integration with MongoDB Order collection.
- */
+
 export const OrderDetails = ({
   order: propOrder,
   onBackToOrders,
@@ -33,7 +31,6 @@ export const OrderDetails = ({
   const [invoiceDownloaded, setInvoiceDownloaded] = useState(false);
   const [loadingOrder, setLoadingOrder] = useState(!propOrder && !activeOrder);
 
-  // Fetch real order from backend if needed
   useEffect(() => {
     if (propOrder || (activeOrder && (!id || activeOrder.orderId === id || activeOrder._id === id || activeOrder.id === id))) {
       setLoadingOrder(false);
@@ -222,10 +219,13 @@ export const OrderDetails = ({
                 return (
                   <div key={idx} className="pt-4 first:pt-0 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <img
+                      <ProgressiveImage
                         src={itemImage}
                         alt={itemTitle}
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-neutral-200 dark:border-dark-border shrink-0"
+                        width={120}
+                        aspectRatio="aspect-square"
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl shrink-0 border border-neutral-200 dark:border-dark-border overflow-hidden"
+                        imgClassName="w-full h-full object-cover"
                       />
                       <div className="min-w-0">
                         <h4 className="text-xs sm:text-sm font-semibold text-neutral-900 dark:text-white line-clamp-1 truncate">

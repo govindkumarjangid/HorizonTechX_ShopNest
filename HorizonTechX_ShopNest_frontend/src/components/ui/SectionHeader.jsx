@@ -1,10 +1,7 @@
-import React from 'react';
 import { Badge } from './Badge';
 import { H2, Subtitle } from './Typography';
 
-/**
- * Editorial Section Header with badge, title, subtitle, and optional right-aligned action
- */
+
 export const SectionHeader = ({
   badge,
   badgeVariant = 'brand',

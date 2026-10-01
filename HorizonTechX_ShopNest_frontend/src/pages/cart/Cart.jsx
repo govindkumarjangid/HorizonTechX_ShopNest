@@ -188,7 +188,7 @@ export const Cart = ({
         </div>
 
         {/* Right Column: Sticky Summary */}
-        <div className="lg:col-span-4 lg:sticky lg:top-24 self-start z-10 flex flex-col gap-5">
+        <div className="lg:col-span-4 lg:sticky lg:top-20 self-start z-10 flex flex-col gap-5">
           <CartSummary
             subtotal={subtotal}
             shippingFee={shippingFee}

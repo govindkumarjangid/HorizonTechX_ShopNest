@@ -1,9 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
 
-/**
- * High-performance smooth Count-Up number component
- * Triggers when scrolled into view using IntersectionObserver and requestAnimationFrame.
- */
 export const StatCounter = ({
   end = 0,
   duration = 1800,

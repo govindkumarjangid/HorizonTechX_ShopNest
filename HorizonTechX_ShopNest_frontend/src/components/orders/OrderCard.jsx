@@ -1,12 +1,10 @@
-import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { OrderStatusBadge } from './OrderStatusBadge';
 import { OrderTracker } from './OrderTracker';
 import { formatPrice } from '../../utils/formatPrice';
+import { ProgressiveImage } from '../ui/ProgressiveImage';
 
-/**
- * Reusable Order Summary Card with Tracking Timeline (Real Backend Compatible)
- */
+
 export const OrderCard = ({ order, onTrackDetails }) => {
   const displayId = order.orderId || order.id || (order._id ? `ORD-${order._id.slice(-6).toUpperCase()}` : 'ORD-LIVE');
   const displayDate = order.createdAt
@@ -46,11 +44,13 @@ export const OrderCard = ({ order, onTrackDetails }) => {
           return (
             <div key={idx} className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                <img
+                <ProgressiveImage
                   src={itemImage}
                   alt={itemTitle}
-                  loading="lazy"
-                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl object-cover border border-neutral-200 dark:border-dark-border shrink-0"
+                  width={96}
+                  aspectRatio="aspect-square"
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl shrink-0 border border-neutral-200 dark:border-dark-border overflow-hidden"
+                  imgClassName="w-full h-full object-cover"
                 />
                 <div className="min-w-0">
                   <h4 className="text-xs font-semibold text-neutral-900 dark:text-white line-clamp-1 truncate">

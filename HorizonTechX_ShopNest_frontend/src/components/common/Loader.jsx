@@ -1,9 +1,5 @@
-import React from 'react';
 import { Loader2 } from 'lucide-react';
 
-/**
- * Reusable Full Page or Component Spinner Loader
- */
 export const Loader = ({ label = 'Loading...', size = 'md', className = '' }) => {
   const sizeMap = {
     sm: 'w-4 h-4',

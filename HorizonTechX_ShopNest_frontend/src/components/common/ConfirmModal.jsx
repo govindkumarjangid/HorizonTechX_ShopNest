@@ -1,12 +1,9 @@
-import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AlertCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { backdropFade } from '../../styles/motion';
 
-/**
- * Reusable Confirmation Dialog
- */
+
 export const ConfirmModal = ({
   isOpen,
   onClose,
@@ -20,7 +17,7 @@ export const ConfirmModal = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-80 flex items-center justify-center p-4">
           <motion.div
             variants={backdropFade}
             initial="hidden"

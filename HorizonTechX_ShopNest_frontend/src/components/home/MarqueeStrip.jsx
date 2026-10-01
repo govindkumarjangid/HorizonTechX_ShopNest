@@ -1,9 +1,5 @@
 import { Award, ShieldCheck, Truck, RotateCcw, Lock, Cpu } from 'lucide-react';
 
-/**
- * Infinite Scrolling Marquee Strip
- * Positioned between Hero and Categories to establish instant authority and reassurance.
- */
 export const MarqueeStrip = () => {
   const items = [
     { text: 'Free Express Shipping Across India', icon: Truck },
@@ -20,8 +16,8 @@ export const MarqueeStrip = () => {
   return (
     <div className="w-full relative overflow-hidden py-3.5 bg-neutral-900 dark:bg-neutral-950 text-white border-y border-neutral-800 dark:border-neutral-800/80 select-none shadow-inner">
       {/* Edge gradient fades for seamless emergence */}
-      <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-neutral-900 dark:from-neutral-950 to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-neutral-900 dark:from-neutral-950 to-transparent z-10 pointer-events-none" />
+      <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-linear-to-r from-neutral-900 dark:from-neutral-950 to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-linear-to-l from-neutral-900 dark:from-neutral-950 to-transparent z-10 pointer-events-none" />
 
       <div className="flex w-max animate-marquee hover:[animation-play-state:paused] items-center gap-8 text-xs sm:text-sm font-medium tracking-wide">
         {repeated.map((item, idx) => {

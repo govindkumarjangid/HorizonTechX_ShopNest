@@ -1,55 +1,50 @@
 import { useState, useEffect } from 'react';
+import { intervalToDuration, isPast, addHours, differenceInMilliseconds } from 'date-fns';
 
-/**
- * Live Countdown Timer for Limited Edition Vault / Drops
- */
 export const CountdownTimer = ({
   targetHours = 48,
   compact = false,
   className = '',
 }) => {
-  // Initialize target date in localStorage or dynamically 48 hours from initial load
-  const [timeLeft, setTimeLeft] = useState(() => {
-    const STORAGE_KEY = 'shopnest_archive_drop_deadline';
-    let targetTimestamp = localStorage.getItem(STORAGE_KEY);
+  const calculateTimeLeft = (targetDate) => {
+    const now = new Date();
+    if (isPast(targetDate)) {
+      return { total: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+    const duration = intervalToDuration({ start: now, end: targetDate });
+    const total = Math.max(0, differenceInMilliseconds(targetDate, now));
+    return {
+      total,
+      days: duration.days || 0,
+      hours: duration.hours || 0,
+      minutes: duration.minutes || 0,
+      seconds: duration.seconds || 0,
+    };
+  };
 
-    if (!targetTimestamp || Number(targetTimestamp) <= Date.now()) {
-      targetTimestamp = Date.now() + targetHours * 60 * 60 * 1000 + 36 * 60 * 1000;
-      localStorage.setItem(STORAGE_KEY, targetTimestamp.toString());
+  const getTargetDate = () => {
+    const STORAGE_KEY = 'shopnest_archive_drop_deadline';
+    const targetTimestamp = localStorage.getItem(STORAGE_KEY);
+    let targetDate = targetTimestamp ? new Date(Number(targetTimestamp)) : null;
+
+    if (!targetDate || isNaN(targetDate.getTime()) || isPast(targetDate)) {
+      targetDate = addHours(new Date(), targetHours);
+      localStorage.setItem(STORAGE_KEY, targetDate.getTime().toString());
     }
 
-    const diff = Math.max(0, Number(targetTimestamp) - Date.now());
-    return {
-      total: diff,
-      days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-      hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-      minutes: Math.floor((diff / 1000 / 60) % 60),
-      seconds: Math.floor((diff / 1000) % 60),
-    };
-  });
+    return targetDate;
+  };
+
+  const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft(getTargetDate()));
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const STORAGE_KEY = 'shopnest_archive_drop_deadline';
-      let targetTimestamp = Number(localStorage.getItem(STORAGE_KEY));
-
-      if (!targetTimestamp || targetTimestamp <= Date.now()) {
-        targetTimestamp = Date.now() + 36 * 60 * 60 * 1000;
-        localStorage.setItem(STORAGE_KEY, targetTimestamp.toString());
-      }
-
-      const diff = Math.max(0, targetTimestamp - Date.now());
-      setTimeLeft({
-        total: diff,
-        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((diff / 1000 / 60) % 60),
-        seconds: Math.floor((diff / 1000) % 60),
-      });
+      const targetDate = getTargetDate();
+      setTimeLeft(calculateTimeLeft(targetDate));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [targetHours]);
 
   const pad = (n) => String(n).padStart(2, '0');
 

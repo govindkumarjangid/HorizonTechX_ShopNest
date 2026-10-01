@@ -1,9 +1,5 @@
-import React from 'react';
 import { Badge } from '../ui/Badge';
 
-/**
- * Reusable Status Pill for Orders
- */
 export const OrderStatusBadge = ({ status = 'Processing' }) => {
   const statusMap = {
     Placed: { variant: 'neutral', label: 'Order Placed' },

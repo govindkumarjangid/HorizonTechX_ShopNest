@@ -6,9 +6,7 @@ import { OrderCard } from '../../components/orders/OrderCard';
 import { EmptyState } from '../../components/common/EmptyState';
 import { useOrderStore } from '../../store/useOrderStore';
 
-/**
- * Dedicated Orders Listing Page (Real Backend Connected)
- */
+
 export const Orders = ({
   onSelectOrder,
   onNavigateToCatalog,

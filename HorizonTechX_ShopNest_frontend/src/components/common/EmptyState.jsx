@@ -1,10 +1,7 @@
-import React from 'react';
 import { PackageOpen, ArrowRight } from 'lucide-react';
 import { Button } from '../ui/Button';
 
-/**
- * Reusable Empty State UI
- */
+
 export const EmptyState = ({
   icon: Icon = PackageOpen,
   title = 'No records found',

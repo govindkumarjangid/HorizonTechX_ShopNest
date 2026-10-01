@@ -3,9 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Compass, Home, Search } from 'lucide-react';
 import { H1, Subtitle, Button } from '../components/ui';
 
-/**
- * 404 Not Found Page
- */
 export const NotFound = ({ onNavigateHome, onExploreCatalog }) => {
   const navigate = useNavigate();
   const handleHome = () => {

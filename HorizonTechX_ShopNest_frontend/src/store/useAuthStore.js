@@ -1,12 +1,60 @@
 import { create } from 'zustand';
 import { authApi } from '../api/authApi';
+import { useProductStore } from './useProductStore';
+
+const WISHLIST_STORAGE_KEY = 'shopnest_wishlist_items';
+
+const getInitialWishlist = () => {
+  try {
+    const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveWishlist = (items) => {
+  try {
+    localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(items));
+  } catch { }
+};
+
+export const matchWishlistId = (itemA, itemB) => {
+  if (!itemA || !itemB) return false;
+  const idA = typeof itemA === 'object' ? (itemA._id || itemA.id) : itemA;
+  const idB = typeof itemB === 'object' ? (itemB._id || itemB.id) : itemB;
+  if (idA === undefined || idA === null || idB === undefined || idB === null) return false;
+  return String(idA) === String(idB);
+};
+
+export const normalizeWishlistItem = (item) => {
+  if (!item) return null;
+  const resolvedId = typeof item === 'object' ? (item._id || item.id) : item;
+  const resolvedTitle = typeof item === 'object' ? (item.name || item.title || 'Curated Piece') : 'Curated Piece';
+  const resolvedImage = typeof item === 'object' ? (item.image || (item.images && item.images[0]) || '') : '';
+  const resolvedPrice = typeof item === 'object' ? (Number(item.price) || 0) : 0;
+  const resolvedCategory = typeof item === 'object' ? (item.category || 'General') : 'General';
+  const resolvedInStock = typeof item === 'object' ? (item.inStock !== undefined ? item.inStock : (item.stock > 0)) : true;
+
+  return {
+    ...(typeof item === 'object' ? item : {}),
+    id: resolvedId,
+    _id: resolvedId,
+    title: resolvedTitle,
+    name: resolvedTitle,
+    image: resolvedImage,
+    price: resolvedPrice,
+    category: resolvedCategory,
+    inStock: resolvedInStock,
+  };
+};
 
 export const useAuthStore = create((set, get) => ({
   isAuthenticated: !!localStorage.getItem('shopnest_token'),
   token: localStorage.getItem('shopnest_token') || null,
   user: null,
   savedAddresses: [],
-  wishlist: [],
+  wishlist: getInitialWishlist(),
   isLoading: false,
   isInitialized: false,
 
@@ -24,11 +72,16 @@ export const useAuthStore = create((set, get) => ({
       const userData = response?.data || null;
 
       if (userData) {
+        const rawWishlist = userData.wishlist || [];
+        const normalizedWishlist = rawWishlist.map(normalizeWishlistItem).filter(Boolean);
+        const effectiveWishlist = normalizedWishlist.length > 0 ? normalizedWishlist : getInitialWishlist();
+        saveWishlist(effectiveWishlist);
+
         set({
           isAuthenticated: true,
           user: userData,
           savedAddresses: userData.addresses || [],
-          wishlist: userData.wishlist || [],
+          wishlist: effectiveWishlist,
           isLoading: false,
           isInitialized: true,
         });
@@ -52,12 +105,17 @@ export const useAuthStore = create((set, get) => ({
 
       if (accessToken) {
         localStorage.setItem('shopnest_token', accessToken);
+        const rawWishlist = user?.wishlist || [];
+        const normalizedWishlist = rawWishlist.map(normalizeWishlistItem).filter(Boolean);
+        const effectiveWishlist = normalizedWishlist.length > 0 ? normalizedWishlist : getInitialWishlist();
+        saveWishlist(effectiveWishlist);
+
         set({
           isAuthenticated: true,
           token: accessToken,
           user,
           savedAddresses: user?.addresses || [],
-          wishlist: user?.wishlist || [],
+          wishlist: effectiveWishlist,
           isLoading: false,
         });
         return { success: true, user };
@@ -78,12 +136,17 @@ export const useAuthStore = create((set, get) => ({
 
       if (accessToken) {
         localStorage.setItem('shopnest_token', accessToken);
+        const rawWishlist = user?.wishlist || [];
+        const normalizedWishlist = rawWishlist.map(normalizeWishlistItem).filter(Boolean);
+        const effectiveWishlist = normalizedWishlist.length > 0 ? normalizedWishlist : getInitialWishlist();
+        saveWishlist(effectiveWishlist);
+
         set({
           isAuthenticated: true,
           token: accessToken,
           user,
           savedAddresses: user?.addresses || [],
-          wishlist: user?.wishlist || [],
+          wishlist: effectiveWishlist,
           isLoading: false,
         });
         return { success: true, user };
@@ -101,6 +164,7 @@ export const useAuthStore = create((set, get) => ({
       await authApi.logout();
     } catch { }
     localStorage.removeItem('shopnest_token');
+    localStorage.removeItem(WISHLIST_STORAGE_KEY);
     set({
       isAuthenticated: false,
       token: null,
@@ -176,22 +240,43 @@ export const useAuthStore = create((set, get) => ({
   },
 
   // Toggle item in wishlist
-  toggleWishlist: async (productId) => {
-    const id = typeof productId === 'object' ? (productId._id || productId.id) : productId;
+  toggleWishlist: async (productOrId) => {
+    if (!productOrId) return;
+    const targetId = typeof productOrId === 'object' ? (productOrId._id || productOrId.id) : productOrId;
+    if (!targetId) return;
 
-    // Optimistic update
-    set((state) => {
-      const exists = state.wishlist.includes(id);
-      return {
-        wishlist: exists
-          ? state.wishlist.filter((item) => item !== id)
-          : [...state.wishlist, id],
-      };
-    });
+    const currentWishlist = get().wishlist || [];
+    const exists = currentWishlist.some((item) => matchWishlistId(item, targetId));
+
+    let nextWishlist;
+    if (exists) {
+      nextWishlist = currentWishlist.filter((item) => !matchWishlistId(item, targetId));
+    } else {
+      let fullProduct = typeof productOrId === 'object' && (productOrId.title || productOrId.name || productOrId.image || productOrId.price !== undefined) ? productOrId : null;
+      if (!fullProduct) {
+        try {
+          const storeProducts = useProductStore.getState().products;
+          fullProduct = storeProducts.find((p) => matchWishlistId(p, targetId));
+        } catch { }
+      }
+      const itemToSave = fullProduct
+        ? normalizeWishlistItem(fullProduct)
+        : { id: targetId, _id: targetId, title: 'Curated Piece', name: 'Curated Piece', price: 0, image: '' };
+      nextWishlist = [...currentWishlist, itemToSave];
+    }
+
+    saveWishlist(nextWishlist);
+    set({ wishlist: nextWishlist });
 
     if (get().isAuthenticated) {
       try {
-        await authApi.toggleWishlist(id);
+        const response = await authApi.toggleWishlist(targetId);
+        const serverWishlist = response?.data || response?.wishlist;
+        if (Array.isArray(serverWishlist)) {
+          const normalized = serverWishlist.map(normalizeWishlistItem).filter(Boolean);
+          saveWishlist(normalized);
+          set({ wishlist: normalized });
+        }
       } catch (err) {
         console.warn('[useAuthStore] toggleWishlist sync error:', err.message);
       }
@@ -199,8 +284,8 @@ export const useAuthStore = create((set, get) => ({
   },
 
   isInWishlist: (productId) => {
-    const id = typeof productId === 'object' ? (productId._id || productId.id) : productId;
-    return get().wishlist.includes(id);
+    if (!productId) return false;
+    return (get().wishlist || []).some((item) => matchWishlistId(item, productId));
   },
 }));
 

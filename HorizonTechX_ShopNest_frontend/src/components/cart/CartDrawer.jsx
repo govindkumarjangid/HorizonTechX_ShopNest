@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
@@ -15,11 +15,6 @@ import { backdropFade } from '../../styles/motion';
 import { useSmoothScroll } from '../../providers/SmoothScrollProvider';
 import { formatPrice } from '../../utils/formatPrice';
 
-/**
- * Production-Ready Mini-Cart Drawer
- * Features animated slide-in, item quantity steppers, animated removal,
- * free shipping progress bar, and Lenis scroll prevention while open.
- */
 export const CartDrawer = ({
   isOpen,
   onClose,
@@ -42,9 +37,7 @@ export const CartDrawer = ({
     }
 
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
+      if (e.key === 'Escape' && isOpen) onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
 
@@ -61,7 +54,7 @@ export const CartDrawer = ({
     0
   );
   const shippingFee = subtotal >= 4999 || subtotal === 0 ? 0 : 499;
-  const tax = subtotal * 0.18; // 18% GST standard
+  const tax = subtotal * 0.18;
   const total = subtotal + shippingFee + tax;
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
@@ -89,7 +82,7 @@ export const CartDrawer = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[70] flex items-stretch justify-end">
+        <div className="fixed inset-0 z-70 flex items-stretch justify-end">
           {/* Backdrop */}
           <motion.div
             variants={backdropFade}
@@ -109,7 +102,7 @@ export const CartDrawer = ({
             data-lenis-prevent="true"
             onWheel={(e) => e.stopPropagation()}
             className="
-              relative w-full sm:max-w-md h-[100dvh] sm:h-full
+              relative w-full sm:max-w-md h-dvh sm:h-full
               bg-white dark:bg-dark-surface
               border-0 sm:border-l border-neutral-200/80 dark:border-dark-border
               rounded-none sm:rounded-l-3xl

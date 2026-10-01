@@ -13,10 +13,10 @@ const startServer = async () => {
     await connectDB();
 
     const server = app.listen(env.PORT, () => {
-      console.log(`🚀 HorizonTechX ShopNest Backend Server`);
-      console.log(`📡 URL: http://localhost:${env.PORT}...`);
-      console.log(`🛠️  Environment: ${env.NODE_ENV}`);
-      console.log(`🏥 Health Check: http://localhost:${env.PORT}/api/health`);
+      console.log(`HorizonTechX ShopNest Backend Server`);
+      console.log(`URL: http://localhost:${env.PORT}...`);
+      console.log(`Environment: ${env.NODE_ENV}`);
+      console.log(`Health Check: http://localhost:${env.PORT}/api/health`);
     });
 
     // Handle unhandled promise rejections

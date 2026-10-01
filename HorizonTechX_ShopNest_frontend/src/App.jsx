@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ScrollToTop } from './components/common/ScrollToTop';
@@ -15,12 +15,9 @@ import { OrderDetails } from './pages/order/OrderDetails';
 import { Dashboard } from './pages/account/Dashboard';
 import { Auth } from './pages/auth/Auth';
 import { NotFound } from './pages/NotFound';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
-/**
- * HorizonTechX ShopNest - Master Application Root
- * Fully powered by React Router v7 with zero layout shift,
- * automatic scroll restoration, and obsidian toast notification architecture.
- */
+
 export default function App() {
   const initAuth = useAuthStore((state) => state.initAuth);
   const fetchCart = useCartStore((state) => state.fetchCart);
@@ -35,12 +32,10 @@ export default function App() {
       {/* Route-Change Smooth Scroll Restoration */}
       <ScrollToTop />
 
-      {/* Global Toast Notification System (Theme-Adaptive, Compact Padding, Small Text, Zero Icons) */}
       <Toaster
         position="top-right"
         toastOptions={{
           duration: 3200,
-          icon: null,
           style: {
             background: 'var(--toast-bg)',
             color: 'var(--toast-color)',
@@ -51,7 +46,21 @@ export default function App() {
             fontWeight: '500',
             boxShadow: '0 8px 24px -4px rgba(0, 0, 0, 0.12)',
             fontFamily: 'inherit',
-          }
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#ffffff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#ffffff',
+            },
+          },
         }}
       />
 
@@ -109,33 +118,39 @@ export default function App() {
         {/* Distraction-Free Production Checkout */}
         <Route path="/checkout" element={<Checkout />} />
 
-        {/* Orders Listing */}
+        {/* Orders Listing (Protected) */}
         <Route
           path="/orders"
           element={
-            <Layout activeTab="dashboard">
-              <Orders />
-            </Layout>
+            <ProtectedRoute>
+              <Layout activeTab="dashboard">
+                <Orders />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
-        {/* Single Order Details & Tracking */}
+        {/* Single Order Details & Tracking (Protected) */}
         <Route
           path="/orders/:id"
           element={
-            <Layout activeTab="dashboard">
-              <OrderDetails />
-            </Layout>
+            <ProtectedRoute>
+              <Layout activeTab="dashboard">
+                <OrderDetails />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
-        {/* Account Dashboard */}
+        {/* Account Dashboard (Protected: Unauthenticated users are redirected to login) */}
         <Route
           path="/dashboard"
           element={
-            <Layout activeTab="dashboard">
-              <Dashboard />
-            </Layout>
+            <ProtectedRoute>
+              <Layout activeTab="dashboard">
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
           }
         />
         <Route path="/account" element={<Navigate to="/dashboard" replace />} />

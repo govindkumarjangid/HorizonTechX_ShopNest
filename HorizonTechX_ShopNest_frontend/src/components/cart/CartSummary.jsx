@@ -3,9 +3,6 @@ import { ArrowRight, ShieldCheck } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { formatPrice } from '../../utils/formatPrice';
 
-/**
- * Reusable Cart Summary & Checkout Box
- */
 export const CartSummary = ({
   subtotal = 0,
   shippingFee = 0,

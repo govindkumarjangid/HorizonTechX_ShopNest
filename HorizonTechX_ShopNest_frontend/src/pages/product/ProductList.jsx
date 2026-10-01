@@ -7,12 +7,9 @@ import { ProductFilters } from '../../components/products/ProductFilters';
 import { ProductGrid } from '../../components/products/ProductGrid';
 import { useProductStore } from '../../store/useProductStore';
 import { useCartStore } from '../../store/useCartStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { notify } from '../../utils/notify';
 
-/**
- * Product Listing Page (PLP)
- * Features mobile bottom-sheet filter drawer, sorting dropdown, and synchronized product grid
- */
 export const ProductList = ({ onSelectProduct, onAddToWishlist }) => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [searchParams] = useSearchParams();
@@ -34,6 +31,9 @@ export const ProductList = ({ onSelectProduct, onAddToWishlist }) => {
     fetchCategories,
     isLoading,
   } = useProductStore();
+
+  const toggleWishlist = useAuthStore((state) => state.toggleWishlist);
+  const isInWishlist = useAuthStore((state) => state.isInWishlist);
 
   const [debouncedPriceRange, setDebouncedPriceRange] = useState(priceRange);
 
@@ -83,9 +83,17 @@ export const ProductList = ({ onSelectProduct, onAddToWishlist }) => {
   const handleToggleWishlist = (product) => {
     if (onAddToWishlist) {
       onAddToWishlist(product);
+    } else {
+      const prodId = product?._id || product?.id;
+      const willBeInWishlist = !isInWishlist(prodId);
+      toggleWishlist(product);
+      const prodTitle = product?.name || product?.title || 'Product';
+      if (willBeInWishlist) {
+        notify.success(`${prodTitle} added to Wishlist!`);
+      } else {
+        notify.info(`${prodTitle} removed from Wishlist`);
+      }
     }
-    const prodTitle = product.name || product.title;
-    notify.success(`${prodTitle} updated in Wishlist!`);
   };
 
   return (
@@ -174,7 +182,7 @@ export const ProductList = ({ onSelectProduct, onAddToWishlist }) => {
       {/* Mobile Filter Bottom Sheet Drawer */}
       <AnimatePresence>
         {isMobileFilterOpen && (
-          <div className="fixed inset-0 z-[70] lg:hidden flex items-end">
+          <div className="fixed inset-0 z-70 lg:hidden flex items-end">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

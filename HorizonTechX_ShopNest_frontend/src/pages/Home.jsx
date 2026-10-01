@@ -45,6 +45,8 @@ import { CountdownTimer } from '../components/home/CountdownTimer';
 import { StatCounter } from '../components/home/StatCounter';
 import { MarqueeStrip } from '../components/home/MarqueeStrip';
 import { useProductStore } from '../store/useProductStore';
+import { useCartStore } from '../store/useCartStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { productApi } from '../api/productApi';
 
 export const Home = ({
@@ -104,7 +106,6 @@ export const Home = ({
     };
   }, [activeCategoryFilter]);
 
-  // Flagship Hero Product: resolved from real DB products (prioritizing audio/hardware/horology) with guaranteed fallback
   const flagshipProduct =
     products.find(
       (p) =>
@@ -148,18 +149,18 @@ export const Home = ({
     products.length > 0
       ? products.slice(0, 4)
       : featuredProducts.length > 0
-      ? featuredProducts.slice(0, 4)
-      : defaultCatalogProducts.slice(0, 4);
+        ? featuredProducts.slice(0, 4)
+        : defaultCatalogProducts.slice(0, 4);
 
   // Effective archive products for Featured & Trending section
   const effectiveArchiveProducts =
     archiveProducts.length > 0
       ? archiveProducts
       : activeCategoryFilter === 'all'
-      ? products.length > 0
-        ? products.slice(0, 8)
-        : defaultCatalogProducts.slice(0, 8)
-      : defaultCatalogProducts.filter(
+        ? products.length > 0
+          ? products.slice(0, 8)
+          : defaultCatalogProducts.slice(0, 8)
+        : defaultCatalogProducts.filter(
           (p) => p.categorySlug?.toLowerCase() === activeCategoryFilter.toLowerCase()
         );
 
@@ -199,13 +200,29 @@ export const Home = ({
   };
 
   const handleAddToCart = (prod) => {
-    if (onAddToCart) onAddToCart(prod);
-    notify.success(`${prod.title} added to your bag!`);
+    if (onAddToCart) {
+      onAddToCart(prod);
+    } else {
+      useCartStore.getState().addItem(prod, 1);
+    }
+    const title = prod.name || prod.title || 'Product';
+    notify.success(`${title} added to your bag!`);
   };
 
   const handleAddToWishlist = (prod) => {
-    if (onAddToWishlist) onAddToWishlist(prod);
-    notify.success(`${prod.title} updated in Wishlist!`);
+    if (onAddToWishlist) {
+      onAddToWishlist(prod);
+    } else {
+      const prodId = prod?._id || prod?.id;
+      const willBeInWishlist = !useAuthStore.getState().isInWishlist(prodId);
+      useAuthStore.getState().toggleWishlist(prod);
+      const title = prod?.name || prod?.title || 'Product';
+      if (willBeInWishlist) {
+        notify.success(`${title} added to Wishlist!`);
+      } else {
+        notify.info(`${title} removed from Wishlist`);
+      }
+    }
   };
 
   const handleNewsletterSubmit = (e) => {
@@ -222,17 +239,14 @@ export const Home = ({
 
   return (
     <div className="flex flex-col gap-20 sm:gap-28 w-full pb-16">
-      
-      {/* =========================================================
-          1. SPLIT HERO SECTION WITH FLAGSHIP PRODUCT & COUNTDOWN
-         ========================================================= */}
+
       <section className="relative pt-4 sm:pt-10 overflow-hidden">
         {/* Ambient Glow in Background */}
-        <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[400px] bg-brand-500/10 dark:bg-brand-500/15 rounded-full blur-[150px] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-162.5 h-100 bg-brand-500/10 dark:bg-brand-500/15 rounded-full blur-[150px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-            
+
             {/* Left Column: Text, Countdown Pill, CTAs & Animated Count-up Stats */}
             <motion.div
               variants={staggerContainer}
@@ -254,7 +268,7 @@ export const Home = ({
               <motion.div variants={fadeInUp} className="max-w-2xl w-full">
                 <H1 className="text-[1.7rem] sm:text-3xl md:text-4xl lg:text-[2.6rem] font-extrabold tracking-tight mb-2.5 sm:mb-4 leading-[1.2]">
                   Premium Essentials <br />
-                  for <span className="text-brand-500 underline decoration-brand-500/30 decoration-wavy decoration-2">Modern Living</span> <br />
+                  for <span className="text-brand-500">Modern Living</span> <br />
                   & Tech.
                 </H1>
                 <Subtitle className="text-xs sm:text-base text-neutral-600 dark:text-neutral-300 max-w-xl leading-relaxed">
@@ -291,8 +305,8 @@ export const Home = ({
                 variants={fadeInUp}
                 className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 py-4 px-3 sm:px-6 rounded-2xl bg-white/80 dark:bg-dark-surface/80 backdrop-blur-md border border-neutral-200/60 dark:border-dark-border shadow-xs w-full max-w-xl"
               >
-                <div className="flex flex-col">
-                  <span className="font-display font-black text-2xl text-neutral-900 dark:text-white flex items-center">
+                <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+                  <span className="font-display font-black text-2xl text-neutral-900 dark:text-white flex items-center justify-center sm:justify-start">
                     <StatCounter end={4.92} decimals={2} duration={2000} />
                     <span className="text-xs text-neutral-400 font-normal ml-1">/ 5</span>
                   </span>
@@ -301,8 +315,8 @@ export const Home = ({
                   </span>
                 </div>
 
-                <div className="flex flex-col">
-                  <span className="font-display font-black text-2xl text-brand-500">
+                <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+                  <span className="font-display font-black text-2xl text-brand-500 flex items-center justify-center sm:justify-start">
                     <StatCounter end={100} duration={1800} suffix="%" />
                   </span>
                   <span className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
@@ -310,8 +324,8 @@ export const Home = ({
                   </span>
                 </div>
 
-                <div className="flex flex-col">
-                  <span className="font-display font-black text-2xl text-neutral-900 dark:text-white">
+                <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+                  <span className="font-display font-black text-2xl text-neutral-900 dark:text-white flex items-center justify-center sm:justify-start">
                     <StatCounter end={2} duration={1200} suffix="-Year" />
                   </span>
                   <span className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
@@ -319,8 +333,8 @@ export const Home = ({
                   </span>
                 </div>
 
-                <div className="flex flex-col">
-                  <span className="font-display font-black text-2xl text-neutral-900 dark:text-white">
+                <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+                  <span className="font-display font-black text-2xl text-neutral-900 dark:text-white flex items-center justify-center sm:justify-start">
                     <StatCounter end={50} duration={1600} suffix="+" />
                   </span>
                   <span className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
@@ -338,11 +352,11 @@ export const Home = ({
               className="lg:col-span-5 relative flex items-center justify-center pt-8 lg:pt-0 px-3 sm:px-6"
             >
               {/* Backlight Glow Effect */}
-              <div className="absolute -inset-4 bg-gradient-to-tr from-brand-500/25 via-amber-500/15 to-brand-400/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -inset-4 bg-linear-to-tr from-brand-500/25 via-amber-500/15 to-brand-400/10 rounded-full blur-3xl pointer-events-none" />
 
               {/* Showcase Relative Wrapper (allows floating badges to overflow without clipping) */}
               <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg select-none">
-                
+
                 {/* Main Product Card - Edge-to-Edge Full Coverage */}
                 <div
                   className="relative w-full aspect-square rounded-3xl overflow-hidden border border-neutral-200/80 dark:border-dark-border shadow-elevated group cursor-pointer bg-neutral-100 dark:bg-dark-surface"
@@ -357,7 +371,7 @@ export const Home = ({
 
                   {/* Flagship Product Image filling entire container */}
                   <ProgressiveImage
-                    src={flagshipProduct?.image || (flagshipProduct?.images && flagshipProduct.images[0]) || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=85'}
+                    src={flagshipProduct?.image || (flagshipProduct?.images && flagshipProduct.images[0]) || ''}
                     alt={flagshipProduct?.name || flagshipProduct?.title || "Flagship Acoustic"}
                     width={900}
                     priority={true}
@@ -371,7 +385,7 @@ export const Home = ({
                 <motion.div
                   animate={{ y: [-5, 5, -5] }}
                   transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute top-2 left-2 sm:top-6 sm:-left-6 z-10 p-2 sm:p-3.5 rounded-2xl bg-white/95 dark:bg-dark-card/95 backdrop-blur-md border border-neutral-200/90 dark:border-dark-border shadow-elevated max-w-[160px] sm:max-w-[210px]"
+                  className="absolute top-2 left-2 sm:top-6 sm:-left-6 z-10 p-2 sm:p-3.5 rounded-2xl bg-white/95 dark:bg-dark-card/95 backdrop-blur-md border border-neutral-200/90 dark:border-dark-border shadow-elevated max-w-40 sm:max-w-52.5"
                 >
                   <div className="flex items-center gap-1.5 text-amber-500 mb-1">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
@@ -394,7 +408,7 @@ export const Home = ({
                 <motion.div
                   animate={{ y: [5, -5, 5] }}
                   transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute bottom-2 right-2 sm:bottom-6 sm:-right-4 z-10 p-2.5 sm:p-4 rounded-2xl bg-white/95 dark:bg-dark-card/95 backdrop-blur-md border border-neutral-200/90 dark:border-dark-border shadow-elevated max-w-[170px] sm:max-w-[220px]"
+                  className="absolute bottom-2 right-2 sm:bottom-6 sm:-right-4 z-10 p-2.5 sm:p-4 rounded-2xl bg-white/95 dark:bg-dark-card/95 backdrop-blur-md border border-neutral-200/90 dark:border-dark-border shadow-elevated max-w-42.5 sm:max-w-55"
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
@@ -462,7 +476,7 @@ export const Home = ({
                 viewport={{ once: true, margin: '-40px' }}
                 className={`
                   ${collection.span} group relative rounded-2xl sm:rounded-3xl overflow-hidden
-                  min-h-[260px] sm:min-h-[360px] lg:min-h-[420px] flex flex-col justify-between p-5 sm:p-7 lg:p-8
+                  min-h-65 sm:min-h-90 lg:min-h-105 flex flex-col justify-between p-5 sm:p-7 lg:p-8
                   border border-neutral-200/80 dark:border-dark-border
                   shadow-subtle hover:shadow-elevated select-none cursor-pointer
                   bg-neutral-900 text-white
@@ -478,7 +492,7 @@ export const Home = ({
                 />
 
                 {/* Cinematic Contrast Gradient Overlay for full background visibility */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 via-50% to-black/20 pointer-events-none" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/40 via-50% to-black/20 pointer-events-none" />
 
                 {/* Top: Badge & Arrow Action */}
                 <div className="relative z-10 flex items-center justify-between">
@@ -510,9 +524,6 @@ export const Home = ({
         </div>
       </section>
 
-      {/* =========================================================
-          4. NEW ARRIVALS SHOWCASE (Item 1: Converted from redundant category scroll)
-         ========================================================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <SectionHeader
           badge="Fresh Arrivals"
@@ -558,9 +569,7 @@ export const Home = ({
         </div>
       </section>
 
-      {/* =========================================================
-          5. FULL FEATURED ARCHIVE CATALOG WITH FILTER TABS
-         ========================================================= */}
+
       <section id="featured-drops" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full scroll-mt-24">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <div>
@@ -671,9 +680,7 @@ export const Home = ({
         </div>
       </section>
 
-      {/* =========================================================
-          6. REASSURANCE & TRUST PERKS
-         ========================================================= */}
+
       <section className="bg-neutral-100/70 dark:bg-dark-surface/50 border-y border-neutral-200/80 dark:border-dark-border py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -700,9 +707,7 @@ export const Home = ({
         </div>
       </section>
 
-      {/* =========================================================
-          7. TESTIMONIALS & COLLECTOR REVIEWS
-         ========================================================= */}
+
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <SectionHeader
           align="center"
@@ -732,7 +737,7 @@ export const Home = ({
                 slidesPerView: 3,
               },
             }}
-            className="w-full !pb-10"
+            className="w-full pb-10!"
           >
             {testimonials.map((testimonial) => (
               <SwiperSlide key={testimonial.id} className="h-auto">
@@ -746,12 +751,9 @@ export const Home = ({
         </div>
       </section>
 
-      {/* =========================================================
-          8. EDITORIAL NEWSLETTER CARD (Item 3: Kept as the sole VIP sign-up)
-         ========================================================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="relative rounded-3xl overflow-hidden bg-neutral-900 dark:bg-dark-card text-white p-8 sm:p-14 lg:p-16 border border-neutral-800 dark:border-dark-border shadow-elevated">
-          
+
           {/* Subtle Ambient Decorative Circles */}
           <div className="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-brand-500/20 blur-3xl pointer-events-none" />
           <div className="absolute -left-20 -top-20 w-80 h-80 rounded-full bg-accent-amber/15 blur-3xl pointer-events-none" />

@@ -37,20 +37,20 @@ export const Footer = () => {
     <footer className="w-full bg-white dark:bg-dark-surface border-t border-neutral-200/80 dark:border-dark-border mt-20">
       {/* Value Proposition Reassurance Bar */}
       <div className="border-b border-neutral-100 dark:border-dark-border/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {trustBadges.map((badge, idx) => {
               const Icon = badge.icon;
               return (
-                <div key={idx} className="flex items-center gap-3.5">
-                  <div className="p-2.5 rounded-xl bg-neutral-100 dark:bg-dark-card text-brand-500 shrink-0">
-                    <Icon className="w-5 h-5" />
+                <div key={idx} className="flex items-center gap-2.5 sm:gap-3.5">
+                  <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-neutral-100 dark:bg-dark-card text-brand-500 shrink-0">
+                    <Icon className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                   </div>
                   <div>
-                    <h5 className="font-display font-semibold text-xs text-neutral-900 dark:text-neutral-100">
+                    <h5 className="font-display font-semibold text-[11px] sm:text-xs text-neutral-900 dark:text-neutral-100">
                       {badge.title}
                     </h5>
-                    <p className="font-sans text-[11px] text-neutral-500 dark:text-neutral-400">
+                    <p className="font-sans text-[10px] sm:text-[11px] text-neutral-500 dark:text-neutral-400">
                       {badge.desc}
                     </p>
                   </div>
@@ -62,35 +62,35 @@ export const Footer = () => {
       </div>
 
       {/* Main Footer Directory */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 sm:gap-12">
           {/* Brand Info & Studio Concierge (5 Columns) */}
-          <div className="md:col-span-5 flex flex-col gap-5">
+          <div className="md:col-span-5 flex flex-col gap-4 sm:gap-5">
             <button
               type="button"
               onClick={() => navigate('/')}
               className="flex items-center text-left cursor-pointer bg-transparent border-none p-0 w-fit focus:outline-none"
               aria-label="ShopNest Home"
             >
-              <Logo className="h-9 w-auto" />
+              <Logo className="h-7 sm:h-9 w-auto" />
             </button>
 
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 max-w-sm leading-relaxed">
+            <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 max-w-sm leading-relaxed">
               Curating elevated tech essentials and lifestyle hardware with meticulous craftsmanship, aerospace aluminum, and uncompromising acoustic tolerances.
             </p>
 
             {/* Studio Concierge Information */}
-            <div className="flex flex-col gap-2.5 pt-2 text-xs text-neutral-600 dark:text-neutral-400 border-t border-neutral-100 dark:border-dark-border/40 max-w-sm">
+            <div className="flex flex-col gap-2 pt-2 text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 border-t border-neutral-100 dark:border-dark-border/40 max-w-sm">
               <div className="flex items-center gap-2">
-                <Headphones className="w-4 h-4 text-brand-500 shrink-0" />
+                <Headphones className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-500 shrink-0" />
                 <span>Concierge Desk: <strong className="text-neutral-900 dark:text-neutral-200">concierge@shopnest.design</strong></span>
               </div>
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-brand-500 shrink-0" />
+                <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-500 shrink-0" />
                 <span>Bengaluru Design Lab & Mumbai Hub • Mon–Sat 10:00–19:00 IST</span>
               </div>
-              <div className="flex items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-500 mt-1">
-                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+              <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-neutral-500 dark:text-neutral-500 mt-0.5">
+                <span className="inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 shrink-0" />
                 <span>Private Vault Status: Operational • All shipments insured</span>
               </div>
             </div>

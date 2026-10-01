@@ -1,11 +1,8 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { ProgressiveImage } from '../ui/ProgressiveImage';
 
-/**
- * Product Detail Image Gallery with mobile touch swipe, synced thumbnail strip & desktop zoom selector
- */
 export const ProductGallery = ({ images = [], title = 'Product Image' }) => {
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [activeMobileIdx, setActiveMobileIdx] = useState(0);

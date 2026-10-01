@@ -4,9 +4,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { cardHover } from '../../styles/motion';
 import { ProgressiveImage } from './ProgressiveImage';
 
-/**
- * Editorial Category Bento Card with zero layout shift and lazy image loading
- */
+
 export const CategoryCard = ({
   name,
   tagline,
@@ -25,7 +23,7 @@ export const CategoryCard = ({
       whileHover="hover"
       className={`
         group relative flex flex-col justify-end p-6 sm:p-8
-        rounded-3xl overflow-hidden min-h-[320px] sm:min-h-[360px] aspect-[4/5] sm:aspect-[4/3] lg:aspect-auto
+        rounded-3xl overflow-hidden min-h-80 sm:min-h-90 aspect-4/5 sm:aspect-4/3 lg:aspect-auto
         border border-neutral-200/60 dark:border-dark-border
         shadow-subtle select-none cursor-pointer bg-neutral-100 dark:bg-dark-surface
         ${className}
@@ -42,7 +40,7 @@ export const CategoryCard = ({
       />
 
       {/* Gradient Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/90 via-neutral-950/45 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-neutral-950/90 via-neutral-950/45 to-transparent" />
       <div className="absolute inset-0 bg-neutral-950/15 group-hover:bg-neutral-950/5 transition-colors" />
 
       {/* Content */}

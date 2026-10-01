@@ -1,14 +1,9 @@
 import toast from 'react-hot-toast';
 
-/**
- * Standardized Toast Notification System
- * Strictly enforces ONLY success and error toasts across the application
- */
 export const notify = {
   success: (message, options = {}) => {
     return toast.success(message, {
       duration: 3000,
-      icon: null,
       ...options,
     });
   },
@@ -16,24 +11,28 @@ export const notify = {
   error: (message, options = {}) => {
     return toast.error(message, {
       duration: 4000,
-      icon: null,
       ...options,
     });
   },
 
-  // Legacy calls strictly mapped to success or error only
+  loading: (message, options = {}) => {
+    return toast.loading(message, {
+      ...options,
+    });
+  },
+
   info: (message, options = {}) => {
-    return toast.success(message, {
+    return toast(message, {
       duration: 3000,
-      icon: null,
+      icon: 'ℹ️',
       ...options,
     });
   },
 
   warning: (message, options = {}) => {
-    return toast.error(message, {
+    return toast(message, {
       duration: 3500,
-      icon: null,
+      icon: '⚠️',
       ...options,
     });
   },

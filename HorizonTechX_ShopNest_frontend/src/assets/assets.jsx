@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   ShoppingBag,
   ShoppingCart,
@@ -76,9 +75,7 @@ export const YoutubeIcon = ({ className = 'w-4 h-4', ...props }) => (
   </svg>
 );
 
-/**
- * Centralized Icons Dictionary
- */
+// icons
 export const icons = {
   // Navigation & Actions
   bag: ShoppingBag,
@@ -94,7 +91,7 @@ export const icons = {
   sliders: SlidersHorizontal,
   quickView: Eye,
   eyeOff: EyeOff,
-  
+
   // Directions & Navigation
   arrowRight: ArrowRight,
   arrowLeft: ArrowLeft,
@@ -138,9 +135,7 @@ export const icons = {
   card: CreditCard,
 };
 
-/**
- * Navigation & Header Links
- */
+// Navigation & Header Links
 export const navLinks = [
   { label: 'Shop All', href: '/shop' },
   { label: 'Laptops', href: '/shop?category=laptops' },
@@ -150,14 +145,7 @@ export const navLinks = [
   { label: 'Sports', href: '/shop?category=sports-accessories' },
 ];
 
-/**
- * Categories are loaded dynamically from real backend API: /api/products/categories
- */
-export const categories = [];
-
-/**
- * Rich Products Catalog
- */
+// Rich Products Catalog
 export const products = [
   {
     id: 'prod-101',
@@ -365,9 +353,7 @@ export const products = [
   },
 ];
 
-/**
- * Editorial Bento Hero Showcase Collections
- */
+// Editorial Bento Hero Showcase Collections
 export const bentoCollections = [
   {
     id: 'col-1',
@@ -415,9 +401,7 @@ export const bentoCollections = [
   },
 ];
 
-/**
- * Customer Testimonials & Reviews
- */
+//  Customer Testimonials & Reviews
 export const testimonials = [
   {
     id: 'test-1',
@@ -451,9 +435,7 @@ export const testimonials = [
   },
 ];
 
-/**
- * Core Reassurance Trust Perks
- */
+// Core Reassurance Trust Perks
 export const trustPerks = [
   {
     icon: icons.shipping,
@@ -477,9 +459,7 @@ export const trustPerks = [
   },
 ];
 
-/**
- * Footer Directory Columns
- */
+// Footer Directory Columns
 export const footerNavigation = {
   catalog: [
     { label: 'All Hardware', href: '/products' },

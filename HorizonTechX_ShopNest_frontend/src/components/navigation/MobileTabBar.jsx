@@ -2,11 +2,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Home, Compass, Heart, ShoppingBag, User } from 'lucide-react';
 
-/**
- * Native App-Like Bottom Tab Bar (Mobile Only)
- * Powered by React Router DOM, smooth sliding layoutId pill indicator,
- * notification badge counters, and iOS safe area padding.
- */
 export const MobileTabBar = ({
   cartCount = 0,
   wishlistCount = 0,
@@ -56,7 +51,7 @@ export const MobileTabBar = ({
           bg-white/98 dark:bg-[#12141A] backdrop-blur-2xl
           border-t border-neutral-200/80 dark:border-dark-border
           shadow-[0_-4px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]
-          px-2 pt-1.5 pb-[max(env(safe-area-inset-bottom,0px),0.5rem)]
+          px-1.5 pt-1 pb-[max(env(safe-area-inset-bottom,0px),0.35rem)]
         "
       >
         {/* Extended solid bottom filler to ensure zero gap on any device notch, chin, or bounce */}
@@ -74,7 +69,7 @@ export const MobileTabBar = ({
                 onClick={() => handleTabClick(tab)}
                 className="
                   relative flex flex-col items-center justify-center
-                  min-w-[56px] min-h-[48px] py-1 px-2 rounded-2xl
+                  min-w-12 min-h-10.5 py-0.5 px-1.5 rounded-xl
                   transition-colors cursor-pointer group
                 "
               >
@@ -83,7 +78,7 @@ export const MobileTabBar = ({
                   <motion.div
                     layoutId="activeMobileTab"
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                    className="absolute inset-0 bg-brand-50/80 dark:bg-brand-950/40 rounded-2xl -z-10"
+                    className="absolute inset-0 bg-brand-50/80 dark:bg-brand-950/40 rounded-xl -z-10"
                   />
                 )}
 
@@ -91,7 +86,7 @@ export const MobileTabBar = ({
                 <div className="relative">
                   <Icon
                     className={`
-                      w-5 h-5 transition-colors
+                      w-4 h-4 transition-colors
                       ${
                         isActive
                           ? 'text-brand-500'
@@ -104,8 +99,8 @@ export const MobileTabBar = ({
                   {tab.count !== undefined && tab.count > 0 && (
                     <span
                       className={`
-                        absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full
-                        text-[9px] font-bold font-mono flex items-center justify-center
+                        absolute -top-1 -right-2 min-w-3.5 h-3.5 px-0.5 rounded-full
+                        text-[8px] font-bold font-mono flex items-center justify-center leading-none
                         ${
                           tab.id === 'cart'
                             ? 'bg-brand-500 text-white'
@@ -121,7 +116,7 @@ export const MobileTabBar = ({
                 {/* Tab Text Label */}
                 <span
                   className={`
-                    text-[10px] font-medium tracking-tight mt-1 transition-colors
+                    text-[9px] font-medium tracking-tight mt-0.5 transition-colors
                     ${
                       isActive
                         ? 'text-brand-600 dark:text-brand-400 font-semibold'

@@ -1,9 +1,5 @@
 import axios from 'axios';
 
-/**
- * HorizonTechX ShopNest - Axios Base Client
- * Base URL is dynamically resolved from environment variables (VITE_API_URL)
- */
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 20000,
@@ -13,29 +9,25 @@ const api = axios.create({
   },
 });
 
-// Request Interceptor: Attach Auth Token if available
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('shopnest_token');
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
+// Request Interceptor
+api.interceptors.request.use((request) => {
+  const token = localStorage.getItem('shopnest_token');
+  if (token && request.headers)
+    request.headers.Authorization = `Bearer ${token}`;
+  return request;
+},
   (error) => {
     return Promise.reject(error);
   }
 );
 
-// Response Interceptor: Standardized Error Handling
-api.interceptors.response.use(
-  (response) => {
-    return response.data;
-  },
+// Response Interceptor
+api.interceptors.response.use((response) => {
+  return response.data;
+},
   (error) => {
     const message =
       error.response?.data?.message ||
-      error.message ||
       'An unexpected network error occurred.';
 
     console.warn('[API Error]:', {

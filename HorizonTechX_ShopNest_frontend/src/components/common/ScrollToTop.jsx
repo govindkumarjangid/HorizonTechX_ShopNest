@@ -2,10 +2,6 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useSmoothScroll } from '../../providers/SmoothScrollProvider';
 
-/**
- * Automatically scrolls to top on route changes
- * Compatible with Lenis smooth scroll and native fallback
- */
 export const ScrollToTop = () => {
   const { pathname } = useLocation();
   const lenis = useSmoothScroll();

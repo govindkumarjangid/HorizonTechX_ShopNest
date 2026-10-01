@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -8,17 +8,13 @@ import {
   TrendingUp,
   Tag,
   PackageX,
-  Loader2,
 } from 'lucide-react';
 import { productApi } from '../../api/productApi';
 import { useProductStore } from '../../store/useProductStore';
 import { formatPrice } from '../../utils/formatPrice';
+import { ProgressiveImage } from '../ui/ProgressiveImage';
 
-/**
- * Premium Autocomplete Search Bar
- * Features real-time backend API search, category matching, trending queries,
- * keyboard navigation (arrows/enter/escape), and mobile full-width responsive overlay.
- */
+
 export const AutocompleteSearch = ({
   placeholder = 'Search premium products, brands, or collections...',
   className = '',
@@ -168,7 +164,7 @@ export const AutocompleteSearch = ({
     <div ref={containerRef} className={`relative w-full ${className}`}>
       {/* Search Input Box */}
       <div className="relative flex items-center w-full group">
-        <Search className="absolute left-3.5 w-4 h-4 text-neutral-400 group-focus-within:text-brand-500 transition-colors pointer-events-none" />
+        <Search className="absolute left-3 sm:left-3.5 w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400 group-focus-within:text-brand-500 transition-colors pointer-events-none" />
 
         <input
           ref={inputRef}
@@ -188,8 +184,8 @@ export const AutocompleteSearch = ({
             border border-neutral-200/50 dark:border-dark-border
             focus:border-brand-500/60 focus:bg-white dark:focus:bg-dark-surface
             text-neutral-900 dark:text-dark-text
-            text-base sm:text-sm rounded-2xl pl-10 pr-12 py-2.5 outline-none
-            placeholder:text-neutral-400 dark:placeholder:text-neutral-500
+            text-xs sm:text-sm rounded-xl sm:rounded-2xl pl-8.5 sm:pl-10 pr-8 sm:pr-12 py-1.5 sm:py-2.5 outline-none
+            placeholder:text-xs sm:placeholder:text-sm placeholder:text-neutral-400 dark:placeholder:text-neutral-500
             transition-all duration-200 shadow-xs focus:shadow-subtle focus:ring-2 focus:ring-brand-500/10
           "
         />
@@ -199,10 +195,10 @@ export const AutocompleteSearch = ({
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-3 p-1.5 text-neutral-400 hover:text-neutral-800 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+            className="absolute right-2.5 sm:right-3 p-1 sm:p-1.5 text-neutral-400 hover:text-neutral-800 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
             aria-label="Clear search input"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </button>
         )}
 
@@ -225,7 +221,7 @@ export const AutocompleteSearch = ({
             exit={{ opacity: 0, y: 6, scale: 0.98 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
             className="
-              absolute left-0 right-0 top-full mt-2 z-[60]
+              absolute left-0 right-0 top-full mt-2 z-60
               bg-white/95 dark:bg-dark-surface/95 backdrop-blur-2xl
               border border-neutral-200/90 dark:border-dark-border
               rounded-2xl shadow-2xl overflow-hidden
@@ -331,27 +327,23 @@ export const AutocompleteSearch = ({
                         className={`
                           w-full flex items-center justify-between p-2.5 rounded-xl
                           transition-all cursor-pointer text-left
-                          ${
-                            isSelected
-                              ? 'bg-brand-50 dark:bg-brand-950/50 text-brand-600 dark:text-brand-400'
-                              : 'hover:bg-neutral-100 dark:hover:bg-dark-card text-neutral-900 dark:text-white'
+                          ${isSelected
+                            ? 'bg-brand-50 dark:bg-brand-950/50 text-brand-600 dark:text-brand-400'
+                            : 'hover:bg-neutral-100 dark:hover:bg-dark-card text-neutral-900 dark:text-white'
                           }
                         `}
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           {/* Thumbnail */}
-                          <div className="w-10 h-10 rounded-lg bg-neutral-100 dark:bg-dark-surface overflow-hidden shrink-0 border border-neutral-200/60 dark:border-dark-border">
-                            {prodImage ? (
-                              <img
-                                src={prodImage}
-                                alt={prodTitle}
-                                className="w-full h-full object-cover object-center"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-neutral-200 dark:bg-dark-surface text-neutral-400 text-[10px]">
-                                Item
-                              </div>
-                            )}
+                          <div className="w-10 h-10 rounded-lg bg-neutral-100 dark:bg-dark-surface overflow-hidden shrink-0 border border-neutral-200/60 dark:border-dark-border relative">
+                            <ProgressiveImage
+                              src={prodImage}
+                              alt={prodTitle}
+                              width={80}
+                              aspectRatio="aspect-square"
+                              className="w-full h-full"
+                              imgClassName="w-full h-full object-cover object-center"
+                            />
                           </div>
 
                           {/* Info */}

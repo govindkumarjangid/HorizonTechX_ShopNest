@@ -1,13 +1,10 @@
-import React from 'react';
 import { motion } from 'motion/react';
 import { ProductCard } from '../ui/Card';
 import { ProductCardSkeleton } from '../ui/Skeleton';
 import { EmptyState } from '../common/EmptyState';
 import { staggerContainer, staggerItem } from '../../styles/motion';
 
-/**
- * Reusable Product Grid with Loading Skeleton & Empty State
- */
+
 export const ProductGrid = ({
   products = [],
   isLoading = false,
@@ -49,8 +46,8 @@ export const ProductGrid = ({
         <motion.div key={product.id} variants={staggerItem} className="h-full">
           <ProductCard
             {...product}
-            onAddToCart={() => onAddToCart && onAddToCart(product)}
-            onAddToWishlist={() => onAddToWishlist && onAddToWishlist(product)}
+            onAddToCart={onAddToCart ? () => onAddToCart(product) : undefined}
+            onAddToWishlist={onAddToWishlist ? () => onAddToWishlist(product) : undefined}
             onQuickView={() => onQuickView && onQuickView(product)}
             onClick={() => onQuickView && onQuickView(product)}
           />

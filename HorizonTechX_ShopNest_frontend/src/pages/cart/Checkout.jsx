@@ -16,20 +16,18 @@ import {
   Plus,
   User,
 } from 'lucide-react';
-import { Button } from '../../components/ui';
+import { Button, Input } from '../../components/ui';
 import { Logo } from '../../components/ui/Logo';
 import { AuthModal } from '../../components/auth/AuthModal';
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useOrderStore } from '../../store/useOrderStore';
 import { formatPrice } from '../../utils/formatPrice';
+import { ProgressiveImage } from '../../components/ui/ProgressiveImage';
 import { notify } from '../../utils/notify';
 import { productApi } from '../../api/productApi';
 
-/**
- * Distraction-Free Production Checkout Flow
- * Handles: Address Selection -> Payment Method -> Order Placement -> Confirmation
- */
+
 export const Checkout = ({
   onReturnToCart,
   onOrderSuccess,
@@ -191,9 +189,9 @@ export const Checkout = ({
     }
 
     setIsSubmitting(true);
-    notify.loading('Authorizing dispatch and generating airway bill...', { id: 'checkout-order' });
-
     try {
+      notify.loading('Authorizing dispatch and generating airway bill...', { id: 'checkout-order' });
+
       // Validate all product IDs against 24-character hex MongoDB ObjectId pattern
       const validMongoIdRegex = /^[0-9a-fA-F]{24}$/;
       let fallbackRealProductId = null;
@@ -243,7 +241,6 @@ export const Checkout = ({
 
       const placedOrder = await createOrder(orderPayload);
       clearCart();
-      setIsSubmitting(false);
       notify.success('Order placed successfully! Real telemetry registered.', { id: 'checkout-order' });
 
       const targetId = placedOrder?.orderId || placedOrder?._id || placedOrder?.id;
@@ -255,13 +252,14 @@ export const Checkout = ({
         navigate('/orders');
       }
     } catch (err) {
-      setIsSubmitting(false);
       const errMsg =
         err?.data?.message ||
         err?.response?.data?.message ||
         err?.message ||
         (typeof err === 'string' ? err : 'Failed to place order. Please verify stock.');
       notify.error(errMsg, { id: 'checkout-order' });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -526,57 +524,46 @@ export const Checkout = ({
                         {savedAddresses && savedAddresses.length > 0 ? 'Enter New Delivery Address' : 'Enter Delivery Address'}
                       </span>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <input
-                          type="text"
+                        <Input
                           placeholder="Recipient Full Name *"
                           autoComplete="name"
                           value={newAddress.fullName}
                           onChange={(e) => setNewAddress({ ...newAddress, fullName: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                         />
-                        <input
+                        <Input
                           type="tel"
                           inputMode="tel"
                           autoComplete="tel"
                           placeholder="10-Digit Mobile Number *"
                           value={newAddress.phone}
                           onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                         />
                       </div>
-                      <input
-                        type="text"
+                      <Input
                         placeholder="Street Address / Flat / Building *"
                         autoComplete="street-address"
                         value={newAddress.street}
                         onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                       />
-                      <input
-                        type="text"
+                      <Input
                         placeholder="Landmark (Optional)"
                         value={newAddress.landmark}
                         onChange={(e) => setNewAddress({ ...newAddress, landmark: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                       />
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <input
-                          type="text"
+                        <Input
                           placeholder="City *"
                           autoComplete="address-level2"
                           value={newAddress.city}
                           onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                         />
-                        <input
-                          type="text"
+                        <Input
                           placeholder="State *"
                           autoComplete="address-level1"
                           value={newAddress.state}
                           onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                         />
-                        <input
+                        <Input
                           type="text"
                           inputMode="numeric"
                           placeholder="6-digit PIN *"
@@ -584,7 +571,6 @@ export const Checkout = ({
                           maxLength={6}
                           value={newAddress.pincode}
                           onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-neutral-200 dark:border-dark-border text-base sm:text-sm outline-none focus:border-brand-500 transition-colors"
                         />
                       </div>
                     </div>
@@ -648,12 +634,11 @@ export const Checkout = ({
                         </div>
                         {paymentMethod === 'upi' && (
                           <div className="mt-3">
-                            <input
-                              type="text"
+                            <Input
                               value={upiId}
                               onChange={(e) => setUpiId(e.target.value)}
                               placeholder="Enter UPI ID (e.g. mobile@upi)"
-                              className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-base sm:text-xs font-mono outline-none focus:border-brand-500"
+                              className="font-mono text-base sm:text-xs"
                             />
                           </div>
                         )}
@@ -827,10 +812,13 @@ export const Checkout = ({
                     {items.map((item) => (
                       <div key={item.id} className="flex items-center justify-between gap-3 text-xs">
                         <div className="flex items-center gap-3">
-                          <img
+                          <ProgressiveImage
                             src={item.image}
                             alt={item.title}
-                            className="w-10 h-10 rounded-lg object-cover border border-neutral-200 dark:border-dark-border"
+                            width={80}
+                            aspectRatio="aspect-square"
+                            className="w-10 h-10 rounded-lg shrink-0 border border-neutral-200 dark:border-dark-border overflow-hidden"
+                            imgClassName="w-full h-full object-cover"
                           />
                           <div>
                             <span className="font-semibold text-neutral-900 dark:text-white line-clamp-1">

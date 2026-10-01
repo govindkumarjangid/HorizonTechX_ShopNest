@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -20,14 +20,10 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useProductStore } from '../../store/useProductStore';
 import { Logo } from './Logo';
 
-/**
- * Premium Sticky Navbar with Centered Search, Collapsible Header on Scroll & Sticky Category Sub-Bar
- */
 export const Navbar = ({
   cartCount = 0,
   wishlistCount = 0,
   navLinks = [],
-  onSearch,
   onCartClick,
   onWishlistClick,
   onOpenAuthModal,
@@ -37,14 +33,11 @@ export const Navbar = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const categoryBarRef = useRef(null);
-  const lastScrollY = useRef(0);
   const isSearchActiveRef = useRef(false);
   const isAccountOpenRef = useRef(false);
 
@@ -61,9 +54,8 @@ export const Navbar = ({
   const effectiveWishlistCount = wishlistCount || wishlist?.length || 0;
 
   useEffect(() => {
-    if (!categories || categories.length === 0) {
+    if (!categories || categories.length === 0)
       fetchCategories();
-    }
   }, [categories, fetchCategories]);
 
   const handleLogoClick = () => {
@@ -87,25 +79,16 @@ export const Navbar = ({
     else navigate(`/dashboard?tab=${tab}`);
   };
 
-  // Passive scroll listener for subtle background blur
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Theme toggle helper
   const toggleTheme = () => {
     const nextMode = !isDarkMode;
     setIsDarkMode(nextMode);
-    if (nextMode) {
+    if (nextMode)
       document.documentElement.classList.add('dark');
-    } else {
+    else
       document.documentElement.classList.remove('dark');
-    }
+
   };
 
   // Allow horizontal scroll on category bar with mouse wheel
@@ -124,13 +107,13 @@ export const Navbar = ({
   const allCategoryLinks = navLinks && navLinks.length > 0
     ? navLinks
     : [
-        { label: 'All Products', href: '/shop', slug: 'all' },
-        ...(categories || []).map((c) => ({
-          label: c.name,
-          href: `/shop?category=${encodeURIComponent(c.slug)}`,
-          slug: c.slug,
-        })),
-      ];
+      { label: 'All Products', href: '/shop', slug: 'all' },
+      ...(categories || []).map((c) => ({
+        label: c.name,
+        href: `/shop?category=${encodeURIComponent(c.slug)}`,
+        slug: c.slug,
+      })),
+    ];
 
   const searchParams = new URLSearchParams(location.search);
   const activeCategoryParam = searchParams.get('category');
@@ -146,13 +129,9 @@ export const Navbar = ({
 
   return (
     <>
-      {/* =========================================================
-          1. MAIN HEADER: LOGO | CENTERED SEARCH | ACTIONS
-          Scrolls naturally with document - zero layout shift/flicker
-         ========================================================= */}
       <header className="relative z-50 w-full bg-white dark:bg-dark-bg border-b border-neutral-100 dark:border-dark-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-[68px] gap-3 sm:gap-6">
+          <div className="flex items-center justify-between h-14 sm:h-17 gap-3 sm:gap-6">
 
             {/* Left: Mobile Menu Toggle & Brand Logo */}
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -175,7 +154,7 @@ export const Navbar = ({
               </button>
             </div>
 
-            {/* Center: Autocomplete Search Box (Centrally Placed) */}
+            {/* Center: Autocomplete Search Box */}
             <div className="hidden sm:flex flex-1 max-w-xl mx-2 md:mx-6 lg:mx-8 items-center justify-center min-w-0">
               <div className="w-full">
                 <AutocompleteSearch
@@ -269,8 +248,8 @@ export const Navbar = ({
             </div>
           </div>
 
-          {/* Mobile Search Row (Only on screens < sm) */}
-          <div className="sm:hidden pb-3">
+          {/* Mobile Search Row  */}
+          <div className="sm:hidden pb-2 pt-0.5">
             <AutocompleteSearch
               placeholder="Search products, laptops, accessories..."
               onActiveChange={setIsSearchActive}
@@ -279,10 +258,6 @@ export const Navbar = ({
         </div>
       </header>
 
-      {/* =========================================================
-          2. SECONDARY SUB-NAVBAR: CATEGORY PRODUCTS MENU BAR
-          Natively sticky at top-0 with zero flicker
-         ========================================================= */}
       <nav
         className="sticky top-0 z-30 w-full border-b border-neutral-200/80 dark:border-dark-border/80 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl shadow-xs"
         aria-label="Product Categories Navigation"
@@ -343,7 +318,7 @@ export const Navbar = ({
       {/* Animated Mobile Navigation Drawer */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-[70] lg:hidden">
+          <div className="fixed inset-0 z-70 lg:hidden">
             {/* Backdrop */}
             <motion.div
               variants={backdropFade}

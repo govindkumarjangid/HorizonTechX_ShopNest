@@ -8,10 +8,10 @@ import { Skeleton } from './Skeleton';
 import { ProgressiveImage } from './ProgressiveImage';
 import { cardHover, buttonTap } from '../../styles/motion';
 import { formatPrice } from '../../utils/formatPrice';
+import { useAuthStore } from '../../store/useAuthStore';
+import { notify } from '../../utils/notify';
 
-/**
- * Base Bento / Surface Card
- */
+
 export const Card = ({
   children,
   className = '',
@@ -38,10 +38,7 @@ export const Card = ({
   );
 };
 
-/**
- * Premium Modern Product Card Base Component
- * Zero CLS: Explicit aspect-ratio, skeleton image placeholder, lazy loading, and hardware-accelerated transforms
- */
+
 export const ProductCard = ({
   id,
   _id,
@@ -70,8 +67,7 @@ export const ProductCard = ({
   const resolvedId = id || _id;
   const resolvedTitle = title || name;
   const resolvedOriginalPrice = originalPrice || mrp;
-  const fallbackPlaceholder = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80';
-  const resolvedImage = image || (images && images.length > 0 ? images[0] : '') || fallbackPlaceholder;
+  const resolvedImage = image || (images && images.length > 0 ? images[0] : '') || '';
   const resolvedReviewsCount = reviewsCount || numReviews || 0;
   const resolvedOutOfStock = isOutOfStock !== undefined ? isOutOfStock : !inStock;
 
@@ -100,7 +96,15 @@ export const ProductCard = ({
     isOutOfStock: resolvedOutOfStock,
   };
 
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const toggleWishlist = useAuthStore((state) => state.toggleWishlist);
+  const isWishlisted = useAuthStore((state) => {
+    if (!resolvedId) return false;
+    const targetStr = String(resolvedId);
+    return (state.wishlist || []).some((item) => {
+      const itemId = typeof item === 'object' ? (item._id || item.id) : item;
+      return itemId !== undefined && itemId !== null && String(itemId) === targetStr;
+    });
+  });
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   const discountPercentage = resolvedOriginalPrice && price < resolvedOriginalPrice
@@ -109,8 +113,16 @@ export const ProductCard = ({
 
   const handleWishlist = (e) => {
     e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
-    if (onAddToWishlist) onAddToWishlist(resolvedId, !isWishlisted);
+    if (onAddToWishlist) {
+      onAddToWishlist(productObj);
+    } else {
+      toggleWishlist(productObj);
+      if (!isWishlisted) {
+        notify.success(`${resolvedTitle} added to Wishlist!`);
+      } else {
+        notify.info(`${resolvedTitle} removed from Wishlist`);
+      }
+    }
   };
 
   const handleAddToCart = (e) => {
@@ -165,9 +177,9 @@ export const ProductCard = ({
     >
       {/* Product Image Container with strict Aspect Ratio (Zero Layout Shift) */}
       <div className="relative w-full aspect-square bg-neutral-100 dark:bg-dark-surface overflow-hidden">
-        
+
         {/* Placeholder skeleton while image loads */}
-        {!isImageLoaded && (
+        {!isImageLoaded && currentImage && (
           <Skeleton className="absolute inset-0 w-full h-full rounded-none" />
         )}
 
@@ -187,19 +199,19 @@ export const ProductCard = ({
           type="button"
           onClick={handleWishlist}
           whileTap={buttonTap}
-          className="
+          className={`
             absolute top-3 right-3 z-10 w-9 h-9 rounded-full
-            bg-white/85 dark:bg-dark-surface/85 backdrop-blur-md
-            border border-neutral-200/50 dark:border-dark-border/50
-            flex items-center justify-center text-neutral-600 dark:text-neutral-300
-            hover:text-brand-500 hover:bg-white dark:hover:bg-dark-card
-            transition-colors duration-150 shadow-xs cursor-pointer
-          "
+            backdrop-blur-md border transition-all duration-150 shadow-xs cursor-pointer
+            flex items-center justify-center
+            ${isWishlisted
+              ? 'bg-brand-50/95 dark:bg-brand-950/80 border-brand-300 dark:border-brand-700 text-brand-500 scale-105'
+              : 'bg-white/85 dark:bg-dark-surface/85 border-neutral-200/50 dark:border-dark-border/50 text-neutral-600 dark:text-neutral-300 hover:text-brand-500 hover:bg-white dark:hover:bg-dark-card'}
+          `}
           aria-label="Save to wishlist"
         >
           <Heart
             className={`w-4 h-4 transition-colors ${
-              isWishlisted ? 'fill-brand-500 text-brand-500' : ''
+              isWishlisted ? 'fill-brand-500 text-brand-500' : 'text-neutral-600 dark:text-neutral-300'
             }`}
           />
         </motion.button>
@@ -213,6 +225,7 @@ export const ProductCard = ({
           className="w-full h-full"
           imgClassName="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-106"
           onLoad={() => setIsImageLoaded(true)}
+          onError={() => setIsImageLoaded(true)}
         />
 
         {/* Left / Right Arrows on Hover (Desktop) */}

@@ -1,17 +1,12 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { ProductCard } from '../ui/Card';
 import { H3, Subtitle } from '../ui/Typography';
 
-/**
- * Related / Recommended Products Swiper Carousel
- */
 export const RelatedProducts = ({
   products = [],
   currentProductId,
-  category,
   onAddToCart,
   onAddToWishlist,
   onQuickView,
@@ -50,12 +45,12 @@ export const RelatedProducts = ({
         <Subtitle className="text-sm">Customers who viewed this item also explored these recommendations.</Subtitle>
       </div>
 
-      <div className="w-full relative">
+      <div className="w-full relative overflow-hidden">
         <Swiper
           modules={[Pagination]}
           spaceBetween={16}
           slidesPerView={1.15}
-          pagination={{ 
+          pagination={{
             clickable: true,
             el: '.related-pagination'
           }}
@@ -64,14 +59,14 @@ export const RelatedProducts = ({
             1024: { slidesPerView: 3, spaceBetween: 24 },
             1280: { slidesPerView: 4, spaceBetween: 24 },
           }}
-          className="w-full !overflow-visible"
+          className="w-full py-2"
         >
           {related.map((product) => (
             <SwiperSlide key={product._id || product.id} className="h-auto">
               <ProductCard
                 {...product}
-                onAddToCart={() => onAddToCart && onAddToCart(product)}
-                onAddToWishlist={() => onAddToWishlist && onAddToWishlist(product)}
+                onAddToCart={onAddToCart ? () => onAddToCart(product) : undefined}
+                onAddToWishlist={onAddToWishlist ? () => onAddToWishlist(product) : undefined}
                 onQuickView={() => handleProductNavigate(product)}
                 onClick={() => handleProductNavigate(product)}
               />

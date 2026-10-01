@@ -1,14 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getCloudinaryUrl } from '../../utils/cloudinary';
 import { ShoppingBag } from 'lucide-react';
 
-/**
- * ProgressiveImage - Cloudinary & CDN Progressive Image Loader
- * - Renders blurred placeholder when available (Cloudinary/Unsplash)
- * - Detects cached images immediately to prevent flashing/blank states
- * - Renders full-quality image with smooth CSS opacity transition
- * - Graceful fallback icon if image fails to load
- */
 export const ProgressiveImage = ({
   src,
   publicId,
@@ -22,96 +15,77 @@ export const ProgressiveImage = ({
   loading = 'lazy',
   priority = false,
   onLoad,
+  onError,
   onClick,
 }) => {
-  const targetId = publicId || src;
-  const { blurUrl, fullUrl, rawUrl } = getCloudinaryUrl(targetId, { width, height, crop });
 
+  const targetId = publicId || src;
+  const { fullUrl, rawUrl } = getCloudinaryUrl(targetId, { width, height, crop });
+  const initialUrl = fullUrl || rawUrl || '';
+
+  const [imgSrc, setImgSrc] = useState(initialUrl);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const [displaySrc, setDisplaySrc] = useState(fullUrl || rawUrl || '');
-  const [displayBlurSrc, setDisplayBlurSrc] = useState(blurUrl || '');
+  const [hasError, setHasError] = useState(!initialUrl);
   const imgRef = useRef(null);
 
   useEffect(() => {
-    const urls = getCloudinaryUrl(publicId || src, { width, height, crop });
-    const resolvedUrl = urls.fullUrl || urls.rawUrl || '';
-    setDisplaySrc(resolvedUrl);
-    setDisplayBlurSrc(urls.blurUrl || '');
-    if (!resolvedUrl) {
-      setHasError(true);
-      setIsLoaded(true);
-      if (onLoad) onLoad();
-    } else {
-      setHasError(false);
-      setIsLoaded(false);
-    }
-  }, [src, publicId, width, height, crop, onLoad]);
+    const newUrl = fullUrl || rawUrl || '';
+    setImgSrc(newUrl);
+    setIsLoaded(false);
+    const isErr = !newUrl;
+    setHasError(isErr);
+    if (isErr && onError) onError();
+  }, [fullUrl, rawUrl]);
 
-  // Check if image is already completed in DOM cache
   useEffect(() => {
-    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
-      setIsLoaded(true);
-      if (onLoad) onLoad();
-    }
-  }, [displaySrc, onLoad]);
+    if (imgRef.current?.complete && imgRef.current?.naturalWidth > 0)
+      handleImageLoad();
+  }, [imgSrc]);
 
   const handleImageLoad = () => {
     setIsLoaded(true);
-    setHasError(false);
     if (onLoad) onLoad();
   };
 
   const handleImageError = () => {
-    if (rawUrl && displaySrc !== rawUrl) {
-      setDisplaySrc(rawUrl);
+    if (imgSrc !== rawUrl && rawUrl) {
+      setImgSrc(rawUrl);
     } else {
       setHasError(true);
-      setIsLoaded(true);
-      if (onLoad) onLoad();
+      if (onError) onError();
     }
   };
 
   return (
     <div
       onClick={onClick}
-      className={`relative overflow-hidden bg-neutral-100 dark:bg-dark-surface ${aspectRatio} ${className}`}
+      className={`relative overflow-hidden bg-neutral-100 dark:bg-dark-surface ${aspectRatio} ${className} ${onClick ? 'cursor-pointer' : ''}`}
     >
-      {/* 1. Low-Quality Heavily Blurred Placeholder (Only if distinct from fullUrl) */}
-      {displayBlurSrc && displayBlurSrc !== displaySrc && !isLoaded && (
-        <img
-          src={displayBlurSrc}
-          alt=""
-          aria-hidden="true"
-          className={`
-            absolute inset-0 w-full h-full object-cover object-center
-            filter blur-[12px] scale-105 pointer-events-none transition-opacity duration-300
-            ${imgClassName}
-          `}
-        />
+      {!isLoaded && !hasError && (
+        <div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
       )}
 
-      {/* 2. Full-Quality Image */}
-      {displaySrc && !hasError && (
+      {!hasError && imgSrc && (
         <img
           ref={imgRef}
-          src={displaySrc}
+          src={imgSrc}
           alt={alt}
           loading={priority ? 'eager' : loading}
+          fetchpriority={priority ? 'high' : 'auto'}
+          decoding="async" // Prevents UI blocking
           onLoad={handleImageLoad}
           onError={handleImageError}
           className={`
             absolute inset-0 w-full h-full object-cover object-center
             transition-opacity duration-300
-            ${isLoaded ? 'opacity-100' : (displayBlurSrc && displayBlurSrc !== displaySrc ? 'opacity-0' : 'opacity-100')}
+            ${isLoaded ? 'opacity-100' : 'opacity-0'}
             ${imgClassName}
           `}
         />
       )}
 
-      {/* 3. Graceful Fallback if image fails to load or empty */}
-      {(!displaySrc || hasError) && (
-        <div className="absolute inset-0 flex items-center justify-center bg-neutral-100 dark:bg-dark-surface text-neutral-300 dark:text-neutral-600">
+      {hasError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-neutral-50 dark:bg-neutral-900 text-neutral-300 dark:text-neutral-600">
           <ShoppingBag className="w-8 h-8 stroke-[1.5]" />
         </div>
       )}

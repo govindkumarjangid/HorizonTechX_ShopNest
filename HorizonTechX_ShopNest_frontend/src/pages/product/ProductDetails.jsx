@@ -16,13 +16,11 @@ import { RelatedProducts } from '../../components/products/RelatedProducts';
 import { formatPrice } from '../../utils/formatPrice';
 import { useCartStore } from '../../store/useCartStore';
 import { useProductStore } from '../../store/useProductStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { productApi } from '../../api/productApi';
 import { notify } from '../../utils/notify';
 
-/**
- * Product Detail Page (PDP)
- * Features mobile sticky bottom action bar, variant swatches, technical tabs, and touch gallery
- */
+
 export const ProductDetails = ({
   product: propProduct,
   onAddToWishlist,
@@ -109,7 +107,15 @@ export const ProductDetails = ({
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'materials' | 'shipping'
   const [showStickyBar, setShowStickyBar] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const toggleWishlist = useAuthStore((state) => state.toggleWishlist);
+  const isWishlisted = useAuthStore((state) => {
+    if (!resolvedId) return false;
+    const targetStr = String(resolvedId);
+    return (state.wishlist || []).some((item) => {
+      const itemId = typeof item === 'object' ? (item._id || item.id) : item;
+      return itemId !== undefined && itemId !== null && String(itemId) === targetStr;
+    });
+  });
   const [isAdding, setIsAdding] = useState(false);
 
   // Fetch category-specific related products with real images
@@ -157,13 +163,15 @@ export const ProductDetails = ({
   };
 
   const handleToggleWishlist = () => {
-    const nextState = !isWishlisted;
-    setIsWishlisted(nextState);
-    if (onAddToWishlist) onAddToWishlist(product);
-    if (nextState) {
+    if (onAddToWishlist) {
+      onAddToWishlist(product);
+    } else {
+      toggleWishlist(product);
+    }
+    if (!isWishlisted) {
       notify.success(`${resolvedTitle} saved to your Wishlist`);
     } else {
-      notify.success(`${resolvedTitle} removed from Wishlist`);
+      notify.info(`${resolvedTitle} removed from Wishlist`);
     }
   };
 
@@ -207,9 +215,9 @@ export const ProductDetails = ({
           Catalog
         </button>
         <ChevronRight className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-        <span className="text-neutral-400 max-w-[110px] truncate shrink-0 capitalize">{product.category}</span>
+        <span className="text-neutral-400 max-w-27.5 truncate shrink-0 capitalize">{product.category}</span>
         <ChevronRight className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-        <span className="text-neutral-900 dark:text-white font-medium truncate max-w-[140px] sm:max-w-[260px] shrink-0">
+        <span className="text-neutral-900 dark:text-white font-medium truncate max-w-35 sm:max-w-65 shrink-0">
           {resolvedTitle}
         </span>
       </nav>
@@ -315,7 +323,11 @@ export const ProductDetails = ({
               type="button"
               whileTap={{ scale: 0.92 }}
               onClick={handleToggleWishlist}
-              className="p-3 sm:p-3.5 rounded-xl border border-neutral-200 dark:border-dark-border hover:bg-neutral-100 dark:hover:bg-dark-card transition-colors cursor-pointer shrink-0"
+              className={`p-3 sm:p-3.5 rounded-xl border transition-all duration-150 cursor-pointer shrink-0 ${
+                isWishlisted
+                  ? 'border-brand-300 dark:border-brand-700 bg-brand-50/90 dark:bg-brand-950/60 text-brand-500 shadow-xs'
+                  : 'border-neutral-200 dark:border-dark-border hover:bg-neutral-100 dark:hover:bg-dark-card text-neutral-500'
+              }`}
               aria-label="Wishlist"
             >
               <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-brand-500 text-brand-500' : 'text-neutral-500'}`} />
@@ -479,6 +491,7 @@ export const ProductDetails = ({
         onQuickView={handleSelectRelated}
         onClick={handleSelectRelated}
         onAddToCart={addItem}
+        onAddToWishlist={handleToggleWishlist}
       />
 
       {/* Mobile Sticky Add-to-Cart Bar */}

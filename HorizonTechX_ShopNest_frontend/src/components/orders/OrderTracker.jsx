@@ -1,9 +1,5 @@
-import React from 'react';
 import { Check, Clock, Package, Truck, CheckCircle2 } from 'lucide-react';
 
-/**
- * Visual Stepper Tracker for Order Fulfillment
- */
 export const OrderTracker = ({ currentStep = 1 }) => {
   const steps = [
     { id: 0, label: 'Order Confirmed', icon: Clock },
@@ -17,7 +13,7 @@ export const OrderTracker = ({ currentStep = 1 }) => {
       <div className="relative flex items-center justify-between">
         {/* Continuous Track */}
         <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-1 bg-neutral-200 dark:bg-dark-border z-0" />
-        
+
         {/* Active Progress Bar */}
         <div
           className="absolute top-1/2 left-0 -translate-y-1/2 h-1 bg-brand-500 z-0 transition-all duration-500"
@@ -41,14 +37,14 @@ export const OrderTracker = ({ currentStep = 1 }) => {
                 `}
               >
                 {step.id < currentStep ? (
-                  <Check className="w-4 h-4 stroke-[3]" />
+                  <Check className="w-4 h-4 stroke-3" />
                 ) : (
                   <Icon className="w-4 h-4" />
                 )}
               </div>
               <span
                 className={`
-                  text-[9px] xs:text-[10px] sm:text-xs font-semibold mt-2 text-center max-w-[60px] xs:max-w-[72px] sm:max-w-none sm:whitespace-nowrap leading-tight
+                  text-[9px] xs:text-[10px] sm:text-xs font-semibold mt-2 text-center max-w-15 xs:max-w-[72px] sm:max-w-none sm:whitespace-nowrap leading-tight
                   ${isCurrent
                     ? 'text-brand-600 dark:text-brand-400'
                     : isDone

@@ -1,11 +1,8 @@
-import React from 'react';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { formatPrice } from '../../utils/formatPrice';
 import { ProgressiveImage } from '../ui/ProgressiveImage';
 
-/**
- * Reusable Single Cart Row Item
- */
+
 export const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
   const itemId = item.id || item._id;
   const itemTitle = item.title || item.name || 'Hardware Unit';

@@ -61,7 +61,7 @@ export const useCartStore = create((set, get) => ({
       }
 
       saveItems(nextItems);
-      return { items: nextItems, isDrawerOpen: true };
+      return { items: nextItems };
     });
 
     // Sync to backend if token is available

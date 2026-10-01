@@ -10,16 +10,10 @@ const SmoothScrollContext = createContext({
 
 export const useSmoothScroll = () => useContext(SmoothScrollContext);
 
-/**
- * Root-level Lenis Smooth Scroll Provider
- * Handles continuous rAF loop, mobile touch preservation, anchor link interception,
- * and window scroll event dispatch for seamless motion/framer-motion syncing.
- */
 export const SmoothScrollProvider = ({ children }) => {
   const lenisRef = useRef(null);
 
   useEffect(() => {
-    // 1. Initialize Lenis with calibrated physics
     const lenis = new Lenis({
       duration: 1.15,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -28,7 +22,7 @@ export const SmoothScrollProvider = ({ children }) => {
       smoothWheel: true,
       wheelMultiplier: 1.0,
       touchMultiplier: 1.2,
-      smoothTouch: false, // Preserves native momentum touch scrolling on mobile devices
+      smoothTouch: false, 
       infinite: false,
       prevent: (node) => {
         if (!node) return false;

@@ -1,10 +1,7 @@
-import React from 'react';
+
 import { CheckCircle2, Quote } from 'lucide-react';
 import { Rating } from './Rating';
 
-/**
- * Editorial Customer Testimonial Card
- */
 export const TestimonialCard = ({
   name,
   role,
@@ -21,7 +18,7 @@ export const TestimonialCard = ({
         bg-white dark:bg-dark-card
         border border-neutral-200/80 dark:border-dark-border
         rounded-3xl shadow-subtle hover:shadow-elevated
-        transition-all duration-300 h-full min-h-[320px] select-none
+        transition-all duration-300 h-full min-h-80 select-none
         ${className}
       `}
     >
@@ -34,13 +31,13 @@ export const TestimonialCard = ({
 
         {/* Title (Equal 2-line height) */}
         {title && (
-          <h4 className="font-display font-bold text-base sm:text-lg text-neutral-900 dark:text-dark-text leading-snug line-clamp-2 min-h-[3rem]">
+          <h4 className="font-display font-bold text-base sm:text-lg text-neutral-900 dark:text-dark-text leading-snug line-clamp-2 min-h-12">
             &ldquo;{title}&rdquo;
           </h4>
         )}
 
         {/* Quote body (Equal 4-line height) */}
-        <p className="font-sans text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed italic line-clamp-4 min-h-[5.5rem]">
+        <p className="font-sans text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed italic line-clamp-4 min-h-22">
           &ldquo;{quote}&rdquo;
         </p>
       </div>

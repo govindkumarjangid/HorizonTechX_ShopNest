@@ -2,9 +2,7 @@ import React from 'react';
 import { Filter, RotateCcw, Check } from 'lucide-react';
 import { formatPrice } from '../../utils/formatPrice';
 
-/**
- * Filter Sidebar & Drawer Controls for PLP
- */
+
 export const ProductFilters = ({
   categories = [],
   activeCategory = 'all',
@@ -60,7 +58,7 @@ export const ProductFilters = ({
             {categories.length} Topics
           </span>
         </div>
-        <div className="flex flex-col gap-1 max-h-[360px] overflow-y-auto pr-1 select-none">
+        <div className="flex flex-col gap-1 max-h-90 overflow-y-auto pr-1 select-none">
           <button
             type="button"
             onClick={() => onCategoryChange('all')}

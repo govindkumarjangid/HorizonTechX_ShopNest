@@ -10,10 +10,6 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useProductStore } from '../../store/useProductStore';
 import { navLinks as defaultNavLinks } from '../../assets/assets';
 
-/**
- * Master Application Layout
- * Provides persistent header, mobile bottom navigation, and global drawers
- */
 export const Layout = ({
   children,
   activeTab = 'home',
@@ -33,9 +29,8 @@ export const Layout = ({
   const { categories, fetchCategories } = useProductStore();
 
   React.useEffect(() => {
-    if (!categories || categories.length === 0) {
+    if (!categories || categories.length === 0)
       fetchCategories();
-    }
   }, [categories, fetchCategories]);
 
   const effectiveWishlistCount = wishlistCount !== undefined ? wishlistCount : (wishlist?.length || 0);
@@ -46,13 +41,13 @@ export const Layout = ({
   // All database categories for sub-navbar navigation
   const formattedNavLinks = categories && categories.length > 0
     ? [
-        { label: 'All Products', href: '/shop', slug: 'all' },
-        ...categories.map((c) => ({
-          label: c.name,
-          href: `/shop?category=${encodeURIComponent(c.slug)}`,
-          slug: c.slug,
-        })),
-      ]
+      { label: 'All Products', href: '/shop', slug: 'all' },
+      ...categories.map((c) => ({
+        label: c.name,
+        href: `/shop?category=${encodeURIComponent(c.slug)}`,
+        slug: c.slug,
+      })),
+    ]
     : defaultNavLinks;
 
   const handleOpenAuth = (mode = 'login') => {

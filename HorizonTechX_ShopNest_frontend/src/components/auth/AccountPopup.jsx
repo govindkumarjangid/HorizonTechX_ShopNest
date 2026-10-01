@@ -17,10 +17,6 @@ import { Logo } from '../ui/Logo';
 import { useAuthStore } from '../../store/useAuthStore';
 import { notify } from '../../utils/notify';
 
-/**
- * Animated Account Dropdown / Popup
- * Switches dynamically between Logged In and Guest/Logged Out states
- */
 export const AccountPopup = ({
   isOpen,
   onClose,
@@ -35,26 +31,19 @@ export const AccountPopup = ({
   // Close on outside click
   useEffect(() => {
     const handleOutsideClick = (e) => {
-      if (popupRef.current && !popupRef.current.contains(e.target)) {
+      if (popupRef.current && !popupRef.current.contains(e.target))
         onClose();
-      }
     };
-    if (isOpen) {
+    if (isOpen)
       document.addEventListener('mousedown', handleOutsideClick);
-    }
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, [isOpen, onClose]);
 
   const handleNavigate = (tab) => {
     onClose();
-    if (tab === 'orders') {
-      navigate('/orders');
-    } else {
-      navigate(`/dashboard?tab=${tab}`);
-    }
-    if (onNavigateToDashboard) {
-      onNavigateToDashboard(tab);
-    }
+    if (tab === 'orders') navigate('/orders');
+    else navigate(`/dashboard?tab=${tab}`);
+    if (onNavigateToDashboard) onNavigateToDashboard(tab);
   };
 
   const handleLogout = () => {
@@ -63,8 +52,6 @@ export const AccountPopup = ({
     notify.success('You have signed out successfully.');
     navigate('/');
   };
-
-
 
   const handleTrackOrderGuest = () => {
     onClose();
@@ -90,18 +77,15 @@ export const AccountPopup = ({
             absolute right-0 top-full mt-3 w-[min(calc(100vw-2rem),22rem)]
             bg-white dark:bg-dark-card
             border border-neutral-200/90 dark:border-dark-border
-            rounded-3xl shadow-floating z-[60] overflow-hidden
+            rounded-3xl shadow-floating z-60 overflow-hidden
           "
         >
-          {/* ====================================================
-              STATE 1: USER IS LOGGED IN
-             ==================================================== */}
           {isAuthenticated ? (
             <div className="flex flex-col">
               {/* Profile Card Header */}
               <div className="p-5 bg-neutral-50/80 dark:bg-dark-surface/80 border-b border-neutral-100 dark:border-dark-border">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 text-white font-bold text-base flex items-center justify-center shadow-xs">
+                  <div className="w-12 h-12 rounded-2xl bg-linear-to-tr from-brand-600 to-brand-400 text-white font-bold text-base flex items-center justify-center shadow-xs">
                     {user?.name
                       ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
                       : 'U'}
@@ -217,9 +201,6 @@ export const AccountPopup = ({
               </div>
             </div>
           ) : (
-            /* ====================================================
-                STATE 2: USER IS GUEST / NOT LOGGED IN
-               ==================================================== */
             <div className="flex flex-col p-6 gap-5">
               <div className="flex flex-col gap-2">
                 <div className="mb-1">
