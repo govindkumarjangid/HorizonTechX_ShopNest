@@ -465,34 +465,6 @@ npm run dev
 
 ---
 
-## 🎨 Frontend Architecture & Design System (Phases 1 — 4)
-
-### 1. Unified Design System & Typography (Phase 1)
-- **Single Typography Family**: Unified font family [`Plus Jakarta Sans`](https://fonts.google.com/specimen/Plus+Jakarta+Sans) across all headings, body, labels, and buttons.
-- **Color Palette**:
-  - **Brand Primary**: Warm Terracotta (`#E0533C` / `brand-500`)
-  - **Accent**: Warm Amber (`#F59E0B` / `accent-amber`)
-  - **Dark Mode**: Obsidian Velvet (`#0B0B0C` background, `#121214` surface)
-- **Universal Indian Rupee Currency**: Standardized `₹` (INR) currency formatting throughout the platform using `Intl.NumberFormat('en-IN')` in `src/utils/formatPrice.js`.
-
-### 2. Centralized Assets & Mock Data (Phase 2)
-- All icons and mock hardware data are centralized in [`src/assets/assets.jsx`](file:///src/assets/assets.jsx).
-- Products feature 4K photography, technical specs, variant swatches, stock availability, and ratings.
-- Zero external CDN dependencies for brand icons — built-in clean SVG definitions.
-
-### 3. Smooth Scrolling & Zero Layout Shift (Phase 3)
-- **Lenis Smooth Scroll Engine**: Root-level [`SmoothScrollProvider`](file:///src/providers/SmoothScrollProvider.jsx) syncs with `requestAnimationFrame` and dispatches synthetic window scroll events for framer-motion compatibility (`whileInView`, `useScroll`).
-- **Zero Layout Shift (CLS = 0)**: Explicit aspect ratio boxes (`aspect-square`, `aspect-[4/3]`) with animated skeleton placeholders prevent page jumps during media loading.
-
-### 4. Native App Feel on Mobile & Zero Placeholder Components (Phase 4)
-- **Fixed Mobile Bottom Tab Bar**: Native thumb-friendly tab bar (Home, Catalog, Wishlist, Bag, Account) with smooth sliding pill indicator (`layoutId="activeMobileTab"`), notification counters, and iOS safe area padding (`env(safe-area-inset-bottom)`).
-- **Responsive Drawers & Bottom Sheets**: Interactive bottom sheets on mobile with swipe-to-dismiss gestures and sliding side drawers on desktop.
-- **PDP Mobile Sticky Bar**: Floating Add-to-Cart bar on Product Detail Page for effortless one-handed purchasing.
-- **Interactive User Dashboard**: Exact visual replication of user reference dashboard for **Govind Jangid** (`govindjangid@gmail.com`) with sticky left navigation sidebar, Personal Information editor, Order History with live telemetry checkpoints, Wishlist, Saved Addresses with Add Address modal, and dynamic Navbar Account popup.
-- **Zero Placeholder Guarantee**: 100% of components and pages are fully implemented with zero 0-byte files, robust API client fallbacks, and clean `npm run build` verification.
-
----
-
 ## 🛡️ Security & Best Practices
 
 - **Helmet**: Adds secure HTTP response headers to protect against common web vulnerabilities.
