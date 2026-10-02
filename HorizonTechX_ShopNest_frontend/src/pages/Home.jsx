@@ -127,24 +127,9 @@ export const Home = ({
     ) ||
     products.find((p) => p.image || p.images?.[0]) ||
     featuredProducts.find((p) => p.image || p.images?.[0]) ||
-    defaultCatalogProducts[0] || {
-      id: 'flagship-aura',
-      title: 'Aura Studio Wireless Reference Headphones',
-      name: 'Aura Studio Wireless Reference Headphones',
-      price: 24999,
-      mrp: 29999,
-      rating: 4.96,
-      numReviews: 840,
-      category: 'Audio Precision',
-      stock: 14,
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=85',
-      images: [
-        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=85',
-        'https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=1200&q=85',
-      ],
-    };
+    defaultCatalogProducts[0] || {};
 
-  // New arrivals: top 4 products from real database, with fallback to default catalog if loading
+  // New arrivals
   const newArrivals =
     products.length > 0
       ? products.slice(0, 4)
@@ -276,7 +261,7 @@ export const Home = ({
                 </Subtitle>
               </motion.div>
 
-              {/* Action CTAs: Sleek side-by-side on mobile with balanced padding */}
+              {/* Action CTAs */}
               <motion.div variants={fadeInUp} className="flex flex-row items-center gap-2 sm:gap-4 mt-5 sm:mt-8 mb-6 sm:mb-10 w-full sm:w-auto">
                 <Button
                   size="md"
@@ -300,7 +285,7 @@ export const Home = ({
                 </Button>
               </motion.div>
 
-              {/* Animated Stats Count-up Strip (Item 7) */}
+              {/* Animated Stats Count-up Strip */}
               <motion.div
                 variants={fadeInUp}
                 className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 py-4 px-3 sm:px-6 rounded-2xl bg-white/80 dark:bg-dark-surface/80 backdrop-blur-md border border-neutral-200/60 dark:border-dark-border shadow-xs w-full max-w-xl"
@@ -344,7 +329,7 @@ export const Home = ({
               </motion.div>
             </motion.div>
 
-            {/* Right Column: Flagship Product with Floating Rating & Price Cards (Item 2) */}
+            {/* Right Column */}
             <motion.div
               initial={{ opacity: 0, scale: 0.94 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -354,10 +339,10 @@ export const Home = ({
               {/* Backlight Glow Effect */}
               <div className="absolute -inset-4 bg-linear-to-tr from-brand-500/25 via-amber-500/15 to-brand-400/10 rounded-full blur-3xl pointer-events-none" />
 
-              {/* Showcase Relative Wrapper (allows floating badges to overflow without clipping) */}
+              {/* Showcase Relative Wrapper */}
               <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg select-none">
 
-                {/* Main Product Card - Edge-to-Edge Full Coverage */}
+                {/* Main Product Card  */}
                 <div
                   className="relative w-full aspect-square rounded-3xl overflow-hidden border border-neutral-200/80 dark:border-dark-border shadow-elevated group cursor-pointer bg-neutral-100 dark:bg-dark-surface"
                   onClick={() => handleProductNavigate(flagshipProduct)}
@@ -381,7 +366,7 @@ export const Home = ({
                   />
                 </div>
 
-                {/* Floating Card 1: Rating Pill (Placed outside overflow-hidden - never clipped) */}
+                {/* Floating Card 1: Rating Pill */}
                 <motion.div
                   animate={{ y: [-5, 5, -5] }}
                   transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
@@ -443,14 +428,8 @@ export const Home = ({
         </div>
       </section>
 
-      {/* =========================================================
-          2. MARQUEE STRIP (Item 4: Between Hero & Categories)
-         ========================================================= */}
       <MarqueeStrip />
 
-      {/* =========================================================
-          3. EDITORIAL 2x2 BENTO COLLECTIONS GRID (Item 1 Kept)
-         ========================================================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <SectionHeader
           badge="Curated Categories"

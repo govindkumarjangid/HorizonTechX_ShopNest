@@ -10,7 +10,6 @@ export const MarqueeStrip = () => {
     { text: 'Small-Batch Precision Hardware', icon: Cpu },
   ];
 
-  // Duplicate for seamless infinite loop
   const repeated = [...items, ...items, ...items];
 
   return (

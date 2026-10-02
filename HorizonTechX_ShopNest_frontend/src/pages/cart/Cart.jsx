@@ -4,9 +4,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   ShoppingBag,
   ArrowLeft,
-  ShieldCheck,
-  Truck,
-  RotateCcw,
   Tag,
   Check,
 } from 'lucide-react';
@@ -15,12 +12,9 @@ import { CartItem } from '../../components/cart/CartItem';
 import { CartSummary } from '../../components/cart/CartSummary';
 import { EmptyState } from '../../components/common/EmptyState';
 import { useCartStore } from '../../store/useCartStore';
-import { formatPrice } from '../../utils/formatPrice';
 import { notify } from '../../utils/notify';
 
-/**
- * Full Page Shopping Cart
- */
+
 export const Cart = ({
   onNavigateToCatalog,
   onCheckout,
@@ -46,9 +40,7 @@ export const Cart = ({
   const tax = getTax();
   const finalTotal = Math.max(0, subtotal - discountAmount + shippingFee + tax);
 
-  const freeShippingThreshold = 4999;
-  const progressToFreeShipping = Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100));
-  const amountNeededForFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
+  const freeShippingThreshold = 4999; 
 
   const handleApplyPromo = (e) => {
     e.preventDefault();

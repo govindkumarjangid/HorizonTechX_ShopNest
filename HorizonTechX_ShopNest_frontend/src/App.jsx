@@ -142,7 +142,7 @@ export default function App() {
           }
         />
 
-        {/* Account Dashboard (Protected: Unauthenticated users are redirected to login) */}
+        {/* Account Dashboard */}
         <Route
           path="/dashboard"
           element={

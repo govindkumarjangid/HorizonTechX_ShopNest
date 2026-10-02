@@ -28,9 +28,7 @@ export const AutocompleteSearch = ({
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const containerRef = useRef(null);
-  const inputRef = useRef(null);
 
-  // Notify parent component about active/expanded state for smooth navbar expansion
   useEffect(() => {
     onActiveChange?.(isOpen);
   }, [isOpen, onActiveChange]);

@@ -87,7 +87,7 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
             className="fixed inset-0 bg-neutral-950/70 backdrop-blur-sm"
           />
 
-          {/* Modal Card (Full screen on mobile, centered card on tablet/desktop, no scrollbars) */}
+          {/* Modal Card */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -97,7 +97,7 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
               relative w-full h-full sm:h-auto sm:max-h-[92dvh] sm:max-w-md
               bg-white dark:bg-dark-card border-0 sm:border border-neutral-200/80 dark:border-dark-border
               rounded-none sm:rounded-3xl p-5 sm:p-7 shadow-2xl z-10
-              overflow-y-auto no-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
+              overflow-y-auto no-scrollbar scrollbar-none [&::-webkit-scrollbar]:hidden
               flex flex-col justify-center sm:justify-start
               pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] sm:pb-7
             "
@@ -117,7 +117,7 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
               <X className="w-5 h-5" />
             </button>
 
-            {/* Header (Logo removed as requested) */}
+            {/* Header  */}
             <div className="flex flex-col gap-1 mb-4 sm:mb-5 pr-8">
               <h2 className="font-display font-bold text-xl sm:text-2xl text-neutral-900 dark:text-white tracking-tight">
                 {tab === 'login' ? 'Welcome Back' : 'Create an Account'}

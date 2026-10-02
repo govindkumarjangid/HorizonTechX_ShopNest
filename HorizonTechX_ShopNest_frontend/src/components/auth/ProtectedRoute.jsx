@@ -1,13 +1,7 @@
-import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 
-/**
- * Route Protection Guard
- * Restricts access to authenticated users only (e.g. /dashboard, /orders).
- * Gracefully waits for session initialization from JWT to prevent false redirects on page reloads.
- */
 export const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isInitialized } = useAuthStore();
   const location = useLocation();
@@ -24,7 +18,6 @@ export const ProtectedRoute = ({ children }) => {
     );
   }
 
-  // If unauthenticated, redirect to /auth with return URL preserved
   if (!isAuthenticated) {
     const returnPath = encodeURIComponent(location.pathname + location.search);
     return <Navigate to={`/auth?redirect=${returnPath}`} state={{ from: location }} replace />;

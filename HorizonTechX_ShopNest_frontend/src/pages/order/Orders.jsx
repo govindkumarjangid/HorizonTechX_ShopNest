@@ -43,7 +43,7 @@ export const Orders = ({
     if (activeFilter === 'processing' && status !== 'processing' && status !== 'placed') return false;
     if (activeFilter === 'delivered' && status !== 'delivered') return false;
 
-    // Filter by search query (order ID or item name)
+    // Filter by search query 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const idStr = (order.orderId || order._id || order.id || '').toLowerCase();

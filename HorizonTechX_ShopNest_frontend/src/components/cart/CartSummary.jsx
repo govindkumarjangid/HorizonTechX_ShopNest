@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowRight, ShieldCheck } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { formatPrice } from '../../utils/formatPrice';

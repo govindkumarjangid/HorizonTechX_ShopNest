@@ -3,11 +3,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthModal } from '../../components/auth/AuthModal';
 import { useAuthStore } from '../../store/useAuthStore';
 
-/**
- * Standalone Auth Route
- * Reuses the single authentic AuthModal component to guarantee zero duplicate code
- * and full consistency with the ShopNest design system.
- */
 export const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
