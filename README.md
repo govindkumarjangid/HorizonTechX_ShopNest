@@ -1,481 +1,378 @@
-# 🛍️ HorizonTechX ShopNest — Full-Stack E-Commerce Platform
+# HorizonTechX ShopNest
 
-A production-ready, full-stack E-Commerce web application built with a **modular MERN stack** (MongoDB, Express.js, React 19, Node.js). Designed with **Clean Layered Architecture (Controller-Service-Repository pattern)** on the backend and **Zustand + Tailwind CSS v4** on the frontend for high scalability, maintainability, and enterprise-grade code organization.
+ShopNest is a full-stack e-commerce web application built on the MERN stack (MongoDB, Express, React 19, Node.js). It provides end-to-end shopping workflows including user authentication, product catalog discovery with multi-parameter filtering, persistent cart synchronization, address management, order placement and tracking, wishlist management, and a responsive interface styled with Tailwind CSS v4.
 
----
+## Features
 
-## 📑 Table of Contents
-1. [Project Overview](#-project-overview)
-2. [Tech Stack](#-tech-stack)
-3. [Full Project Directory Structure](#-full-project-directory-structure)
-4. [Architecture & Design Patterns](#-architecture--design-patterns)
-5. [End-to-End System Workflow](#-end-to-end-system-workflow)
-6. [API Specifications & Contracts](#-api-specifications--contracts)
-7. [Database Models & Schemas](#-database-models--schemas)
-8. [Environment Configuration](#-environment-configuration)
-9. [Local Development Setup](#-local-development-setup)
-10. [Security & Best Practices](#-security--best-practices)
+### Authentication & Security
+- User registration requiring name, email, and password with express-validator validation
+- User login accepting email and password credentials
+- Dual-token session strategy: signed JWT access token and refresh token rotation (`/api/auth/refresh`)
+- Current user profile endpoint (`/api/auth/me`) with automatic store hydration on application mount
+- Protected client-side routes redirecting unauthenticated users to `/auth`
+- Password hashing with bcryptjs (salt rounds: 10)
+- HTTP security headers via Helmet and IP-based rate limiting via Express Rate Limit
+- Input sanitization middleware to prevent NoSQL injection and XSS
 
----
+### Product Catalog & Discovery
+- Dynamic product browsing with live keyword search and autocomplete suggestions
+- Multi-faceted filtering by category, price range, and minimum customer rating
+- Product sorting options: newest arrivals, price (low to high), price (high to low), and rating
+- Server-side pagination with page and limit parameters
+- Dedicated featured products endpoint (`/api/products/featured`) and category taxonomy (`/api/products/categories`)
+- Product details view with slug/ID resolution, real-time stock indicators, and specifications
+- Cloudinary media asset hosting with responsive image delivery
+- Related products recommendation widget based on shared category
 
-## 🌟 Project Overview
+### Shopping Cart & Inventory
+- Authenticated shopping cart persisted in MongoDB
+- Optimistic UI updates with real-time subtotal, shipping fee, tax, and item count calculations
+- Slide-over cart drawer accessible from the navbar with quantity increment, decrement, and item removal
+- Real-time stock availability check preventing order placement for out-of-stock items
+- Automatic cart cleanup upon successful order completion
 
-**HorizonTechX ShopNest** is an end-to-end e-commerce solution offering seamless shopping experiences:
-- **Authentication & Authorization**: Secure JWT-based auth with refresh tokens, password hashing (bcrypt), and role-based access control (User/Admin).
-- **Product Catalog & Discovery**: Categorization, multi-filter search (price, rating, category), pagination, and image gallery.
-- **Cart Management**: Persistent shopping cart synced with backend database and optimistic client-side UI updates.
-- **Order Management & Tracking**: Multi-step checkout, order summary, order status tracking (Pending → Processing → Shipped → Delivered).
-- **Responsive & Modern UI**: Built with React 19, Tailwind CSS v4, Lucide Icons, and React Hot Toast.
+### Checkout & Orders
+- Multi-step checkout flow supporting delivery address selection or new address entry
+- Multiple payment options including Cash on Delivery (COD), UPI, and Debit/Credit Cards
+- Order creation pipeline: cart validation, total re-computation, stock deduction, and order persistence
+- Order history page (`/orders`) displaying past purchases with status badges (Pending, Processing, Shipped, Delivered, Cancelled)
+- Detailed order tracking view (`/orders/:id`) featuring an interactive visual status stepper
 
----
+### Wishlist & User Account
+- Wishlist toggle on all product cards and product detail views with immediate heart state updates
+- Wishlist persistence in the MongoDB User document synchronized with Zustand store
+- Profile management allowing updates to user display name and contact details
+- Address book management: add new addresses, remove addresses, and set a default shipping address
+- Account dashboard (`/dashboard`) summarizing recent orders, saved addresses, and wishlist items
 
-## 🛠️ Tech Stack
+### UI & Styling
+- Responsive, modern interface built with Tailwind CSS v4 and Lucide React icons
+- Smooth inertial scrolling powered by Lenis (`SmoothScrollProvider`)
+- Component micro-animations and route transitions using Motion
+- Interactive hero banners and product carousels powered by Swiper
+- Mobile-optimized navigation with sticky category bar, collapsible search, and bottom tab bar
+- Action feedback notifications using React Hot Toast
+- Single Page Application (SPA) routing with 404 fallback and `vercel.json` rewrite configuration
 
-### 🖥️ Frontend (`HorizonTechX_ShopNest_frontend`)
-- **Core**: [React 19](https://react.dev/), [Vite](https://vitejs.dev/)
-- **Routing**: [React Router DOM v7](https://reactrouter.com/)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
-- **HTTP Client**: [Axios](https://axios-http.com/)
-- **Icons & Notifications**: [Lucide React](https://lucide.dev/), [React Hot Toast](https://react-hot-toast.com/)
+## Tech Stack
 
-### ⚙️ Backend (`HorizonTechX_ShopNest_backend`)
-- **Runtime & Framework**: [Node.js](https://nodejs.org/) (ES Modules), [Express.js](https://expressjs.com/)
-- **Database & ODM**: [MongoDB](https://www.mongodb.com/), [Mongoose](https://mongoosejs.com/)
-- **Authentication**: [JSON Web Token (JWT)](https://jwt.io/), [bcryptjs](https://github.com/dcodeIO/bcrypt.js)
-- **File Uploads & Media Storage**: [Multer](https://github.com/expressjs/multer), [Cloudinary SDK](https://cloudinary.com/)
-- **Validation & Sanitization**: [express-validator](https://express-validator.github.io/docs/)
-- **Security & Utilities**: [Helmet](https://helmetjs.github.io/), [CORS](https://github.com/expressjs/cors), [express-rate-limit](https://github.com/express-rate-limit/express-rate-limit), [Compression](https://github.com/expressjs/compression), [Morgan](https://github.com/expressjs/morgan)
+### Backend
+- Node.js & Express 5.2.1
+- MongoDB & Mongoose 9.10.2
+- JSON Web Token (jsonwebtoken 9.0.3) & bcryptjs 3.0.3
+- Cloudinary 2.11.0 & Multer 2.4.0
+- Helmet 8.3.0, Compression 1.8.2, Express Rate Limit 8.7.0
+- Express Validator 7.3.2
+- Cookie Parser 1.4.7, CORS 2.8.6, Morgan 1.12.1, Dotenv 18.0.4
 
----
+### Frontend
+- React 19.2.8 & React DOM 19.2.8
+- Vite 8.3.0
+- React Router DOM 7.18.4
+- Zustand 5.0.15
+- Axios 1.20.0
+- Tailwind CSS 4.3.3 & @tailwindcss/vite
+- Motion 13.4.4
+- Lucide React 1.48.0
+- Swiper 14.2.0
+- Lenis 1.3.26
+- React Hot Toast 2.6.1
+- Date-fns 4.4.0
 
-## 📂 Full Project Directory Structure
+## Project Structure
 
-```text
+```
 HorizonTechX_ShopNest/
-│
-├── HorizonTechX_ShopNest_backend/          # Backend REST API (Node/Express/MongoDB)
-│   ├── src/
-│   │   ├── config/                         # Configuration modules
-│   │   │   ├── cloudinary.config.js        # Cloudinary setup for media uploads
-│   │   │   ├── db.js                       # Mongoose MongoDB connection logic
-│   │   │   └── env.config.js               # Centralized environment variable loader
-│   │   │
-│   │   ├── controllers/                    # Request/Response orchestration layer
-│   │   │   ├── auth.controller.js          # User auth, login, register, profile
-│   │   │   ├── cart.controller.js          # Cart CRUD & synchronization
-│   │   │   ├── order.controller.js         # Order creation, details, list, tracking
-│   │   │   └── product.controller.js       # Products catalog & management
-│   │   │
-│   │   ├── services/                       # Core business logic layer
-│   │   │   ├── auth.service.js             # Credentials verification, token generation
-│   │   │   ├── cart.service.js             # Cart calculations, stock validation
-│   │   │   ├── order.service.js            # Checkout workflows, inventory adjustments
-│   │   │   └── product.service.js          # Product search, filter, upload logic
-│   │   │
-│   │   ├── repositories/                   # Data Access Layer (Mongoose queries)
-│   │   │   ├── cart.repository.js          # Cart DB operations
-│   │   │   ├── order.repository.js         # Order DB operations
-│   │   │   ├── product.repository.js       # Product DB operations
-│   │   │   └── user.repository.js          # User DB operations
-│   │   │
-│   │   ├── models/                         # Database Schemas (Mongoose)
-│   │   │   ├── Cart.model.js               # Cart items, quantities, totals
-│   │   │   ├── Category.model.js           # Categories & classifications
-│   │   │   ├── Order.model.js              # Order items, shipping, payment, status
-│   │   │   ├── Product.model.js            # Product details, pricing, images, stock
-│   │   │   └── User.model.js               # User credentials, role, addresses
-│   │   │
-│   │   ├── routes/                         # API Route Definitions
-│   │   │   ├── auth.routes.js              # /api/v1/auth routes
-│   │   │   ├── cart.routes.js              # /api/v1/cart routes
-│   │   │   ├── order.routes.js             # /api/v1/orders routes
-│   │   │   ├── product.routes.js           # /api/v1/products routes
-│   │   │   └── index.js                    # Main router mounting all endpoints
-│   │   │
-│   │   ├── middlewares/                    # Custom Express Middlewares
-│   │   │   ├── auth.middleware.js          # JWT authentication & role-based authorization
-│   │   │   ├── error.middleware.js         # Global centralized error handler
-│   │   │   ├── sanitize.middleware.js      # Input sanitization middleware
-│   │   │   ├── upload.middleware.js        # Multer disk/memory storage for uploads
-│   │   │   └── validate.middleware.js      # Express-validator error collector
-│   │   │
-│   │   ├── validators/                     # Request Validation Rules
-│   │   │   ├── auth.validator.js           # Validation schemas for login & register
-│   │   │   ├── order.validator.js          # Validation schemas for checkout/order
-│   │   │   └── product.validator.js        # Validation schemas for product payloads
-│   │   │
-│   │   ├── utils/                          # Helper Utilities
-│   │   │   ├── ApiError.js                 # Standardized operational error class
-│   │   │   ├── ApiResponse.js              # Standardized API response structure
-│   │   │   ├── asyncHandler.js             # Higher-order async route wrapper
-│   │   │   ├── generateToken.js            # Access & Refresh JWT generator
-│   │   │   └── pagination.js               # Pagination & query parsing helper
-│   │   │
-│   │   ├── app.js                          # Express application initialization & middleware
-│   │   └── server.js                       # Server entry point & DB bootstrap
-│   │
-│   ├── .env.example                        # Template for backend environment variables
-│   ├── package.json                        # Backend dependencies & npm scripts
-│   └── package-lock.json
-│
-├── HorizonTechX_ShopNest_frontend/         # Client Single Page Application (React 19 + Vite)
-│   ├── src/
-│   │   ├── api/                            # API Services (Axios)
-│   │   │   ├── axios.js                    # Axios instance with interceptors
-│   │   │   ├── authApi.js                  # Authentication API endpoints
-│   │   │   ├── cartApi.js                  # Cart API endpoints
-│   │   │   ├── orderApi.js                 # Orders API endpoints
-│   │   │   └── productApi.js               # Product catalog API endpoints
-│   │   │
-│   │   ├── store/                          # Global State Management (Zustand)
-│   │   │   ├── useAuthStore.js             # User session, token, auth actions
-│   │   │   ├── useCartStore.js             # Cart state, item counts, totals
-│   │   │   ├── useOrderStore.js            # Orders list, active order, tracking
-│   │   │   └── useProductStore.js          # Product list, filters, search state
-│   │   │
-│   │   ├── pages/                          # Application Pages / Views
-│   │   │   ├── auth/
-│   │   │   │   └── Auth.jsx                # Login / Registration view
-│   │   │   ├── cart/
-│   │   │   │   ├── Cart.jsx                # Shopping cart items & summary view
-│   │   │   │   └── Checkout.jsx            # Shipping details & payment checkout
-│   │   │   ├── order/
-│   │   │   │   ├── Orders.jsx              # User order history view
-│   │   │   │   └── OrderDetails.jsx        # Single order tracking & details view
-│   │   │   ├── product/
-│   │   │   │   ├── ProductList.jsx         # Product catalog with filter sidebar
-│   │   │   │   └── ProductDetails.jsx      # Product info, gallery, add-to-cart
-│   │   │   ├── Home.jsx                    # Landing page, hero, featured products
-│   │   │   └── NotFound.jsx                # 404 Not Found error view
-│   │   │
-│   │   ├── components/                     # Reusable UI Components
-│   │   │   ├── cart/
-│   │   │   │   ├── CartItem.jsx            # Single cart row with quantity controls
-│   │   │   │   └── CartSummary.jsx         # Subtotal, tax, shipping, checkout CTA
-│   │   │   ├── common/
-│   │   │   │   ├── ConfirmModal.jsx        # Reusable modal confirmation dialog
-│   │   │   │   ├── EmptyState.jsx          # Reusable placeholder for empty data
-│   │   │   │   └── Loader.jsx              # Loading spinner & skeleton placeholders
-│   │   │   ├── layout/
-│   │   │   │   ├── Footer.jsx              # Global footer with links & newsletter
-│   │   │   │   ├── Layout.jsx              # Main layout wrapper with Navbar & Footer
-│   │   │   │   └── Navbar.jsx              # Global navbar with search & cart badge
-│   │   │   ├── orders/
-│   │   │   │   ├── OrderCard.jsx           # Order summary card for order history
-│   │   │   │   ├── OrderStatusBadge.jsx    # Status pill (Pending/Shipped/Delivered)
-│   │   │   │   └── OrderTracker.jsx        # Stepper timeline for order tracking
-│   │   │   └── products/
-│   │   │       ├── ProductCard.jsx         # Catalog item card with image & price
-│   │   │       ├── ProductFilters.jsx      # Category, price range, rating filter panel
-│   │   │       ├── ProductGallery.jsx      # Image gallery with thumbnail previews
-│   │   │       ├── ProductGrid.jsx         # Responsive product grid container
-│   │   │       └── RelatedProducts.jsx     # Recommended/related products carousel
-│   │   │
-│   │   ├── routes/                         # Route Guards & Routing Logic
-│   │   │   └── NotFound.jsx                # Routing fallback
-│   │   │
-│   │   ├── utils/                          # Formatting & Helper Utilities
-│   │   │   ├── formatDate.js               # Date/time formatting for orders
-│   │   │   └── formatPrice.js              # Currency formatting (e.g. ₹ / $)
-│   │   │
-│   │   ├── App.jsx                         # Main router configuration & App root
-│   │   ├── index.css                       # Tailwind CSS v4 directives & root styles
-│   │   └── main.jsx                        # React entry point with ReactDOM
-│   │
-│   ├── index.html                          # HTML template
-│   ├── vite.config.js                      # Vite build & plugin configuration
-│   ├── eslint.config.js                    # ESLint linting configuration
-│   ├── package.json                        # Frontend dependencies & scripts
-│   └── package-lock.json
-│
-└── README.md                               # Project documentation (This file)
+├── HorizonTechX_ShopNest_backend/
+│   ├── .env.example
+│   ├── package.json
+│   └── src/
+│       ├── app.js
+│       ├── server.js
+│       ├── config/
+│       │   ├── cloudinary.config.js
+│       │   ├── db.js
+│       │   └── env.config.js
+│       ├── controllers/
+│       │   ├── auth.controller.js
+│       │   ├── cart.controller.js
+│       │   ├── order.controller.js
+│       │   └── product.controller.js
+│       ├── middlewares/
+│       │   ├── auth.middleware.js
+│       │   ├── error.middleware.js
+│       │   ├── sanitize.middleware.js
+│       │   ├── upload.middleware.js
+│       │   └── validate.middleware.js
+│       ├── models/
+│       │   ├── Cart.model.js
+│       │   ├── Category.model.js
+│       │   ├── Order.model.js
+│       │   ├── Product.model.js
+│       │   └── User.model.js
+│       ├── repositories/
+│       │   ├── cart.repository.js
+│       │   ├── order.repository.js
+│       │   ├── product.repository.js
+│       │   └── user.repository.js
+│       ├── routes/
+│       │   ├── auth.routes.js
+│       │   ├── cart.routes.js
+│       │   ├── order.routes.js
+│       │   ├── product.routes.js
+│       │   └── index.js
+│       ├── services/
+│       │   ├── auth.service.js
+│       │   ├── cart.service.js
+│       │   ├── order.service.js
+│       │   └── product.service.js
+│       ├── utils/
+│       │   ├── ApiError.js
+│       │   ├── ApiResponse.js
+│       │   ├── asyncHandler.js
+│       │   ├── generateToken.js
+│       │   └── pagination.js
+│       └── validators/
+│           ├── auth.validator.js
+│           ├── order.validator.js
+│           └── product.validator.js
+├── HorizonTechX_ShopNest_frontend/
+│   ├── .env.example
+│   ├── package.json
+│   ├── vite.config.js
+│   ├── vercel.json
+│   └── src/
+│       ├── App.jsx
+│       ├── main.jsx
+│       ├── index.css
+│       ├── api/
+│       │   ├── authApi.js
+│       │   ├── axios.js
+│       │   ├── cartApi.js
+│       │   ├── orderApi.js
+│       │   └── productApi.js
+│       ├── components/
+│       │   ├── auth/
+│       │   │   ├── AccountPopup.jsx
+│       │   │   ├── AuthModal.jsx
+│       │   │   └── ProtectedRoute.jsx
+│       │   ├── cart/
+│       │   │   ├── CartDrawer.jsx
+│       │   │   ├── CartItem.jsx
+│       │   │   └── CartSummary.jsx
+│       │   ├── common/
+│       │   │   ├── ConfirmModal.jsx
+│       │   │   ├── EmptyState.jsx
+│       │   │   ├── Loader.jsx
+│       │   │   └── ScrollToTop.jsx
+│       │   ├── home/
+│       │   │   ├── CountdownTimer.jsx
+│       │   │   ├── MarqueeStrip.jsx
+│       │   │   └── StatCounter.jsx
+│       │   ├── layout/
+│       │   │   ├── Footer.jsx
+│       │   │   ├── Layout.jsx
+│       │   │   └── Navbar.jsx
+│       │   ├── navigation/
+│       │   │   ├── AutocompleteSearch.jsx
+│       │   │   └── MobileTabBar.jsx
+│       │   ├── orders/
+│       │   │   ├── OrderCard.jsx
+│       │   │   ├── OrderStatusBadge.jsx
+│       │   │   └── OrderTracker.jsx
+│       │   ├── products/
+│       │   │   ├── ProductCard.jsx
+│       │   │   ├── ProductFilters.jsx
+│       │   │   ├── ProductGallery.jsx
+│       │   │   ├── ProductGrid.jsx
+│       │   │   └── RelatedProducts.jsx
+│       │   └── ui/
+│       │       ├── Badge.jsx
+│       │       ├── Button.jsx
+│       │       ├── Card.jsx
+│       │       ├── CategoryCard.jsx
+│       │       ├── Footer.jsx
+│       │       ├── Input.jsx
+│       │       ├── Logo.jsx
+│       │       ├── Navbar.jsx
+│       │       ├── ProgressiveImage.jsx
+│       │       ├── Rating.jsx
+│       │       ├── SectionHeader.jsx
+│       │       ├── Skeleton.jsx
+│       │       ├── TestimonialCard.jsx
+│       │       └── Typography.jsx
+│       ├── pages/
+│       │   ├── Home.jsx
+│       │   ├── NotFound.jsx
+│       │   ├── account/
+│       │   │   └── Dashboard.jsx
+│       │   ├── auth/
+│       │   │   └── Auth.jsx
+│       │   ├── cart/
+│       │   │   ├── Cart.jsx
+│       │   │   └── Checkout.jsx
+│       │   ├── order/
+│       │   │   ├── OrderDetails.jsx
+│       │   │   └── Orders.jsx
+│       │   └── product/
+│       │       ├── ProductDetails.jsx
+│       │       └── ProductList.jsx
+│       ├── providers/
+│       │   └── SmoothScrollProvider.jsx
+│       ├── store/
+│       │   ├── useAuthStore.js
+│       │   ├── useCartStore.js
+│       │   ├── useOrderStore.js
+│       │   └── useProductStore.js
+│       ├── styles/
+│       │   └── motion.js
+│       └── utils/
+│           ├── cloudinary.js
+│           ├── formatDate.js
+│           ├── formatPrice.js
+│           └── notify.js
+├── vercel.json
+└── README.md
 ```
 
----
+## Prerequisites
 
-## 🏛️ Architecture & Design Patterns
+- Node.js 18.x or higher (tested on Node 20+)
+- npm 9.x or higher
+- MongoDB instance (MongoDB Atlas cluster URI or local MongoDB instance)
+- Cloudinary account for media assets (Cloud Name, API Key, API Secret)
 
-### 1. Backend: Layered Clean Architecture (CSR Pattern)
-The backend follows strict separation of concerns to avoid tightly coupled code:
+## Environment Variables
 
-```
-HTTP Request ──► Middlewares (Auth, Validate, Sanitize)
-                      │
-                      ▼
-               Controllers (Extract params/body, invoke service, send ApiResponse)
-                      │
-                      ▼
-                 Services (Execute business logic, validations, computations)
-                      │
-                      ▼
-               Repositories (Data access layer, direct Mongoose queries)
-                      │
-                      ▼
-                  Database (MongoDB Collections via Mongoose Models)
-```
+Configuration is handled through `.env` files. Reference templates are provided in `.env.example` in each folder.
 
-- **Controller Layer (`src/controllers/`)**: Reads input from `req`, delegates all logic to services, and returns standardized responses using `ApiResponse`.
-- **Service Layer (`src/services/`)**: Contains all pure business rules (calculating discounts, managing cart inventory, generating tokens). Completely independent of Express `req`/`res`.
-- **Repository Layer (`src/repositories/`)**: Encapsulates database queries. If the database schema or ORM/ODM changes, only repositories are touched.
-- **Model Layer (`src/models/`)**: Defines strict Mongoose schemas with data validation and indexing.
-- **Centralized Error Handling (`src/utils/ApiError.js` & `error.middleware.js`)**: All operational errors throw `ApiError`. Uncaught errors are caught by `asyncHandler` and converted into standardized JSON errors:
-  ```json
-  {
-    "success": false,
-    "message": "Resource not found",
-    "statusCode": 404,
-    "errors": []
-  }
-  ```
+### Backend (`HorizonTechX_ShopNest_backend/.env`)
 
-### 2. Frontend: Modular Store & Component Architecture
-- **API Client Layer (`src/api/`)**: Centralized Axios instance with request/response interceptors to automatically attach JWT authorization headers and handle token expiration (401).
-- **Global State (`src/store/`)**: State is segmented into granular Zustand stores (`useAuthStore`, `useCartStore`, `useProductStore`, `useOrderStore`). State changes trigger UI re-renders without prop drilling.
-- **Component Hierarchy (`src/components/`)**: Atomic, reusable components grouped by domain (`cart`, `orders`, `products`, `layout`, `common`).
+| Variable | Description | Placeholder Value |
+|---|---|---|
+| `PORT` | Port number the backend server listens on | `5000` |
+| `NODE_ENV` | Application environment (`development` or `production`) | `development` |
+| `MONGO_URI` | MongoDB connection URI | `mongodb://localhost:27017/shopnest` |
+| `CLIENT_URL` | Frontend origin allowed by CORS | `http://localhost:5173` |
+| `ALLOWED_ORIGINS` | Comma-separated list of allowed origins | `http://localhost:5173,http://localhost:3000` |
+| `JWT_SECRET` | Secret key used to sign JWT access tokens | `your_super_secret_jwt_access_key` |
+| `JWT_EXPIRES_IN` | Access token expiration duration | `7d` |
+| `JWT_REFRESH_SECRET` | Secret key used to sign JWT refresh tokens | `your_super_secret_jwt_refresh_key` |
+| `JWT_REFRESH_EXPIRES_IN` | Refresh token expiration duration | `30d` |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary account cloud name | `your_cloudinary_cloud_name` |
+| `CLOUDINARY_API_KEY` | Cloudinary API key | `your_cloudinary_api_key` |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret | `your_cloudinary_api_secret` |
 
----
+### Frontend (`HorizonTechX_ShopNest_frontend/.env`)
 
-## 🔄 End-to-End System Workflow
+| Variable | Description | Placeholder Value |
+|---|---|---|
+| `VITE_API_URL` | Base URL for REST API requests | `http://localhost:5000/api` |
+| `VITE_CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name for media assets | `your_cloudinary_cloud_name` |
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User
-    participant Frontend as Frontend (React / Zustand)
-    participant API as API Router & Middlewares
-    participant Service as Service & Repository
-    participant DB as MongoDB
+## Installation & Setup
 
-    Note over User, DB: 1. Authentication Flow
-    User->>Frontend: Enters login credentials
-    Frontend->>API: POST /api/v1/auth/login
-    API->>Service: Authenticate user & verify password
-    Service->>DB: Query user by email
-    DB-->>Service: User document
-    Service-->>API: JWT Access Token & User details
-    API-->>Frontend: ApiResponse (Token + User)
-    Frontend->>Frontend: Store user state in useAuthStore
+### 1. Backend Setup
 
-    Note over User, DB: 2. Product Discovery Flow
-    User->>Frontend: Browses catalog / applies filters
-    Frontend->>API: GET /api/v1/products?category=...&page=1
-    API->>Service: Query catalog with pagination & filters
-    Service->>DB: Fetch matching products & count
-    DB-->>Service: Products list & pagination metadata
-    Service-->>API: Filtered products
-    API-->>Frontend: ApiResponse (Products array)
-    Frontend->>Frontend: Update useProductStore & render ProductGrid
-
-    Note over User, DB: 3. Cart Management Flow
-    User->>Frontend: Clicks "Add to Cart"
-    Frontend->>API: POST /api/v1/cart/items (productId, quantity)
-    API->>Service: Validate stock & compute totals
-    Service->>DB: Upsert cart item in Cart model
-    DB-->>Service: Updated cart document
-    Service-->>API: Cart payload
-    API-->>Frontend: ApiResponse (Cart updated)
-    Frontend->>Frontend: Sync useCartStore & update Cart badge
-
-    Note over User, DB: 4. Checkout & Order Flow
-    User->>Frontend: Submits checkout with address & payment
-    Frontend->>API: POST /api/v1/orders (address, paymentMethod)
-    API->>Service: Validate cart, deduct stock, create Order
-    Service->>DB: Insert Order record & clear Cart
-    DB-->>Service: Order created
-    Service-->>API: Order confirmation
-    API-->>Frontend: ApiResponse (Order summary)
-    Frontend->>User: Display Order Confirmation & Order Tracker
-```
-
-### Complete User Journey:
-1. **User Discovery**: User visits the Home page (`/`), views top products and categories.
-2. **Search & Filter**: Navigates to `/products`, applies price range, category, and sorting filters.
-3. **Product Inspection**: Clicks a product card to open `/products/:id`, viewing the image gallery and specs.
-4. **Cart Addition**: Selects quantity and clicks "Add to Cart". The Zustand store updates the cart count in the Navbar in real time.
-5. **Review Cart**: Navigates to `/cart`, adjusts item quantities or removes unwanted items with immediate subtotal recalculation.
-6. **Checkout**: Proceeds to `/checkout` (protected route; redirects to `/auth` if not authenticated).
-7. **Order Placement**: Enters shipping address, chooses payment method, and confirms order. Backend reduces inventory and generates order.
-8. **Tracking & History**: User tracks fulfillment progress on `/orders/:id` via `OrderTracker` (Pending → Processing → Shipped → Delivered).
-
----
-
-## 🔌 API Specifications & Contracts
-
-All API endpoints are prefixed with `/api/v1`.
-
-### 1. Authentication Endpoints (`/api/v1/auth`)
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| `POST` | `/auth/register` | Public | Register new user (name, email, password) |
-| `POST` | `/auth/login` | Public | Authenticate user & issue JWT |
-| `POST` | `/auth/logout` | Protected | Clear session / cookies |
-| `GET` | `/auth/profile` | Protected | Get current user's profile |
-| `PUT` | `/auth/profile` | Protected | Update profile (name, phone, addresses) |
-
-### 2. Product Endpoints (`/api/v1/products`)
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| `GET` | `/products` | Public | Get products with search, filter & pagination |
-| `GET` | `/products/:id` | Public | Get single product details |
-| `GET` | `/products/categories` | Public | Get all product categories |
-| `POST` | `/products` | Admin | Create product (with Multer + Cloudinary images) |
-| `PUT` | `/products/:id` | Admin | Update product details / stock |
-| `DELETE` | `/products/:id` | Admin | Remove product |
-
-### 3. Cart Endpoints (`/api/v1/cart`)
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| `GET` | `/cart` | Protected | Fetch current user's active cart |
-| `POST` | `/cart/items` | Protected | Add item to cart or increment quantity |
-| `PUT` | `/cart/items/:productId` | Protected | Update item quantity |
-| `DELETE` | `/cart/items/:productId` | Protected | Remove specific item from cart |
-| `DELETE` | `/cart` | Protected | Clear entire cart |
-
-### 4. Order Endpoints (`/api/v1/orders`)
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| `POST` | `/orders` | Protected | Place a new order from active cart |
-| `GET` | `/orders` | Protected | Get order history of logged-in user |
-| `GET` | `/orders/:id` | Protected | Get single order details with tracking status |
-| `PUT` | `/orders/:id/status` | Admin | Update order status (`Pending`, `Processing`, etc.) |
-
----
-
-## 💾 Database Models & Schemas
-
-### 1. User (`User.model.js`)
-- `name` *(String, required)*
-- `email` *(String, unique, required)*
-- `password` *(String, required, hashed with bcrypt)*
-- `role` *(String, enum: `['user', 'admin']`, default: `'user'`)*
-- `avatar` *(String, optional URL)*
-- `addresses` *(Array of shipping address subdocuments)*
-
-### 2. Product (`Product.model.js`)
-- `title` *(String, required, indexed for search)*
-- `description` *(String, required)*
-- `price` *(Number, required)*
-- `discountPrice` *(Number, optional)*
-- `category` *(ObjectId -> Category, required)*
-- `stock` *(Number, required, default: 0)*
-- `images` *(Array of Cloudinary URLs)*
-- `rating` *(Number, default: 0)*
-- `numReviews` *(Number, default: 0)*
-
-### 3. Category (`Category.model.js`)
-- `name` *(String, required, unique)*
-- `slug` *(String, required, unique)*
-- `image` *(String, optional)*
-
-### 4. Cart (`Cart.model.js`)
-- `user` *(ObjectId -> User, required, unique)*
-- `items` *(Array of `{ product: ObjectId, quantity: Number, price: Number }`)*
-- `totalAmount` *(Number, default: 0)*
-
-### 5. Order (`Order.model.js`)
-- `user` *(ObjectId -> User, required)*
-- `orderItems` *(Array of snapshot items with title, quantity, price, image)*
-- `shippingAddress` *(Street, City, PostalCode, State, Country)*
-- `paymentMethod` *(COD, Card, UPI, etc.)*
-- `paymentStatus` *(Pending, Completed, Failed)*
-- `orderStatus` *(Pending, Processing, Shipped, Delivered, Cancelled)*
-- `totalPrice` *(Number, required)*
-- `trackingNumber` *(String, optional)*
-
----
-
-## ⚙️ Environment Configuration
-
-### Backend: `HorizonTechX_ShopNest_backend/.env`
-Create a `.env` file in `HorizonTechX_ShopNest_backend/` with the following variables:
-
-```env
-# Server Configuration
-PORT=5000
-NODE_ENV=development
-CLIENT_URL=http://localhost:5173
-
-# Database
-MONGO_URI=mongodb://localhost:27017/shopnest
-# or for MongoDB Atlas:
-# MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/shopnest
-
-# JWT Authentication
-JWT_SECRET=your_super_secret_jwt_access_key_12345!
-JWT_EXPIRES_IN=7d
-JWT_REFRESH_SECRET=your_super_secret_jwt_refresh_key_12345!
-JWT_REFRESH_EXPIRES_IN=30d
-
-# Cloudinary (Media Storage)
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-```
-
-### Frontend: `HorizonTechX_ShopNest_frontend/.env`
-Create a `.env` file in `HorizonTechX_ShopNest_frontend/`:
-
-```env
-VITE_API_BASE_URL=http://localhost:5000/api/v1
-```
-
----
-
-## 💻 Local Development Setup
-
-### Prerequisites
-- [Node.js (v18+)](https://nodejs.org/)
-- [MongoDB](https://www.mongodb.com/) (running locally or a free MongoDB Atlas URI)
-- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
-
-### Step 1: Clone & Navigate to Repository
-```bash
-cd HorizonTechX_ShopNest
-```
-
-### Step 2: Setup Backend
 ```bash
 cd HorizonTechX_ShopNest_backend
 
-# 1. Install dependencies
+# Install dependencies
 npm install
 
-# 2. Configure environment
+# Create environment configuration from template
 cp .env.example .env
-# Edit .env with your MongoDB URI and secrets
 
-# 3. Start development server
+# Edit .env with your MongoDB and Cloudinary credentials
+
+# Start the development server
 npm run dev
 ```
-*Backend server will start on `http://localhost:5000`.*
 
-### Step 3: Setup Frontend
-Open a new terminal:
+The backend server will run on `http://localhost:5000`.
+
+### 2. Frontend Setup
+
+In a separate terminal:
+
 ```bash
 cd HorizonTechX_ShopNest_frontend
 
-# 1. Install dependencies
+# Install dependencies
 npm install
 
-# 2. Start Vite development server
+# Create environment configuration from template
+cp .env.example .env
+
+# Start Vite development server
 npm run dev
 ```
-*Frontend client will start on `http://localhost:5173`.*
 
----
+The frontend client will run on `http://localhost:5173`.
 
-## 🛡️ Security & Best Practices
+## API Overview
 
-- **Helmet**: Adds secure HTTP response headers to protect against common web vulnerabilities.
-- **CORS Configuration**: Restricts API access exclusively to trusted frontend origins.
-- **Rate Limiting**: Defends against brute-force attacks on auth endpoints via `express-rate-limit`.
-- **Password Encryption**: Sensitive passwords hashed with `bcryptjs` (salt rounds: 10).
-- **Input Validation & Sanitization**: Express-validator enforces strict data validation and sanitizes request payloads.
-- **Centralized Error Responses**: Prevents stack traces from leaking to client in production mode.
+All routes are mounted under `/api` and `/api/v1`.
 
----
+| Method | Path | Auth Required | Purpose |
+|---|---|---|---|
+| `GET` | `/health`, `/api/health` | No | Server health and operational status check |
+| `POST` | `/api/auth/register` | No | Register a new user account |
+| `POST` | `/api/auth/login` | No | Authenticate user credentials and return access token |
+| `POST` | `/api/auth/refresh` | No | Issue new access token using refresh token |
+| `POST` | `/api/auth/logout` | Yes | Invalidate user session and clear authentication cookies |
+| `GET` | `/api/auth/me` | Yes | Retrieve current authenticated user profile |
+| `PUT` | `/api/auth/me` | Yes | Update authenticated user profile details |
+| `POST` | `/api/auth/addresses` | Yes | Add a new shipping address to user profile |
+| `DELETE` | `/api/auth/addresses/:addressId` | Yes | Remove a shipping address from user profile |
+| `PATCH` | `/api/auth/addresses/:addressId/default` | Yes | Set a shipping address as the default address |
+| `POST` | `/api/auth/wishlist/:productId` | Yes | Toggle product in user wishlist |
+| `GET` | `/api/products` | No | Retrieve products with search, filtering, and pagination |
+| `GET` | `/api/products/featured` | No | Retrieve list of featured products |
+| `GET` | `/api/products/categories` | No | Retrieve list of all product categories |
+| `GET` | `/api/products/slug/:slug` | No | Retrieve product details by URL slug |
+| `GET` | `/api/products/:id` | No | Retrieve single product details by ID |
+| `POST` | `/api/products` | Yes (Admin) | Create a new product in the catalog |
+| `PUT` | `/api/products/:id` | Yes (Admin) | Update an existing product |
+| `DELETE` | `/api/products/:id` | Yes (Admin) | Delete a product from the catalog |
+| `GET` | `/api/cart` | Yes | Retrieve current user's active shopping cart |
+| `POST` | `/api/cart/items` | Yes | Add item to cart or increment quantity |
+| `PUT` | `/api/cart/items` | Yes | Update item quantity in cart |
+| `DELETE` | `/api/cart/items/:productId` | Yes | Remove item from cart |
+| `DELETE` | `/api/cart` | Yes | Clear all items from cart |
+| `POST` | `/api/orders` | Yes | Place a new order from active cart items |
+| `GET` | `/api/orders/my-orders` | Yes | Retrieve authenticated user's order history |
+| `GET` | `/api/orders/:id` | Yes | Retrieve specific order details with tracking status |
+| `GET` | `/api/orders` | Yes (Admin) | Retrieve all orders across all users |
+| `PATCH` | `/api/orders/:id/status` | Yes (Admin) | Update order status (Pending, Processing, Shipped, Delivered, Cancelled) |
 
-## 🤝 Contributing & License
-Developed as part of the **HorizonTechX ShopNest** initiative. Open for contributions, feature requests, and enhancements!
+## Manual Verification Checklist
 
+To verify core e-commerce workflows:
+
+1. User Authentication:
+   - Navigate to `http://localhost:5173/auth`.
+   - Register a new account with name, email, and password.
+   - Verify immediate redirection, welcome toast notification, and user profile state loaded in the navbar.
+   - Refresh the page and confirm the session is restored via `/api/auth/me`.
+2. Product Browsing & Filtering:
+   - Browse the homepage catalog and navigate to `/products`.
+   - Use the category selector, price slider, and search input to filter items.
+   - Click a product to open `/products/:id` and verify image gallery, specifications, and stock status.
+3. Wishlist Management:
+   - Click the heart icon on any product card or the product detail page.
+   - Confirm the heart icon fills active, a toast notification confirms the addition, and the wishlist count in the navbar updates.
+   - Refresh the page and verify the product remains in the wishlist.
+4. Cart Operations:
+   - Click "Add to Cart" on a product.
+   - Verify the cart drawer slides open showing the added product, calculated price, and quantity controls.
+   - Increment and decrement item quantities and confirm subtotal, tax, and total price update accurately.
+5. Checkout & Order Placement:
+   - Click "Proceed to Checkout" from the cart drawer or `/cart` page.
+   - Complete the delivery address form or select an existing saved address.
+   - Select a payment method and submit the order.
+   - Confirm order creation, cart clearance, and redirection to the order confirmation page.
+6. Order Tracking & History:
+   - Navigate to `/orders` and verify the newly placed order appears in the list.
+   - Click on the order to open `/orders/:id`.
+   - Verify order items, shipping address, total breakdown, and the interactive status progress stepper.
