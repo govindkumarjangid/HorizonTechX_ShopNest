@@ -28,6 +28,7 @@ export const AutocompleteSearch = ({
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const containerRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     onActiveChange?.(isOpen);
@@ -93,6 +94,19 @@ export const AutocompleteSearch = ({
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
+  }, []);
+
+  // Keyboard shortcut (Cmd+K / Ctrl+K) to focus search
+  useEffect(() => {
+    const handleGlobalKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        inputRef.current?.focus();
+        setIsOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
   // Keyboard navigation
@@ -263,16 +277,16 @@ export const AutocompleteSearch = ({
                     Popular Categories
                   </span>
                   <div className="grid grid-cols-2 gap-2">
-                    {categories.slice(0, 4).map((cat) => (
+                    {categories.slice(0, 4).map((cat, idx) => (
                       <button
-                        key={cat.id}
+                        key={cat.id || cat._id || (typeof cat === 'string' ? cat : cat.name) || idx}
                         type="button"
                         onClick={() => handleSelectCategory(cat)}
                         className="flex items-center gap-2 p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-dark-card transition-colors text-left cursor-pointer min-w-0"
                       >
                         <span className="w-2 h-2 rounded-full bg-brand-500 shrink-0" />
                         <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 truncate">
-                          {cat.name}
+                          {typeof cat === 'string' ? cat : cat.name}
                         </span>
                       </button>
                     ))}
@@ -292,14 +306,14 @@ export const AutocompleteSearch = ({
                 {matchingCategories.length > 0 && (
                   <div className="px-4 py-2.5 bg-neutral-50 dark:bg-dark-card/60 border-b border-neutral-100 dark:border-dark-border flex items-center gap-2 flex-wrap text-xs">
                     <span className="text-neutral-400 font-medium text-[11px]">In Category:</span>
-                    {matchingCategories.map((cat) => (
+                    {matchingCategories.map((cat, idx) => (
                       <button
-                        key={cat.id}
+                        key={cat.id || cat._id || (typeof cat === 'string' ? cat : cat.name) || idx}
                         type="button"
                         onClick={() => handleSelectCategory(cat)}
                         className="px-2.5 py-1 rounded-lg bg-white dark:bg-dark-surface border border-neutral-200 dark:border-dark-border text-brand-600 dark:text-brand-400 font-semibold hover:border-brand-500 transition-colors cursor-pointer"
                       >
-                        {cat.name} &rarr;
+                        {typeof cat === 'string' ? cat : cat.name} &rarr;
                       </button>
                     ))}
                   </div>
